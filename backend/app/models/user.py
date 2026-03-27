@@ -4,6 +4,7 @@ from sqlalchemy import String, Boolean, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column
 from app.db.session import Base
 
+
 class User(Base):
     # Nom de la table en BDD
     __tablename__ = "users"
