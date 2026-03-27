@@ -1,0 +1,69 @@
+services:
+
+  # Base de données
+  db:
+    image: postgres:16          
+    restart: always             
+    environment:
+      POSTGRES_DB: resonate         # Nom de la base créée automatiquement
+      POSTGRES_USER: resonate_user  # Utilisateur créé automatiquement
+      POSTGRES_PASSWORD: resonate_pass  # Son mot de passe
+    volumes:
+      # On associe le volume postgres_data au dossier /var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+    
+    # Exposition des ports
+    ports:
+      - "5432:5432"             # Pc:5432 -> conteneur:5432
+    networks:
+      - backend_db              # DB visible uniquement par le backend
+
+  # Backend FastAPI
+  backend:
+    build: ./backend            # Docker va lire backend/Dockerfile
+    restart: always
+    env_file:
+      - ./backend/.env          # Charge toutes les variables du .env
+    ports:
+      - "8000:8000"             # Pc:8000 -> conteneur:8000
+    depends_on:
+      - db                      # Docker attend que la BDD soit prête
+    networks:
+      - frontend_backend        # parle au frontend (sans internet)
+      - backend_internet        # accès internet pour appeler Last.fm
+      - backend_db              # parle à la base de données
+
+  # Frontend React
+  frontend:
+    build: ./frontend           # Docker va lire frontend/Dockerfile
+    restart: always
+    env_file:
+      - ./frontend/.env
+    ports:
+      - "5173:5173"             # Pc:5173 -> conteneur:5173
+    depends_on:
+      - backend                 # Attend que le backend soit prêt
+    networks:
+      - frontend_backend        # parle au backend (sans internet)
+                                
+                                
+
+# Volumes nommés
+volumes:
+  postgres_data:
+
+# Réseaux
+networks:
+  # Réseau du frontend vers le backend
+  frontend_backend:
+    driver: bridge
+
+  # Réseau du backend vers l'extérieur (Last.fm)
+  backend_internet:
+    driver: bridge
+
+  # Réseau du backend vers la base de données
+  backend_db:
+    driver: bridge
+    internal: true
+    

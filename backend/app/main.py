@@ -1,0 +1,57 @@
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from app.core.config import settings
+from app.db.session import engine, Base
+from app.api.v1 import auth, oauth
+
+# Création de la session de base de données et des tables au démarrage de l'application
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+
+# Application
+app = FastAPI(
+    title="Resonate API",
+    version="1.0.0",
+    lifespan=lifespan,
+    # Afficher la documentation Swagger uniquement en développement pour éviter les risques de sécurité en production
+    docs_url="/docs" if settings.ENVIRONMENT == "development" else None,
+    redoc_url=None
+)
+
+# Gestion globale des erreurs
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    if settings.ENVIRONMENT == "development":
+        return JSONResponse(
+            status_code=500,
+            content={"detail": f"Erreur interne : {str(exc)}"}
+        )
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Une erreur interne est survenue"}
+    )
+
+# CORS middleware pour autoriser le frontend à communiquer avec le backend 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[settings.FRONTEND_URL],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Routes d'authentification classique (email/password)
+app.include_router(auth.router, prefix="/api/v1")
+
+# Routes d'authentification OAuth (Google, GitHub)
+app.include_router(oauth.router, prefix="/api/v1")
+
+# Route de santé pour les checks de disponibilité
+@app.get("/health")
+def health_check():
+    return {"status": "ok", "service": "resonate-backend"}
