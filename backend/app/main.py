@@ -6,7 +6,12 @@ from app.core.config import settings
 from app.db.session import engine, Base
 from app.api.v1 import auth, oauth
 
+from app.api.v1 import library
+from app.api.v1 import playlist
+
 # Création de la session de base de données et des tables au démarrage de l'application
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
@@ -24,6 +29,8 @@ app = FastAPI(
 )
 
 # Gestion globale des erreurs
+
+
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     if settings.ENVIRONMENT == "development":
@@ -36,7 +43,7 @@ async def global_exception_handler(request: Request, exc: Exception):
         content={"detail": "Une erreur interne est survenue"}
     )
 
-# CORS middleware pour autoriser le frontend à communiquer avec le backend 
+# CORS middleware pour autoriser le frontend à communiquer avec le backend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[settings.FRONTEND_URL],
@@ -52,6 +59,14 @@ app.include_router(auth.router, prefix="/api/v1")
 app.include_router(oauth.router, prefix="/api/v1")
 
 # Route de santé pour les checks de disponibilité
+
+
 @app.get("/health")
 def health_check():
     return {"status": "ok", "service": "resonate-backend"}
+
+
+app.include_router(library.router)
+app.include_router(library.library_router)
+
+app.include_router(playlist.router)

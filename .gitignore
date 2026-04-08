@@ -17,4 +17,4 @@ postgres_data/
 
 # IDE
 .vscode/
-.idea/
+.idea/.DS_Store

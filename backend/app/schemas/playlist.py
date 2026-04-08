@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from uuid import UUID
 from datetime import datetime
 
 
@@ -11,5 +10,18 @@ class PlaylistCreate(BaseModel):
 
 class PlaylistResponse(PlaylistCreate):
     id: int
-    user_id: UUID
+    user_id: str
     created_at: datetime
+
+
+class PlaylistUpdate(BaseModel):
+    name: str | None = None
+    description: str | None = None
+    is_public: bool | None = None
+
+
+class PlaylistTackAdd(BaseModel):
+    album_id: int
+
+    # permet de convertir un objet SQLAlchemy directement
+    model_config = {"from_attributes": True}
