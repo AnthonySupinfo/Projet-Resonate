@@ -17,7 +17,7 @@ Un compte user se crée directement depuis le frontend ou via Swagger.
 2. Remplisez le formulaire :
    - Identifiant (username)
    - Email
-   - Mot de passe (8 chars min + 1 chiffre)
+   - Mot de passe (6 caractères min, 2 chiffres min, 1 caractère spécial : !@#...)
    - Confirmation mot de passe
 3. Cliquez **"Suivant"**
 4. Remplire les infos personnelles (optionnel)
@@ -87,7 +87,7 @@ Via Swagger → **GET** `/api/v1/auth/me` → vous devez voir :
 
 ## Créer un compte Admin
 
-Il n'existe pas de formulaire d'inscription admin - c'est **volontaire pour la sécurité**. On crée d'abord un compte user normal, puis on le promeut admin directement en BDD via pgAdmin.
+Il n'existe pas de formulaire d'inscription admin, c'est volontaire pour la sécurité. On crée d'abord un compte user normal, puis on le promeut admin directement en BDD via pgAdmin.
 
 ---
 
@@ -185,7 +185,7 @@ Copiez le `access_token` reçu.
 2. Allez sur **GET** `/api/v1/auth/admin-test`
 3. Cliquez **"Try it out"** → **"Execute"**
 
-Réponse attendue (200) ✅ :
+Réponse attendue (200) :
 ```json
 {
   "message": "Accès admin confirmé",

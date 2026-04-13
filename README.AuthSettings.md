@@ -2,22 +2,9 @@
 
 ---
 
-## 🎯 Vue d'ensemble
+## Table `users` - Structure finale
 
-Ce README couvre l'ensemble du système utilisateur de Resonate :
-
-| Ticket | Description |
-|---|---|
-| **Ticket 1 — Auth** | Inscription, connexion, OAuth2, reset mot de passe |
-| **Ticket 2 — Settings** | Profil, thème Dark/Light, export RGPD |
-
-Les deux tickets partagent la même table `users` en BDD. Settings est une extension naturelle de l'Auth.
-
----
-
-## 🗄️ Table `users` - Structure finale
-
-Après les deux tickets, voici la table complète :
+Table complète :
 
 ```sql
 ┌─────────────────────┬──────────────┬───────────────────────────────────────────┐
@@ -63,9 +50,9 @@ ORDER BY created_at DESC;
 
 ---
 
-## 🛣️ Routes API - Vue complète
+## Routes API - Vue complète
 
-### Auth — `backend/app/api/v1/auth.py`
+### Auth - `backend/app/api/v1/auth.py`
 
 | Méthode | Route | Auth | Description |
 |---|---|---|---|
@@ -85,7 +72,7 @@ ORDER BY created_at DESC;
 | GET | `/api/v1/oauth/github/login` | Redirige vers GitHub |
 | GET | `/api/v1/oauth/github/callback` | Retour GitHub → JWT |
 
-### Users — `backend/app/api/v1/users.py` ← Ticket 2
+### Users — `backend/app/api/v1/users.py` 
 
 | Méthode | Route | Auth | Description |
 |---|---|---|---|
@@ -97,14 +84,14 @@ ORDER BY created_at DESC;
 
 ---
 
-## 📝 Ticket 1 - Authentification
+## Authentification
 
 ### Inscription - POST `/api/v1/auth/register`
 
 **Règles Pydantic :**
 - email : format valide obligatoire
 - username : 3–20 caractères, lettres/chiffres/underscores uniquement
-- password : 8 caractères min + 1 chiffre min
+- password : 6 caractères min + 2 chiffres min + 1 caractère spécial
 
 **Flux :**
 ```
@@ -139,8 +126,6 @@ POST /login { email, password }
 → Frontend stocke dans localStorage
 → Redirige vers /
 ```
-
-> Le message d'erreur 401 est identique que l'email soit inexistant ou le mot de passe incorrect - évite de confirmer l'existence d'un compte (sécurité).
 
 ---
 
@@ -198,9 +183,7 @@ POST /reset-password { token, new_password }
 
 ---
 
-## ⚙️ Ticket 2 - Page Settings
-
-### Ce qui a été ajouté
+## Page Settings
 
 **Backend :**
 - 4 nouvelles colonnes dans `users` (avatar_url, bio, website, theme)
@@ -232,9 +215,6 @@ Montage Settings.jsx
   "theme": "light"
 }
 ```
-
-> Tous les champs sont optionnels - seuls les champs envoyés sont modifiés.
-
 ---
 
 ### Dark / Light Mode
@@ -247,8 +227,6 @@ Montage Settings.jsx
 .settings-wrapper        { background: #161515... }  /* dark défaut */
 .settings-wrapper.light  { background: #f0f0f0... }  /* light */
 ```
-
-Le thème est **sauvegardé en BDD** via PATCH → restauré automatiquement à la prochaine connexion.
 
 ---
 
@@ -280,7 +258,7 @@ Clique "Télécharger mes données"
 
 ---
 
-## 🌍 Traduction FR/EN
+## Traduction FR/EN
 
 **Fichiers concernés :**
 ```
@@ -299,7 +277,7 @@ const { t } = useLanguage()
 
 ---
 
-## 🔒 Sécurité globale
+## Sécurité globale
 
 | Mesure | Description |
 |---|---|
@@ -311,45 +289,3 @@ const { t } = useLanguage()
 | ProtectedRoute | /settings inaccessible sans JWT valide |
 | PATCH partiel | Seuls les champs envoyés sont modifiés |
 | Validation thème | Seuls "dark" et "light" acceptés en BDD |
-
----
-
-## 📌 Notes 
-
-**AuthContext expose :**
-```javascript
-const { user, token, loading, handleLogin, logout } = useAuth()
-// user    → { user_id, role } ou null si non connecté
-// token   → JWT stocké dans localStorage
-// loading → true pendant la vérification initiale
-```
-
-**Appels API protégés :**
-```javascript
-const response = await fetch("/api/v1/route", {
-  headers: { "Authorization": `Bearer ${token}` }
-})
-```
-
-**Variables d'environnement backend/.env :**
-```env
-DATABASE_URL=postgresql+asyncpg://resonate_user:resonate_pass@db:5432/resonate
-JWT_SECRET_KEY=<openssl rand -hex 32>
-JWT_ALGORITHM=HS256
-JWT_ACCESS_TOKEN_EXPIRE_MINUTES=30
-FRONTEND_URL=http://localhost:5173
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-GITHUB_CLIENT_ID=
-GITHUB_CLIENT_SECRET=
-MAIL_HOST=smtp.gmail.com
-MAIL_PORT=587
-MAIL_USERNAME=
-MAIL_PASSWORD=
-MAIL_FROM=
-```
-
-**Variables frontend/.env :**
-```env
-VITE_API_BASE_URL=http://localhost:8000
-```

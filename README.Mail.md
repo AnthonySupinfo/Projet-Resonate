@@ -44,7 +44,7 @@ Nouveau mot de passe enregistré en BDD
 3. Cliquez sur **"Validation en deux étapes"**
 4. Suivez les étapes pour l'activer (vérification par SMS)
 
-> **Obligatoire** — Sans cette étape, on ne peut pas créer un mot de passe d'application.
+> **Obligatoire** - Sans cette étape, on ne peut pas créer un mot de passe d'application.
 
 ---
 
@@ -71,7 +71,7 @@ Exemple : abcd efgh ijkl mnop
 Ouvrez le fichier `backend/.env` et ajoutez ces lignes :
 
 ```env
-# Email — Gmail SMTP
+# Email - Gmail SMTP
 MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
 MAIL_USERNAME=ton.email@gmail.com

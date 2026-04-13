@@ -1,6 +1,6 @@
 # Comprendre le Diagramme UML Cas d'utilisation
 
-### 👤 Les Acteurs
+### Les Acteurs
 
 Dans Resonate on a 3 acteurs :
 
@@ -12,7 +12,7 @@ Dans Resonate on a 3 acteurs :
 
 ---
 
-### ⭕ Les Cas d'utilisation (les ellipses)
+### Les Cas d'utilisation (les ellipses)
 
 Chaque **ellipse** (ovale) représente **une action que l'utilisateur peut faire** dans l'application.
 
@@ -25,7 +25,7 @@ Exemples :
 
 ---
 
-### 📦 La Frontière système (le grand rectangle)
+### La Frontière système (le grand rectangle)
 
 Le grand rectangle bleu s'appelle la **frontière système**.
 
@@ -34,7 +34,7 @@ Le grand rectangle bleu s'appelle la **frontière système**.
 
 ---
 
-### ➡️ Les Associations (les lignes pleines)
+### Les Associations (les lignes pleines)
 
 Une ligne pleine entre un acteur et une ellipse signifie :
 
@@ -47,7 +47,7 @@ Visiteur - ( Se connecter )
 
 ---
 
-## 🔗 Les relations spéciales
+## Les relations spéciales
 
 
 
@@ -107,7 +107,7 @@ Visiteur ⊂ User ⊂ Admin
 
 ---
 
-## 🗺️ Lecture du diagramme Resonate
+## Lecture du diagramme Resonate
 
 ### 🔵 Section Visiteur (en haut - bleu)
 
@@ -157,7 +157,7 @@ Ce sont les actions accessibles **uniquement si role = "admin" en BDD** :
 
 ---
 
-## 📊 Résumé visuel des droits
+## Résumé visuel des droits
 
 ```
                     VISITEUR        USER          ADMIN
