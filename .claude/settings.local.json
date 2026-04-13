@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /c/Users/Anthony/Desktop/SUPINFO/projet_resonate/frontend/src -name \"*.css\" -exec grep -l \"oauth\" {} \\\\;)"
+    ]
+  }
+}

@@ -1,69 +1,84 @@
 services:
-
-  # Base de données
+  # Base de données PostgreSQL
   db:
-    image: postgres:16          
-    restart: always             
+    image: postgres:16
+    restart: always
+    env_file:
+      - ./backend/.env
     environment:
-      POSTGRES_DB: resonate         # Nom de la base créée automatiquement
-      POSTGRES_USER: resonate_user  # Utilisateur créé automatiquement
-      POSTGRES_PASSWORD: resonate_pass  # Son mot de passe
+      POSTGRES_USER: resonate_user
+      POSTGRES_PASSWORD: resonate_pass
+      POSTGRES_DB: resonate
     volumes:
-      # On associe le volume postgres_data au dossier /var/lib/postgresql/data
       - postgres_data:/var/lib/postgresql/data
-    
-    # Exposition des ports
-    ports:
-      - "5432:5432"             # Pc:5432 -> conteneur:5432
     networks:
-      - backend_db              # DB visible uniquement par le backend
+      - backend_db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U resonate_user -d resonate"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Interface d'administration pgAdmin
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@resonate.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./pgadmin-servers.json:/pgadmin4/servers.json
+    networks:
+      - backend_db
+      - frontend_backend
+    depends_on:
+      db:
+        condition: service_healthy
 
   # Backend FastAPI
   backend:
-    build: ./backend            # Docker va lire backend/Dockerfile
+    build: ./backend
     restart: always
     env_file:
-      - ./backend/.env          # Charge toutes les variables du .env
+      - ./backend/.env
     ports:
-      - "8000:8000"             # Pc:8000 -> conteneur:8000
+      - "8000:8000"
     depends_on:
-      - db                      # Docker attend que la BDD soit prête
+      db:
+        condition: service_healthy
     networks:
-      - frontend_backend        # parle au frontend (sans internet)
-      - backend_internet        # accès internet pour appeler Last.fm
-      - backend_db              # parle à la base de données
+      - frontend_backend
+      - backend_internet
+      - backend_db
 
   # Frontend React
   frontend:
-    build: ./frontend           # Docker va lire frontend/Dockerfile
+    build: ./frontend
     restart: always
     env_file:
       - ./frontend/.env
     ports:
-      - "5173:5173"             # Pc:5173 -> conteneur:5173
+      - "5173:5173"
     depends_on:
-      - backend                 # Attend que le backend soit prêt
+      - backend
     networks:
-      - frontend_backend        # parle au backend (sans internet)
-                                
-                                
+      - frontend_backend
 
-# Volumes nommés
+# Volumes
 volumes:
   postgres_data:
+  pgadmin_data:
 
 # Réseaux
 networks:
-  # Réseau du frontend vers le backend
   frontend_backend:
     driver: bridge
-
-  # Réseau du backend vers l'extérieur (Last.fm)
   backend_internet:
     driver: bridge
-
-  # Réseau du backend vers la base de données
   backend_db:
     driver: bridge
     internal: true
-    
