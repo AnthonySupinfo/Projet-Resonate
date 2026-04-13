@@ -4,10 +4,9 @@ from sqlalchemy import String, Boolean, DateTime, Date, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 from app.db.session import Base
 
-# Modèle de données pour les utilisateurs
 class User(Base):
     __tablename__ = "users"
-    
+
     id: Mapped[str] = mapped_column(
         String,
         primary_key=True,
