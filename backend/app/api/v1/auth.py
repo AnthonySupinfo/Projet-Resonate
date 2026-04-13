@@ -96,11 +96,14 @@ async def forgot_password(data: ForgotPasswordRequest, db: AsyncSession = Depend
 # POST /auth/reset-password
 @router.post("/reset-password", status_code=status.HTTP_200_OK)
 async def reset_password(data: ResetPasswordRequest, db: AsyncSession = Depends(get_db)):
-    if len(data.new_password) < 8:
-        raise HTTPException(status_code=422, detail="Le mot de passe doit faire au moins 8 caractères")
+    if len(data.new_password) < 6:
+        raise HTTPException(status_code=422, detail="Le mot de passe doit faire au moins 6 caractères")
 
-    if not re.search(r'\d', data.new_password):
-        raise HTTPException(status_code=422, detail="Le mot de passe doit contenir au moins 1 chiffre")
+    if len(re.findall(r'\d', data.new_password)) < 2:
+        raise HTTPException(status_code=422, detail="Le mot de passe doit contenir au moins 2 chiffres")
+
+    if not re.search(r'[!@#$%^&*()\[\]{},.\-?":{}|<>_+=\\\/~`\';:]', data.new_password):
+        raise HTTPException(status_code=422, detail="Le mot de passe doit contenir au moins 1 caractère spécial")
 
     try:
         payload = jwt.decode(data.token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
