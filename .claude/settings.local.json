@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(find /c/Users/Anthony/Desktop/SUPINFO/projet_resonate/frontend/src -name \"*.css\" -exec grep -l \"oauth\" {} \\\\;)"
+      "Bash(find /c/Users/Anthony/Desktop/SUPINFO/projet_resonate/frontend/src -name \"*.css\" -exec grep -l \"oauth\" {} \\\\;)",
+      "Bash(find \"/c/Users/Anthony/Desktop/SUPINFO/projet_resonate/frontend/src\" -name \"*.jsx\" -type f -exec grep -h 't\\(\"' {} \\\\;)"
     ]
   }
 }

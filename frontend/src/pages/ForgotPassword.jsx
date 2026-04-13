@@ -4,6 +4,8 @@ import { useLanguage } from "../context/LanguageContext"
 import logoResonate from "../../image/Image.png"
 import "./ForgotPassword.css"
 
+const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"
+
 const ValidIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6ee7b7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="20 6 9 17 4 12" />

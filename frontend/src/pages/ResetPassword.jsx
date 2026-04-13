@@ -4,6 +4,8 @@ import { useLanguage } from "../context/LanguageContext"
 import logoResonate from "../../image/Image.png"
 import "./ResetPassword.css"
 
+const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"
+
 const ValidIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6ee7b7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="20 6 9 17 4 12" />
@@ -125,12 +127,12 @@ export default function ResetPassword() {
               </div>
               {password.length > 0 ? (
                 <ul className="reset-pwd-requirements">
-                  <li className={`reset-pwd-req${has6chars  ? " reset-pwd-req--ok" : " reset-pwd-req--fail"}`}>{has6chars  ? "✓" : "✗"} 6 caractères minimum</li>
-                  <li className={`reset-pwd-req${has2digits ? " reset-pwd-req--ok" : " reset-pwd-req--fail"}`}>{has2digits ? "✓" : "✗"} 2 chiffres minimum</li>
-                  <li className={`reset-pwd-req${hasSpecial ? " reset-pwd-req--ok" : " reset-pwd-req--fail"}`}>{hasSpecial ? "✓" : "✗"} 1 caractère spécial</li>
+                  <li className={`reset-pwd-req${has6chars  ? " reset-pwd-req--ok" : " reset-pwd-req--fail"}`}>{has6chars  ? "✓" : "✗"} {t("reset.req6chars")}</li>
+                  <li className={`reset-pwd-req${has2digits ? " reset-pwd-req--ok" : " reset-pwd-req--fail"}`}>{has2digits ? "✓" : "✗"} {t("reset.req2digits")}</li>
+                  <li className={`reset-pwd-req${hasSpecial ? " reset-pwd-req--ok" : " reset-pwd-req--fail"}`}>{hasSpecial ? "✓" : "✗"} {t("reset.req1special")}</li>
                 </ul>
               ) : (
-                <span className="reset-hint">6 car. min · 2 chiffres · 1 spécial</span>
+                <span className="reset-hint">{t("reset.hint")}</span>
               )}
             </div>
 

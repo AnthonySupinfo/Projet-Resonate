@@ -80,6 +80,10 @@ export const translations = {
       errorLength: "Le mot de passe doit faire au moins 8 caractères.",
       errorDigits: "Le mot de passe doit contenir au moins 2 chiffres.",
       errorSpecial: "Le mot de passe doit contenir au moins 1 caractère spécial (!@#$...).",
+      req6chars: "6 caractères minimum",
+      req2digits: "2 chiffres minimum",
+      req1special: "1 caractère spécial (!@#$...)",
+      hint: "6 car. min · 2 chiffres · 1 spécial",
       errorGeneric: "Une erreur est survenue. Réessaie plus tard.",
     },
     settings: {
@@ -190,6 +194,10 @@ export const translations = {
       errorLength: "Password must be at least 6 characters.",
       errorDigits: "Password must contain at least 2 digits.",
       errorSpecial: "Password must contain at least 1 special character (!@#$...).",
+      req6chars: "6 characters minimum",
+      req2digits: "2 digits minimum",
+      req1special: "1 special character (!@#$...)",
+      hint: "6 chars min · 2 digits · 1 special",
       errorGeneric: "An error occurred. Please try again later.",
     },
     settings: {
