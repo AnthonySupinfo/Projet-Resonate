@@ -27,4 +27,4 @@ class Review(Base):
 
     # contrainte unique grâce à variable args
     __table_args__ = (UniqueConstraint("user_id", "album_id",
-                      name='unique review per person per album'))
+                      name='unique review per person per album'),)

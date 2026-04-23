@@ -8,6 +8,8 @@ from app.api.v1 import auth, oauth
 
 from app.api.v1 import library
 from app.api.v1 import playlist
+from app.api.v1 import interactions
+from app.api.v1 import reviews
 
 # Création de la session de base de données et des tables au démarrage de l'application
 
@@ -70,3 +72,5 @@ app.include_router(library.router)
 app.include_router(library.library_router)
 
 app.include_router(playlist.router)
+app.include_router(reviews.router)
+app.include_router(interactions.router)
