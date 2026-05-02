@@ -1,9 +1,9 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { register, login, checkAvailability } from "../api/auth"
-import { useAuth } from "../context/AuthContext"
-import { useLanguage } from "../context/LanguageContext"
-import logoResonate from "../../image/Image.png"
+import { register, login, checkAvailability } from "../../api/auth.js"
+import { useAuth } from "../../context/AuthContext.jsx"
+import { useLanguage } from "../../context/LanguageContext.jsx"
+import logoResonate from "../../../image/Image.png"
 import "./Register.css"
 
 const ValidIcon = () => (

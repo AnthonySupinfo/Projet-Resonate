@@ -1,9 +1,9 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { login, loginWithGoogle, loginWithGithub } from "../api/auth"
-import { useAuth } from "../context/AuthContext"
-import { useLanguage } from "../context/LanguageContext"
-import logoResonate from "../../image/Image.png"
+import { login, loginWithGoogle, loginWithGithub } from "../../api/auth.js"
+import { useAuth } from "../../context/AuthContext.jsx"
+import { useLanguage } from "../../context/LanguageContext.jsx"
+import logoResonate from "../../../image/Image.png"
 import "./Login.css"
 
 const iconGoogle = "/icons/icon.Google.png"

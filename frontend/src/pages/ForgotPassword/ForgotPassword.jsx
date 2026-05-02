@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { useLanguage } from "../context/LanguageContext"
-import logoResonate from "../../image/Image.png"
+import { useLanguage } from "../../context/LanguageContext.jsx"
+import logoResonate from "../../../image/Image.png"
 import "./ForgotPassword.css"
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"

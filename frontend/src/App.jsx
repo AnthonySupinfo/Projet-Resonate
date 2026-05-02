@@ -1,12 +1,12 @@
-import { BrowserRouter, Navigate, Route, Routes, useNavigate } from "react-router-dom"
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 import { AuthProvider, useAuth } from "./context/AuthContext"
 import { LanguageProvider } from "./context/LanguageContext"
-import Login from "./pages/Login"
+import Login from "./pages/Login/Login.jsx"
 import OAuthCallback from "./pages/OAuthCallback"
-import ForgotPassword from "./pages/ForgotPassword"
-import ResetPassword from "./pages/ResetPassword"
-import Register from "./pages/Register"
-import LanguageSwitch from "./components/LanguageSwitch"
+import ForgotPassword from "./pages/ForgotPassword/ForgotPassword.jsx"
+import ResetPassword from "./pages/ResetPassword/ResetPassword.jsx"
+import Register from "./pages/Register/Register.jsx"
+import LanguageSwitch from "./components/Shared/LanguageSwitch/LanguageSwitch.jsx"
 import Settings from "./pages/Settings"
 import Home from "./pages/Home/Home"
 import GuestLayout from "./components/Layout/GuestLayout.jsx";
@@ -61,25 +61,26 @@ function AppRoutes() {
 
   return (
     <Routes>
+      {/*  Unique routes  */}
+        <Route path="/login" element={user ? <Navigate to="/" replace /> : <Login />} />
+        <Route path="/register" element={user ? <Navigate to="/" replace /> : <Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+
       {/*  Guest routes  */}
         <Route element={<GuestLayout />}>
-            <Route path="/login" element={user ? <Navigate to="/" replace /> : <Login />} />
-            <Route path="/register" element={user ? <Navigate to="/" replace /> : <Register />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
             {!user && <Route path="/" element={<Home />} />}
         </Route>
 
       {/*  Authentified user routes  */}
-
-            <Route element={
-                <ProtectedRoute>
-                    <AuthLayout />
-                </ProtectedRoute>
-            }>
-                {<Route path="/" element={<Home />} />}
-                <Route path="/settings" element={<Settings />} />
-            </Route>
+        <Route element={
+            <ProtectedRoute>
+                <AuthLayout />
+            </ProtectedRoute>
+        }>
+            {<Route path="/" element={<Home />} />}
+            <Route path="/settings" element={<Settings />} />
+        </Route>
 
       <Route path="/oauth/callback" element={<OAuthCallback />} />
       <Route path="*" element={<Navigate to="/" replace />} />
@@ -92,7 +93,7 @@ export default function App() {
     <BrowserRouter>
       <LanguageProvider>
         <AuthProvider>
-          <LanguageSwitch />
+          {/*<LanguageSwitch />*/}
           <AppRoutes />
         </AuthProvider>
       </LanguageProvider>
