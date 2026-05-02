@@ -9,8 +9,9 @@ import Register from "./pages/Register/Register.jsx"
 import LanguageSwitch from "./components/Shared/LanguageSwitch/LanguageSwitch.jsx"
 import Settings from "./pages/Settings"
 import Home from "./pages/Home/Home"
-import GuestLayout from "./components/Layout/GuestLayout.jsx";
-import AuthLayout from "./components/Layout/AuthLayout.jsx";
+import GuestLayout from "./components/Layout/GuestLayout/GuestLayout.jsx";
+import AuthLayout from "./components/Layout/AuthLayout/AuthLayout.jsx";
+import Explore from "./pages/Explore/Explore.jsx";
 
 // Redirige vers /login si l'utilisateur n'est pas connecté
 function ProtectedRoute({ children }) {
@@ -70,6 +71,7 @@ function AppRoutes() {
       {/*  Guest routes  */}
         <Route element={<GuestLayout />}>
             {!user && <Route path="/" element={<Home />} />}
+            {!user && <Route path="/explore" element={<Explore />} />}
         </Route>
 
       {/*  Authentified user routes  */}
@@ -79,6 +81,7 @@ function AppRoutes() {
             </ProtectedRoute>
         }>
             {<Route path="/" element={<Home />} />}
+            {<Route path="/explore" element={<Explore />} />}
             <Route path="/settings" element={<Settings />} />
         </Route>
 

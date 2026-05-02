@@ -1,0 +1,39 @@
+﻿.logo-card {
+    background-color: #35313A;
+    background-image: radial-gradient(circle at bottom right, rgba(196, 165, 181, 0.55) 0%, rgba(153, 153, 153, 0) 70%);
+    border-radius: 35px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    padding: 32px 16px;
+}
+
+.logo-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    text-decoration: none;
+}
+
+.logo-viewport {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+}
+
+.logo-image {
+    width: 120px;
+    height: 120px;
+    transform: scale(1.5) translateX(2px);
+    object-fit: contain;
+}
+
+.logo-text {
+    color: #ffffff;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 300;
+}

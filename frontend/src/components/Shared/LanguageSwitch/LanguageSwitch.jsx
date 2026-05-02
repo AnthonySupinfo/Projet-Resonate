@@ -1,4 +1,3 @@
-// src/components/LanguageSwitch.jsx
 import { useLanguage } from "../../../context/LanguageContext.jsx"
 import "./LanguageSwitch.css"
 

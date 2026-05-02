@@ -1,32 +1,25 @@
-/* src/components/LanguageSwitch.css */
-
 .lang-switch {
-  position: fixed;
-  top: 16px;
-  right: 20px;
-  z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  min-width: 80px;
-  background: rgba(40, 40, 50, 0.85);
-  border: 1px solid #F49390;
+  gap: 10px;
+  align-self: center;
+  background: transparent;
+  border: 1px solid #35313A;
   border-radius: 20px;
-  padding: 6px 12px;
+  padding: 10px 14px;
   cursor: pointer;
   backdrop-filter: blur(8px);
   transition: background 0.2s;
 }
 
-
 .lang-switch:hover {
-  background: rgba(60, 60, 75, 0.95);
+  background: rgba(53, 49, 58, 0.95);
 }
 
 .lang-label {
   color: #f2f3fb;
   font-size: 13px;
   font-weight: 500;
-  font-family: "Segoe UI", system-ui, sans-serif;
+  font-family: 'Inter', sans-serif;
 }

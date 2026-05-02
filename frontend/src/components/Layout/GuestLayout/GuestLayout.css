@@ -1,0 +1,20 @@
+﻿.guest-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 32px;
+    min-height: 100vh;
+    background: linear-gradient(160deg, #161515 35%, #473838 100%);
+    padding: 32px;
+    box-sizing: border-box;
+    color: #ffffff;
+}
+
+.guest-layout aside {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.guest-content {
+    min-width: 0;
+}
