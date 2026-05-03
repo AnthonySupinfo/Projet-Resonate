@@ -350,3 +350,17 @@
   cursor: pointer;
   text-decoration: underline;
 }
+
+.register-wrapper .lang-switch {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+}
+
+@media (max-width: 560px) {
+  .register-wrapper .lang-switch {
+    top: 15px;
+    right: 15px;
+  }
+}

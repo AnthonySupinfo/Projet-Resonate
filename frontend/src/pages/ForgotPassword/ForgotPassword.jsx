@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import { useLanguage } from "../../context/LanguageContext.jsx"
 import logoResonate from "../../../image/Image.png"
 import "./ForgotPassword.css"
+import LanguageSwitch from "../../components/Shared/LanguageSwitch/LanguageSwitch.jsx";
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"
 
@@ -49,6 +50,8 @@ export default function ForgotPassword() {
 
   return (
     <div className="forgot-wrapper">
+      <LanguageSwitch />
+
       {/* Logo cliquable - retour à l'accueil */}
       <img src={logoResonate} alt="Logo Resonate" className="forgot-logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }} />
 

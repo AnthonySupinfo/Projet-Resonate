@@ -5,6 +5,7 @@ import { useAuth } from "../../context/AuthContext.jsx"
 import { useLanguage } from "../../context/LanguageContext.jsx"
 import logoResonate from "../../../image/Image.png"
 import "./Register.css"
+import LanguageSwitch from "../../components/Shared/LanguageSwitch/LanguageSwitch.jsx";
 
 const ValidIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6ee7b7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -134,6 +135,8 @@ export default function Register() {
 
   return (
     <div className="register-wrapper">
+      <LanguageSwitch />
+
       {/* Logo cliquable - retour à l'accueil */}
       <img src={logoResonate} alt="Logo Resonate" className="register-logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }} />
 

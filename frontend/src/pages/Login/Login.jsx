@@ -5,6 +5,7 @@ import { useAuth } from "../../context/AuthContext.jsx"
 import { useLanguage } from "../../context/LanguageContext.jsx"
 import logoResonate from "../../../image/Image.png"
 import "./Login.css"
+import LanguageSwitch from "../../components/Shared/LanguageSwitch/LanguageSwitch.jsx";
 
 const iconGoogle = "/icons/icon.Google.png"
 const iconFacebook = "/icons/icon.Facebook.png"
@@ -67,6 +68,8 @@ export default function Login() {
 
   return (
     <div className="login-wrapper">
+      <LanguageSwitch />
+
       {/* Logo cliquable - retour à l'accueil */}
       <img
         src={logoResonate}

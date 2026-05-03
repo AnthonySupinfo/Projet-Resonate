@@ -283,6 +283,14 @@
   cursor: pointer;
 }
 
+.login-wrapper .lang-switch {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+}
+
+
 @media (max-width: 560px) {
   .logo-resonate {
     width: 220px;
@@ -360,5 +368,10 @@
   .register-text {
     font-size: 7px;
     margin-top: 10px;
+  }
+
+  .login-wrapper .lang-switch {
+    top: 15px;
+    right: 15px;
   }
 }
