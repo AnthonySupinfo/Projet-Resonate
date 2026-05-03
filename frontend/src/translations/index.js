@@ -1,7 +1,12 @@
+import {layout} from "./layout.js";
+import {home} from "./home.js";
+
 export const translations = {
 
   // Français
   fr: {
+    layout: layout.fr,
+    home: home.fr,
     login: {
       title: "Bienvenue sur Resonate",
       subtitle: "Connectez-vous",
@@ -116,6 +121,8 @@ export const translations = {
 
   // Anglais
   en: {
+    layout: layout.en,
+    home: home.en,
     login: {
       title: "Welcome to Resonate",
       subtitle: "Sign in",
