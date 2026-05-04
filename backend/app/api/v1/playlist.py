@@ -85,6 +85,19 @@ async def delete_playlist(
 
     await db.commit()
 
+# Récupère toutes les playlists d'un user connecté
+
+
+@router.get("/me", response_model=list[PlaylistResponse])
+async def get_my_playlist(
+    db: AsyncSession = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    stmt_my_playlists = select(Playlist).filter(
+        Playlist.user_id == current_user["user_id"], Playlist.deleted_at == None).order_by(Playlist.created_at.desc())
+    result = await db.execute(stmt_my_playlists)
+    return result.scalars().all()
+
 
 @router.get("/{playlist_id}", response_model=PlaylistResponse)
 async def get_playlist_id(

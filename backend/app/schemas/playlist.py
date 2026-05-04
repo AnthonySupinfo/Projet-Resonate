@@ -8,9 +8,14 @@ class PlaylistCreate(BaseModel):
     is_public: bool = False
 
 
-class PlaylistResponse(PlaylistCreate):
+class PlaylistResponse(BaseModel):
     id: int
     user_id: str
+    type: str
+    name: str
+    description: str | None
+    cover_url: str | None
+    is_public: bool
     created_at: datetime
 
 

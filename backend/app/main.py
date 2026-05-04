@@ -68,9 +68,9 @@ def health_check():
     return {"status": "ok", "service": "resonate-backend"}
 
 
-app.include_router(library.router)
-app.include_router(library.library_router)
+app.include_router(library.router, prefix="/api/v1")
+app.include_router(library.library_router, prefix="/api/v1")
 
-app.include_router(playlist.router)
-app.include_router(reviews.router)
-app.include_router(interactions.router)
+app.include_router(playlist.router, prefix="/api/v1")
+app.include_router(reviews.router, prefix="/api/v1")
+app.include_router(interactions.router, prefix="/api/v1")

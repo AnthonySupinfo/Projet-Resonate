@@ -90,3 +90,23 @@ async def get_my_library(
 
     result = await db.execute(query)
     return result.scalars().all()
+
+
+# -------------------------------------------
+
+# Route de test (A SUPPRIMER)
+
+@router.post("/dev/seed-album", status_code=status.HTTP_201_CREATED)
+async def seed_fake_album(db: AsyncSession = Depends(get_db)):
+    stmt = select(Album).limit(1)
+    result = await db.execute(stmt)
+    existing = result.scalars().first()
+
+    if existing:
+        return {"message": f"Un album existe déjà avec l'ID {existing.id}"}
+
+    new_album = Album(title="Album Test Backend")
+    db.add(new_album)
+    await db.commit()
+    await db.refresh(new_album)
+    return {"message": f"Faux album créé avec succès. Son ID est {new_album.id}"}
