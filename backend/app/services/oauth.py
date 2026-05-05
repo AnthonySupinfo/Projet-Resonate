@@ -9,7 +9,6 @@ from app.services.auth import create_access_token
 
 # Fonctions Google
 async def get_google_access_token(code: str) -> str:
-    # Étape 1 du flux OAuth2 Google, échange du code contre un access_token
     async with httpx.AsyncClient() as client:
         response = await client.post(
             "https://oauth2.googleapis.com/token",
@@ -29,9 +28,7 @@ async def get_google_access_token(code: str) -> str:
         )
     return data["access_token"]
 
-
 async def get_google_user_info(access_token: str) -> dict:
-    # Étape 2 du flux OAuth2 Google, récupération du profil utilisateur
     async with httpx.AsyncClient() as client:
         response = await client.get(
             "https://www.googleapis.com/oauth2/v2/userinfo",
@@ -48,7 +45,6 @@ async def get_google_user_info(access_token: str) -> dict:
 
 # Fonctions GitHub
 async def get_github_access_token(code: str) -> str:
-    # Étape 1 du flux OAuth2 GitHub, échange du code contre un access_token
     async with httpx.AsyncClient() as client:
         response = await client.post(
             "https://github.com/login/oauth/access_token",
@@ -67,9 +63,7 @@ async def get_github_access_token(code: str) -> str:
         )
     return data["access_token"]
 
-
 async def get_github_user_info(access_token: str) -> dict:
-    # Étape 2 du flux OAuth2 GitHub, récupération du profil utilisateur
     async with httpx.AsyncClient() as client:
         # Récupère le profil de base
         profile_response = await client.get(
@@ -114,7 +108,6 @@ async def handle_oauth_user(
     provider_username: str,
     db: AsyncSession
 ) -> str:
-    # Gère les 3 cas possibles lors d'une connexion OAuth : reconnexion, liaison, création de compte
     result = await db.execute(
         select(OAuthAccount).where(
             OAuthAccount.provider == provider,
@@ -124,7 +117,6 @@ async def handle_oauth_user(
     oauth_account = result.scalar_one_or_none()
 
     if oauth_account:
-        # CAS 1 : reconnexion, le compte OAuth existe déjà -> on récupère l'utilisateur lié
         result = await db.execute(
             select(User).where(User.id == oauth_account.user_id)
         )
@@ -136,14 +128,12 @@ async def handle_oauth_user(
             )
         return create_access_token(user.id, user.role)
 
-    # CAS 2 : email déjà en BDD, on lie le compte OAuth
     result = await db.execute(
         select(User).where(User.email == provider_email)
     )
     existing_user = result.scalar_one_or_none()
 
     if existing_user:
-        # On crée une entrée dans oauth_accounts pour lier le compte existant au provider
         new_oauth = OAuthAccount(
             user_id=existing_user.id,
             provider=provider,
@@ -154,7 +144,6 @@ async def handle_oauth_user(
         await db.commit()
         return create_access_token(existing_user.id, existing_user.role)
 
-    # CAS 3 : compte inconnu, on crée un nouvel utilisateur et on le lie au provider
     base_username = provider_username.lower().replace(" ", "_")[:20]
     username = base_username
     counter = 1
@@ -176,7 +165,6 @@ async def handle_oauth_user(
     db.add(new_user)
     await db.flush()  # flush pour obtenir l'id sans commit
 
-    # Crée l'entrée oauth_accounts
     new_oauth = OAuthAccount(
         user_id=new_user.id,
         provider=provider,

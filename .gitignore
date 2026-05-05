@@ -1,6 +1,7 @@
 # Secrets
 .env
 *.env
+pgadmin-servers.json
 
 # Python
 __pycache__/
@@ -18,3 +19,6 @@ postgres_data/
 # IDE
 .vscode/
 .idea/
+
+README.DevA.md
+README.Guide.bdd.md

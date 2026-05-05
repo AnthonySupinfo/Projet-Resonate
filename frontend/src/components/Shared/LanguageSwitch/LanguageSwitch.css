@@ -1,0 +1,27 @@
+.lang-switch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  align-self: center;
+  background: transparent;
+  border: 1px solid #35313A;
+  border-radius: 20px;
+  padding: 10px 14px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: background 0.2s;
+}
+
+.lang-switch:hover {
+  background: rgba(53, 49, 58, 0.95);
+}
+
+.lang-label {
+  color: #f2f3fb;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  width: 22px;
+  text-align: center;
+}

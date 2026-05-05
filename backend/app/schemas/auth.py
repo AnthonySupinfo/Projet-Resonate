@@ -1,20 +1,21 @@
 import re
+from datetime import date
 from pydantic import BaseModel, EmailStr, field_validator
+from typing import Optional
 
+# Schémas de requête et de réponse pour l'authentification
 class RegisterRequest(BaseModel):
-
     email: EmailStr
-    # EmailStr est un type spécial de Pydantic qui valide automatiquement que c'est une adresse email valide
     username: str
-    # Nom d'utilisateur affiché sur le profil
-
     password: str
-    # Mot de passe en clair, qui sera validé et hashé avant d'être stocké en base de données
-    
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    birth_date: Optional[date] = None
+    avatar_url: Optional[str] = None
+
     @field_validator("username")
     @classmethod
     def validate_username(cls, value: str) -> str:
-        # Validation des règles de nom d'utilisateur : 3-20 caractères, uniquement lettres, chiffres et underscores
         value = value.strip()
         if len(value) < 3:
             raise ValueError("Le nom d'utilisateur doit faire au moins 3 caractères")
@@ -27,30 +28,25 @@ class RegisterRequest(BaseModel):
     @field_validator("password")
     @classmethod
     def validate_password(cls, value: str) -> str:
-        # Validation des règles de mot de passe : minimum 8 caractères, au moins 1 chiffre
-        if len(value) < 8:
-            raise ValueError("Le mot de passe doit faire au moins 8 caractères")
-        if not re.search(r'\d', value):
-            raise ValueError("Le mot de passe doit contenir au moins 1 chiffre")
+        if len(value) < 6:
+            raise ValueError("Le mot de passe doit faire au moins 6 caractères")
+        if len(re.findall(r'\d', value)) < 2:
+            raise ValueError("Le mot de passe doit contenir au moins 2 chiffres")
+        if not re.search(r'[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\\/~`\'";:]', value):
+            raise ValueError("Le mot de passe doit contenir au moins 1 caractère spécial")
         return value
 
-
+# Schémas de requête
 class LoginRequest(BaseModel):
-    # Les mêmes champs que RegisterRequest mais sans validation, car on veut juste vérifier que l'email et le mot de passe sont présents.
     email: EmailStr
     password: str
 
-
+# Schémas de réponse
 class TokenResponse(BaseModel):
-    # Le token JWT que le frontend doit stocker pour les requêtes authentifiées
     access_token: str
-    # Le type de token, toujours "bearer" pour les tokens d'accès OAuth2
     token_type: str = "bearer"
-    
-
 
 class UserResponse(BaseModel):
-    # Les informations de l'utilisateur à renvoyer après l'inscription ou pour le profil, sans le mot de passe
     id: str
     email: str
     username: str
@@ -58,4 +54,39 @@ class UserResponse(BaseModel):
 
     class Config:
         from_attributes = True
-        # Permet de convertir un objet SQLAlchemy (User) en JSON automatiquement
+
+class UserProfileResponse(BaseModel):
+    id: str
+    email: str
+    username: str
+    role: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    birth_date: Optional[date] = None
+    avatar_url: Optional[str] = None
+    bio: Optional[str] = None
+    website: Optional[str] = None
+    theme: str = "dark"
+
+    class Config:
+        from_attributes = True
+
+class UpdateProfileRequest(BaseModel):
+    avatar_url: Optional[str] = None
+    bio: Optional[str] = None
+    website: Optional[str] = None
+    theme: Optional[str] = None
+
+    @field_validator("theme")
+    @classmethod
+    def validate_theme(cls, value: str) -> str:
+        if value and value not in ["dark", "light"]:
+            raise ValueError("Le thème doit être 'dark' ou 'light'")
+        return value
+
+    @field_validator("website")
+    @classmethod
+    def validate_website(cls, value: str) -> str:
+        if value and not value.startswith(("http://", "https://")):
+            raise ValueError("Le site web doit commencer par http:// ou https://")
+        return value
