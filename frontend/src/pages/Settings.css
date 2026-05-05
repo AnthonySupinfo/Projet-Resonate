@@ -1,0 +1,348 @@
+.settings-wrapper {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 340px 20px 60px;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: linear-gradient(158.98deg, #161515 26.4%, #473838 166.02%);
+  transition: background 0.3s ease;
+}
+
+/* Light mode */
+.settings-wrapper.light {
+  background: linear-gradient(158.98deg, #f0f0f0 26.4%, #e0d0d0 166.02%);
+}
+
+.settings-logo {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  left: 50%;
+  top: 40px;
+  transform: translateX(-50%);
+  object-fit: contain;
+  pointer-events: auto;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.settings-card {
+  width: min(100%, 600px);
+  position: relative;
+  z-index: 2;
+  border-radius: 30px;
+  border: 1px solid rgba(248, 250, 255, 0.12);
+  padding: 44px 52px;
+  background: linear-gradient(145deg, rgba(55, 53, 70, 0.95) 0%, rgba(108, 104, 120, 0.92) 100%);
+  box-shadow:
+    0 18px 38px rgba(0, 0, 0, 0.45),
+    0 1px 0 rgba(255, 255, 255, 0.14) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.22) inset;
+}
+
+.light .settings-card {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(230, 225, 240, 0.92) 100%);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.settings-loading {
+  color: #f2f3fb;
+  font-size: 18px;
+  margin: auto;
+  padding-top: 40vh;
+}
+
+/* Header */
+.settings-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.settings-title {
+  margin: 0;
+  color: #f2f3fb;
+  font-size: 28px;
+  font-weight: 400;
+}
+
+.light .settings-title {
+  color: #1a1a2e;
+}
+
+.settings-subtitle {
+  margin: 6px 0 0;
+  color: #f1a2a2;
+  font-size: 24px;
+  font-weight: 400;
+}
+
+/* Messages */
+.settings-success {
+  background: rgba(16, 110, 86, 0.3);
+  border: 1px solid rgba(16, 110, 86, 0.5);
+  color: #6ee7b7;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.settings-error {
+  background: rgba(103, 26, 31, 0.45);
+  border: 1px solid rgba(255, 133, 133, 0.55);
+  color: #ffd9dc;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 12px;
+  margin-bottom: 16px;
+}
+
+/* Form */
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.settings-section-title {
+  color: #f2f3fb;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.light .settings-section-title {
+  color: #1a1a2e;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settings-form .form-label {
+  color: #f7f8ff;
+  font-size: 20px;
+  font-weight: 300;
+  margin-bottom: 0;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
+}
+
+.light .settings-form .form-label {
+  color: #1a1a2e;
+}
+
+.settings-form .form-input {
+  width: 100%;
+  height: 52px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(232, 236, 248, 0.52);
+  background: transparent;
+  color: #f2f3fb;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.light .settings-form .form-input {
+  background: rgba(255, 255, 255, 0.9);
+  color: #1a1a2e;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.form-input:focus {
+  border-color: #82bcff;
+}
+
+.form-input::placeholder {
+  color: #c5c7d6;
+}
+
+/* Textarea Bio */
+.form-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(232, 236, 248, 0.52);
+  background: transparent;
+  color: #f2f3fb;
+  font-size: 14px;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.2s ease;
+}
+
+.light .form-textarea {
+  background: rgba(255, 255, 255, 0.9);
+  color: #1a1a2e;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.form-textarea:focus {
+  border-color: #82bcff;
+}
+
+.form-textarea::placeholder {
+  color: #c5c7d6;
+}
+
+.char-count {
+  color: #a0a0b0;
+  font-size: 11px;
+  text-align: right;
+}
+
+/* Avatar */
+.avatar-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.avatar-preview {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  font-size: 28px;
+}
+
+/* ── Thème ── */
+.theme-toggle {
+  display: flex;
+  gap: 12px;
+}
+
+.theme-btn {
+  flex: 1;
+  height: 48px;
+  border-radius: 12px;
+  border: 1px solid rgba(232, 236, 248, 0.3);
+  background: rgba(255, 255, 255, 0.06);
+  color: #d1d5db;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-btn.active {
+  background: linear-gradient(180deg, #7f8599 0%, #686e82 100%);
+  border-color: rgba(236, 241, 255, 0.62);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.theme-btn:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Bouton Sauvegarder */
+.btn-save {
+  width: 100%;
+  height: 50px;
+  border-radius: 18px;
+  border: 1px solid rgba(236, 241, 255, 0.62);
+  color: #f5f7ff;
+  font-size: 15px;
+  font-weight: 300;
+  cursor: pointer;
+  background: linear-gradient(180deg, #7f8599 0%, #686e82 100%);
+  box-shadow:
+    0 8px 15px rgba(0, 0, 0, 0.26),
+    0 1px 0 rgba(255, 255, 255, 0.42) inset;
+  transition: filter 0.2s;
+}
+
+.btn-save:hover {
+  filter: brightness(1.08);
+}
+
+.btn-save:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Export RGPD */
+.settings-export {
+  margin-top: 8px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.settings-export-desc {
+  color: #c5c7d6;
+  font-size: 13px;
+  margin: 0;
+}
+
+.btn-export {
+  width: 100%;
+  height: 46px;
+  border-radius: 12px;
+  border: 1px solid rgba(232, 236, 248, 0.3);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f2f3fb;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-export:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.btn-export:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Footer déconnexion */
+.settings-footer {
+  margin-top: 24px;
+  text-align: center;
+}
+
+.btn-logout {
+  background: none;
+  border: none;
+  color: #f1a2a2;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.btn-logout:hover {
+  color: #ffd9dc;
+}

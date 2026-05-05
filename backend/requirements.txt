@@ -35,3 +35,7 @@ httpx==0.27.0
 # Validation
 email-validator==2.2.0
 # validation des adresses email, utilisé dans les modèles Pydantic pour s'assurer que les emails sont au bon format.
+
+
+# Email
+aiosmtplib==3.0.1

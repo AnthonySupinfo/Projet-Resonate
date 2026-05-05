@@ -8,7 +8,6 @@ class Settings(BaseSettings):
     FRONTEND_URL: str = "http://localhost:5173"
 
     # Pydantic convertit automatiquement la string en liste Python
-    # ex: "http://localhost:5173" -> "http://localhost:5173"
     @property
     def ALLOWED_ORIGINS(self) -> List[str]:
         return [self.FRONTEND_URL]
@@ -31,7 +30,15 @@ class Settings(BaseSettings):
     # Last.fm 
     LASTFM_API_KEY: str = ""
     LASTFM_API_SECRET: str = ""
+    
+    # Email
+    MAIL_HOST: str = "smtp.gmail.com"
+    MAIL_PORT: int = 587
+    MAIL_USERNAME: str = ""
+    MAIL_PASSWORD: str = ""
+    MAIL_FROM: str = ""
 
+    # Configuration de Pydantic pour la lecture du .env 
     class Config:
         # Indique à Pydantic où trouver le fichier .env
         env_file = ".env"

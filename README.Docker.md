@@ -77,7 +77,7 @@ Copier le résultat dans `backend/.env` :
 JWT_SECRET_KEY=<colle_ta_clé_ici>
 ```
 
-> Cette commande ne nécessite pas Docker — `openssl` est inclus avec Git Bash.
+> Cette commande ne nécessite pas Docker - `openssl` est inclus avec Git Bash.
 
 ### 4 - Lancer le projet
 
