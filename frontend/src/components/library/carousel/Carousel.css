@@ -1,0 +1,60 @@
+.carousel-section {
+    margin-bottom: 40px;
+    width: 100%;
+}
+
+.carousel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.carousel-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: white;
+    margin: 0;
+}
+
+.carousel-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.carousel-arrow {
+    background-color: transparent;
+    border: 1px solid #48484a;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.carousel-arrow:hover {
+    background-color: white;
+    color: black;
+}
+
+.carousel-track {
+    display: flex;
+    gap: 24px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory; /* pour s'arrêter pile sur une carte*/
+    padding-bottom: 12px;
+}
+
+.carousel-track::-webkit-scrollbar { /* cache la barre de défilement*/
+    display: none; 
+}
+
+.carousel-track > * { /* S'assure que les cartes ne s'écrasent pas */
+    flex: 0 0 auto;
+    width: 160px;
+    scroll-snap-align: start;
+}

@@ -18,6 +18,7 @@ postgres_data/
 
 # IDE
 .vscode/
+.idea/.DS_Store
 .idea/
 
 README.DevA.md

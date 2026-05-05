@@ -1,6 +1,5 @@
 from sqlalchemy import Column, Integer, String, Boolean, Text, ForeignKey, DateTime, Enum
 from sqlalchemy.sql import func
-from sqlalchemy.dialects.postgresql import UUID
 from app.db.session import Base
 import enum
 
@@ -19,7 +18,7 @@ class Playlist(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    user_id = Column(UUID(as_uuid=True), ForeignKey(
+    user_id = Column(String, ForeignKey(
         "users.id", ondelete="CASCADE"), nullable=False)
 
     type = Column(Enum(PlaylistType), nullable=False)

@@ -1,0 +1,139 @@
+.library-card-container {
+    background-color: #1e1e1e;
+    border-radius: 24px;
+    padding: 20px;
+    color: white;
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.library-title {
+    font-size: 1.1rem;
+    margin: 0 0 16px 0;
+    font-weight: 600;
+}
+
+.library-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.tab {
+    background-color: transparent;
+    border: 1px solid #48484a;
+    color: white;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tab-active {
+    background-color: white;
+    color: black;
+    border-color: white;
+}
+
+.library-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex-grow: 1;
+    overflow-y: auto;
+    max-height: 250px;
+}
+
+.library-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.library-item:hover {
+    opacity: 0.8;
+}
+
+.library-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.library-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.library-icon.favorite {
+    background: linear-gradient(135deg, #ff8a8a, #ff4b4b);
+    color: white;
+    font-size: 1.2rem;
+}
+
+.library-info {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.library-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.library-meta {
+    font-size: 0.7rem;
+    color: #8e8e93;
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.create-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0;
+    transition: color 0.2s;
+}
+
+.create-btn:hover {
+    color: #8e8e93;
+}
+
+.create-icon {
+    background-color: #2c2c2e;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 300;
+}

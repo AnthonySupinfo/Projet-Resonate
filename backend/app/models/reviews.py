@@ -1,6 +1,5 @@
 from sqlalchemy.sql import func
-from sqlalchemy import Column, Text, Integer, ForeignKey, Boolean, CheckConstraint, DateTime, UniqueConstraint
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, Text, Integer, ForeignKey, Boolean, CheckConstraint, DateTime, UniqueConstraint, String
 from app.db.session import Base
 
 
@@ -9,7 +8,7 @@ class Review(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    user_id = Column(UUID(as_uuid=True), ForeignKey(
+    user_id = Column(String, ForeignKey(
         "users.id", ondelete="CASCADE"), nullable=False)
 
     album_id = Column(Integer, ForeignKey(
@@ -28,4 +27,4 @@ class Review(Base):
 
     # contrainte unique grâce à variable args
     __table_args__ = (UniqueConstraint("user_id", "album_id",
-                      name='unique review per person per album'))
+                      name='unique review per person per album'),)

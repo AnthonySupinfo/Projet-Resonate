@@ -4,9 +4,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from app.core.config import settings
 from app.db.session import engine, Base
-from app.api.v1 import auth, oauth, users 
+from app.api.v1 import auth, oauth, users
+
+from app.api.v1 import library
+from app.api.v1 import playlist
+from app.api.v1 import interactions
+from app.api.v1 import reviews
 
 # Création de la session de base de données et des tables au démarrage de l'application
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
@@ -24,6 +31,8 @@ app = FastAPI(
 )
 
 # Gestion globale des erreurs
+
+
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     if settings.ENVIRONMENT == "development":
@@ -55,6 +64,16 @@ app.include_router(oauth.router, prefix="/api/v1")
 app.include_router(users.router, prefix="/api/v1")
 
 # Route de santé pour vérifier que le backend est opérationnel
+
+
 @app.get("/health")
 def health_check():
     return {"status": "ok", "service": "resonate-backend"}
+
+
+app.include_router(library.router, prefix="/api/v1")
+app.include_router(library.library_router, prefix="/api/v1")
+
+app.include_router(playlist.router, prefix="/api/v1")
+app.include_router(reviews.router, prefix="/api/v1")
+app.include_router(interactions.router, prefix="/api/v1")
