@@ -10,6 +10,7 @@ from app.api.v1 import library
 from app.api.v1 import playlist
 from app.api.v1 import interactions
 from app.api.v1 import reviews
+from app.api.v1 import follows
 
 # Création de la session de base de données et des tables au démarrage de l'application
 
@@ -77,3 +78,5 @@ app.include_router(library.library_router, prefix="/api/v1")
 app.include_router(playlist.router, prefix="/api/v1")
 app.include_router(reviews.router, prefix="/api/v1")
 app.include_router(interactions.router, prefix="/api/v1")
+
+app.include_router(follows.router, prefix="/api/v1")
