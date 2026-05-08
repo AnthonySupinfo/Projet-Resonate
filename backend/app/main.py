@@ -9,6 +9,11 @@ from slowapi.middleware import SlowAPIMiddleware
 from app.core.config import settings
 from app.db.session import engine, Base
 
+from app.api.v1 import library
+from app.api.v1 import playlist
+from app.api.v1 import interactions
+from app.api.v1 import reviews
+from app.api.v1 import follows
 # IMPORT DES MODELES (OBLIGATOIRE POUR create_all)
 from app.models.album import Album
 from app.models.artist import Artist
@@ -101,3 +106,4 @@ app.include_router(interactions.router, prefix="/api/v1")
 @app.get("/health")
 def health_check():
     return {"status": "ok", "service": "resonate-backend"}
+app.include_router(follows.router, prefix="/api/v1")
