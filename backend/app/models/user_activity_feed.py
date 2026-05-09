@@ -9,8 +9,11 @@ class ActivityTypes(str, enum.Enum):
     LIKE_ALBUM = "LIKE_ALBUM"
     FOLLOW_PLAYLIST = "FOLLOW_PLAYLIST"
     FOLLOW_USER = "FOLLOW_USER"
+    CREATE_PLAYLIST = "CREATE_PLAYLIST"
     ADD_TRACK_PLAYLIST = "ADD_TRACK_PLAYLIST"
     REVIEW_ALBUM = "REVIEW_ALBUM"
+    LIKE_REVIEW = "LIKE_REVIEW"
+    COMMENT_REVIEW = "COMMENT_REVIEW"
 
 
 class UserActivityFeed(Base):
@@ -26,6 +29,8 @@ class UserActivityFeed(Base):
     review_id = Column(Integer, ForeignKey("reviews.id", ondelete="CASCADE"), nullable=True)
     playlist_id = Column(Integer, ForeignKey("playlists.id", ondelete="CASCADE"), nullable=True)
     album_id = Column(Integer, ForeignKey("albums.id", ondelete="CASCADE"), nullable=True)
-    track_id = Column(Integer, ForeignKey("tracks.id", ondelete="CASCADE"), nullable=True)
+    # TODO: Décommenter quand Krishna aura fait la table Track
+    # track_id = Column(Integer, ForeignKey("tracks.id", ondelete="CASCADE"), nullable=True)
+
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
