@@ -53,4 +53,29 @@ class FollowService:
         return {"message": "Vous ne suivez maintenant plus cet utilisateur."}
 
 
+    # followed --> le user qui EST suivi. Récupération de tous ceux qui suivent le User
+    async def get_followers(self, db: AsyncSession, followed_user_id: str):
+        stmt = (
+            select(User)
+            .join(Follow, Follow.follower_id == User.id)
+            .where(Follow.following_id == followed_user_id)
+        )
+
+        result = await db.execute(stmt)
+        return result.scalars().all()
+
+    # following --> le user qui SUIT. Récuperation de tous les comptes que le User suit
+    async def get_following(self, db: AsyncSession, following_user_id: str):
+        stmt = (
+            select(User)
+            .join(Follow, Follow.following_id == User.id)
+            .where(Follow.follower_id == following_user_id)
+        )
+
+        result = await db.execute(stmt)
+        return result.scalars().all()
+
+
+
+
 follow_service = FollowService()
