@@ -14,6 +14,8 @@ from app.models.reports import Report
 from app.schemas.review_comments import ReviewCommentCreate, ReviewCommentResponse
 from app.schemas.review_likes import ReviewLikeResponse
 from app.schemas.reports import ReportCreate, ReportResponse
+from app.services.feed import feed_service
+from app.models.user_activity_feed import ActivityTypes
 
 
 router = APIRouter(tags=["interactions"])
@@ -52,13 +54,12 @@ async def like_review(
 
     db.add(new_like)
 
-    # Insérer dans le feed d'activité =  TODO : décommenter quand Elisa aura codé la table feed
-    # new_activity = UserActivityFeed(
-    #    user_id=current_user["user_id"],
-    #    activity_type=ActivityType.REVIEW_LIKE,
-    #    related_review_id=new_review.id
-    # )
-    # db.add(new_activity)
+    await feed_service.log_activity(
+        db=db,
+        user_id=current_user["user_id"],
+        activity_type=ActivityTypes.LIKE_REVIEW,
+        review_id=review_id
+    )
 
     await db.commit()
     await db.refresh(new_like)
@@ -101,6 +102,13 @@ async def create_comment(
         user_id=current_user["user_id"], review_id=review_id, content=body.content)
 
     db.add(new_comment)
+
+    await feed_service.log_activity(
+        db=db,
+        user_id=current_user["user_id"],
+        activity_type=ActivityTypes.COMMENT_REVIEW,
+        review_id=review_id
+    )
 
     # TODO : décommenter quand Elisa aussi codé create_notification pour notifier l'auteur de la review
     # await create_notification(review.user_id, "COMMENT", review_id, db)

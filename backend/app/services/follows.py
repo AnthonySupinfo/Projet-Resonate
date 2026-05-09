@@ -4,6 +4,8 @@ from sqlalchemy import select, delete
 from fastapi import HTTPException, status
 from app.models.user import User
 from app.models.follow import Follow
+from app.services.feed import feed_service
+from app.models.user_activity_feed import ActivityTypes
 
 class FollowService:
     async def follow_user(self, db: Session, follower_id: str, following_id: str):
@@ -32,6 +34,15 @@ class FollowService:
         # Insertion si tout est bon
         new_follow = Follow(follower_id=follower_id, following_id=following_id)
         db.add(new_follow)
+
+        # log activity feed
+        await feed_service.log_activity(
+            db=db,
+            user_id=follower_id,
+            activity_type=ActivityTypes.FOLLOW_USER,
+            target_user_id=following_id
+        )
+
         await db.commit()
         return {"message": f"Vous suivez désormais {target_user.username}."}
 

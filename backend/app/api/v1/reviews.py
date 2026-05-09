@@ -10,6 +10,9 @@ from app.models.album import Album
 from app.schemas.review import ReviewCreate, ReviewUpdate, ReviewResponse
 from app.core.dependencies import get_current_user
 
+from app.services.feed import feed_service
+from app.models.user_activity_feed import ActivityTypes
+
 from datetime import datetime, timezone
 
 router = APIRouter(tags=["reviews"])
@@ -65,13 +68,13 @@ async def create_review(
     db.add(new_review)
     await db.flush()  # flush pour obtenir l'id avant le commit
 
-    # Insérer dans le feed d'activité =  TODO : décommenter quand Elisa aura codé la table feed
-    # new_activity = UserActivityFeed(
-    #    user_id=current_user["user_id"],
-    #    activity_type=ActivityType.REVIEW,
-    #    related_review_id=new_review.id
-    # )
-    # db.add(new_activity)
+    await feed_service.log_activity(
+        db=db,
+        user_id=current_user["user_id"],
+        activity_type=ActivityTypes.REVIEW_ALBUM,
+        review_id=new_review.id,
+        album_id=new_review.album_id
+    )
 
     await db.commit()
     await db.refresh(new_review)

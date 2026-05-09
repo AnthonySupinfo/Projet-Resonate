@@ -9,6 +9,8 @@ from app.models.user_playlist_item import UserPlaylistItem
 from app.schemas.playlist import PlaylistCreate, PlaylistResponse, PlaylistUpdate
 from app.core.dependencies import get_current_user
 from app.schemas.user_playlist_item import PlaylistItemAdd, PlaylistItemResponse
+from app.services.feed import feed_service
+from app.models.user_activity_feed import ActivityTypes
 
 from datetime import datetime, timezone
 
@@ -47,6 +49,16 @@ async def create_playlist(
         is_public=body.is_public
     )
     db.add(new_playlist)
+    
+    await db.flush()
+
+    await feed_service.log_activity(
+        db=db,
+        user_id=current_user["user_id"],
+        activity_type=ActivityTypes.CREATE_PLAYLIST,
+        playlist_id=new_playlist.id
+    )
+
     await db.commit()
     await db.refresh(new_playlist)
     return new_playlist
@@ -150,6 +162,15 @@ async def add_track_playlist(
         playlist_id=playlist_id, track_id=body.track_id)
 
     db.add(new_item)
+
+    await feed_service.log_activity(
+        db=db,
+        user_id=current_user["user_id"],
+        activity_type=ActivityTypes.ADD_TRACK_PLAYLIST,
+        playlist_id=playlist_id,
+        track_id=body.track_id
+    )
+
     await db.commit()
     await db.refresh(new_item)
     return new_item
