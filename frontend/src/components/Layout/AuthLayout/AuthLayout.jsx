@@ -1,12 +1,18 @@
 ﻿import { Outlet } from "react-router-dom";
+import LogoCard from "../../Shared/LogoCard/LogoCard.jsx";
+import NavCard from "../../Shared/NavCard/NavCard.jsx";
+import LanguageSwitch from "../../Shared/LanguageSwitch/LanguageSwitch.jsx";
 
 export default function AuthLayout() {
     return (
-        <div className="auth-layout-container">
-            {/*Mettre ici la user card + nav card + librairie card*/}
-            <header>Resonate - Bienvenue (version user connecté)</header>
+        <div className="auth-layout">
+            <aside>
+                <LogoCard />
+                <NavCard />
+                <LanguageSwitch />
+            </aside>
 
-            <main className="auth-main-content">
+            <main className="auth-content">
                 <Outlet />
             </main>
         </div>

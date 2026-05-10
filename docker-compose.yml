@@ -67,6 +67,9 @@ services:
       - backend
     networks:
       - frontend_backend
+    volumes:
+      - .:/app
+      - /app/node_modules
 
 # Volumes
 volumes:
