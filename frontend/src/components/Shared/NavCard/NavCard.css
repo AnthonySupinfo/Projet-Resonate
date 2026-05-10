@@ -1,8 +1,8 @@
 ﻿.nav-card {
-    background-color: #35313A;
-    background-image: radial-gradient(circle at bottom right, rgba(196, 165, 181, 0.55) 0%, rgba(153, 153, 153, 0) 70%);
+    background-color: var(--bg-card);
+    background-image: radial-gradient(circle at bottom right, rgba(var(--grad-rose-rgb), 0.55) 0%, rgba(var(--grad-gris-rgb), 0) 70%);
     border-radius: 35px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 4px 12px rgba(var(--shadow-rgb), 0.25);
     padding: 24px 22px;
 }
 
@@ -17,26 +17,26 @@
     align-items: center;
     justify-content: space-between;
     padding: 16px 20px;
-    background-image: linear-gradient(90deg, rgba(80, 80, 80, 0.05) 1%, rgba(206, 187, 197, 0.15) 100%);
+    background-image: linear-gradient(90deg, rgba(80, 80, 80, 0.05) 1%, rgba(var(--grad-rose-rgb), 0.15) 100%);
     background-clip: padding-box;
     border-radius: 20px;
     text-decoration: none;
-    color: #ffffff;
+    color: var(--text-primary);
     font-family: 'Inter', sans-serif;
     font-size: 1rem;
     transition: all 0.2s ease-in-out;
     border: 1px solid transparent;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 8px rgba(var(--shadow-rgb), 0.15);
 }
 
 .nav-item:hover {
-    background-image: linear-gradient(90deg, rgba(80, 80, 80, 0.05) 1%, rgba(206, 187, 197, 0.35) 100%);
+    background-image: linear-gradient(90deg, rgba(80, 80, 80, 0.05) 1%, rgba(var(--grad-rose-rgb), 0.35) 100%);
 }
 
 .nav-item.active {
-    background-image: linear-gradient(90deg, rgba(80, 80, 80, 0.05) 1%, rgba(206, 187, 197, 0.25) 100%);
+    background-image: linear-gradient(90deg, rgba(80, 80, 80, 0.05) 1%, rgba(var(--grad-rose-rgb), 0.25) 100%);
     border-color: rgba(239, 130, 130, 0.6);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 0 12px rgba(239, 130, 130, 0.3), inset 0 0 8px rgba(239, 130, 130, 0.2);
+    box-shadow: 0 4px 8px rgba(var(--shadow-rgb), 0.1), 0 0 12px rgba(239, 130, 130, 0.3), inset 0 0 8px rgba(239, 130, 130, 0.2);
 }
 
 .nav-icon {
@@ -45,8 +45,6 @@
     object-fit: contain;
 }
 
-
-/*TODO: à supprimer une fois nav user terminée*/
 button.nav-item {
     width: 100%;
     cursor: pointer;

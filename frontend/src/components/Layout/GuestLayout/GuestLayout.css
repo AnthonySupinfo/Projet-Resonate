@@ -3,10 +3,10 @@
     grid-template-columns: 260px 1fr;
     gap: 32px;
     min-height: 100vh;
-    background: linear-gradient(160deg, #161515 35%, #473838 100%);
+    background: linear-gradient(160deg, var(--bg-main-start) 35%, var(--bg-main-end) 100%);
     padding: 32px;
     box-sizing: border-box;
-    color: #ffffff;
+    color: var(--text-primary);
 }
 
 .guest-layout aside {
