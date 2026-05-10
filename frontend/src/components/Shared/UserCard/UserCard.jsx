@@ -5,7 +5,7 @@ import logoResonate from "../../../../public/logoResonate.png";
 export default function UserCard() {
     return (
         <div className="user-card">
-            <Link to="/" className="user-link"> {/*TODO: Remplacer vers la page profil quand elle sera faite*/}
+            <Link to="/profile" className="user-link"> {/*TODO: Remplacer vers la page profil quand elle sera faite*/}
                 <div className="avatar-viewport">
                     <img
                         src={logoResonate} // TODO: Remplacer par l'avatar du user

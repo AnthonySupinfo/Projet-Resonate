@@ -12,6 +12,8 @@ import Home from "./pages/Home/Home"
 import GuestLayout from "./components/Layout/GuestLayout/GuestLayout.jsx";
 import AuthLayout from "./components/Layout/AuthLayout/AuthLayout.jsx";
 import Explore from "./pages/Explore/Explore.jsx";
+import Profile from "./pages/Profile/Profile.jsx";
+import Social from "./pages/Social/Social.jsx";
 
 // Redirige vers /login si l'utilisateur n'est pas connecté
 function ProtectedRoute({ children }) {
@@ -82,7 +84,9 @@ function AppRoutes() {
         }>
             {<Route path="/" element={<Home />} />}
             {<Route path="/explore" element={<Explore />} />}
-            <Route path="/settings" element={<Settings />} />
+            {<Route path="/profile" element={<Profile />} />}
+            {<Route path="/settings" element={<Settings/>}/>}
+            {<Route path="/social" element={<Social/>}/>}
         </Route>
 
       <Route path="/oauth/callback" element={<OAuthCallback />} />
