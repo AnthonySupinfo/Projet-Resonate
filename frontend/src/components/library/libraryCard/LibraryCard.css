@@ -1,9 +1,11 @@
 .library-card-container {
-    background-color: #1e1e1e;
-    border-radius: 24px;
-    padding: 20px;
-    color: white;
-    font-family: sans-serif;
+    background-color: var(--bg-card);
+    background-image: radial-gradient(circle at bottom right, rgba(var(--grad-rose-rgb), 0.55) 0%, rgba(var(--grad-gris-rgb), 0) 70%);
+    border-radius: 35px;
+    box-shadow: 0 4px 12px rgba(var(--shadow-rgb), 0.25);
+    padding: 24px 22px;
+    color: var(--text-primary);
+    font-family: 'Poppins', sans-serif;
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -11,50 +13,61 @@
 }
 
 .library-title {
-    font-size: 1.1rem;
-    margin: 0 0 16px 0;
-    font-weight: 600;
+    font-size: 1.25rem;
+    font-weight: 400;
+    margin: 0 0 20px 0;
+    color: var(--text-primary);
 }
 
 .library-tabs {
     display: flex;
-    gap: 8px;
-    margin-bottom: 20px;
+    gap: 12px;
+    margin-bottom: 24px;
 }
 
 .tab {
-    background-color: transparent;
-    border: 1px solid #48484a;
-    color: white;
-    padding: 6px 16px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid transparent;
+    color: var(--text-muted);
+    padding: 8px 20px;
     border-radius: 20px;
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     cursor: pointer;
     transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
 }
 
-.tab-active {
-    background-color: white;
-    color: black;
-    border-color: white;
+.tab.active {
+    background-color: transparent;
+    color: var(--text-primary);
+    border-color: var(--text-primary);
 }
 
 .library-list {
     list-style: none;
     padding: 0;
-    margin: 0 0 20px 0;
+    margin: 0 0 24px 0;
     display: flex;
     flex-direction: column;
     gap: 16px;
     flex-grow: 1;
     overflow-y: auto;
-    max-height: 250px;
+    max-height: 300px;
+}
+
+.library-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.library-list::-webkit-scrollbar-thumb {
+    background: var(--divider-color);
+    border-radius: 4px;
 }
 
 .library-item {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px;
     cursor: pointer;
     transition: opacity 0.2s;
 }
@@ -64,14 +77,15 @@
 }
 
 .library-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     flex-shrink: 0;
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
 .library-icon img {
@@ -81,29 +95,32 @@
 }
 
 .library-icon.favorite {
-    background: linear-gradient(135deg, #ff8a8a, #ff4b4b);
-    color: white;
-    font-size: 1.2rem;
+    background: linear-gradient(135deg, var(--accent-secondary), #a85757);
+    color: #ffffff;
+    font-size: 1.5rem;
 }
 
 .library-info {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    gap: 2px;
 }
 
 .library-name {
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--text-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .library-meta {
-    font-size: 0.7rem;
-    color: #8e8e93;
-    margin-top: 4px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    color: var(--text-muted);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -112,28 +129,30 @@
 .create-btn {
     background: transparent;
     border: none;
-    color: white;
-    font-size: 0.85rem;
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px;
     padding: 0;
     transition: color 0.2s;
 }
 
 .create-btn:hover {
-    color: #8e8e93;
+    color: var(--text-muted);
 }
 
 .create-icon {
-    background-color: #2c2c2e;
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
+    background-color: rgba(0, 0, 0, 0.2);
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     font-weight: 300;
+    color: var(--text-primary);
 }
