@@ -1,8 +1,7 @@
 ﻿import { Outlet } from "react-router-dom";
-import LogoCard from "../../Shared/LogoCard/LogoCard.jsx";
+import './AuthLayout.css';
 import NavCard from "../../Shared/NavCard/NavCard.jsx";
 import LanguageSwitch from "../../Shared/LanguageSwitch/LanguageSwitch.jsx";
-import './AuthLayout.css';
 
 export default function AuthLayout() {
     return (

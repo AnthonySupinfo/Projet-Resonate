@@ -44,3 +44,17 @@
     height: 24px;
     object-fit: contain;
 }
+
+
+/*TODO: à supprimer une fois nav user terminée*/
+button.nav-item {
+    width: 100%;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+}
+
+button.btn-logout:hover {
+    background-image: linear-gradient(90deg, rgba(80, 80, 80, 0.05) 1%, rgba(239, 130, 130, 0.15) 100%);
+    border-color: rgba(239, 130, 130, 0.2);
+}
