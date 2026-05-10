@@ -11,5 +11,6 @@ from .reviews import Review
 from .user_album_status import UserAlbumStatus
 from .user_playlist_item import UserPlaylistItem
 from .user_playlist_status import UserPlaylistStatus
+from .user_activity_feed import UserActivityFeed
 
-__all__ = ["Base", "User", "Album", "Follow", "OAuthAccount"]
+__all__ = ["Base", "User", "Album", "Follow", "OAuthAccount", "UserActivityFeed"]
