@@ -1,0 +1,76 @@
+.notifs-card {
+    background-color: var(--bg-card);
+    background-image: radial-gradient(circle at bottom right, rgba(var(--grad-rose-rgb), 0.3) 0%, rgba(var(--grad-gris-rgb), 0) 70%);
+    border-radius: 50px;
+    box-shadow: 0 4px 12px rgba(var(--shadow-rgb), 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    height: 60px;
+}
+
+.notif-btn {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: filter 0.2s;
+}
+
+.notif-btn:hover {
+    filter: brightness(1.3);
+}
+
+.notif-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.notif-badge-wrapper {
+    position: relative;
+}
+
+.notif-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: var(--accent-primary);
+    color: #ffffff;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+}
+
+.notif-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    background-color: #0d0a15;
+    transition: box-shadow 0.3s ease;
+}
+
+.notif-avatar:hover {
+    box-shadow: 0 0 15px rgba(var(--grad-rose-rgb), 0.5);
+}
+
+.notif-avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transform: scale(1.6);
+}

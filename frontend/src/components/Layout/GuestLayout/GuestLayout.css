@@ -1,10 +1,10 @@
 ﻿.guest-layout {
     display: grid;
     grid-template-columns: 260px 1fr;
-    gap: 32px;
+    gap: 18px;
     min-height: 100vh;
     background: linear-gradient(160deg, var(--bg-main-start) 35%, var(--bg-main-end) 100%);
-    padding: 32px;
+    padding: 12px;
     box-sizing: border-box;
     color: var(--text-primary);
 }
@@ -12,7 +12,7 @@
 .guest-layout aside {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 12px;
 }
 
 .guest-content {
