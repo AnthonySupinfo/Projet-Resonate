@@ -3,7 +3,7 @@ import './AuthLayout.css';
 import NavCard from "../../Shared/NavCard/NavCard.jsx";
 import UserCard from "../../Shared/UserCard/UserCard.jsx";
 import LibraryCard from "../../library/libraryCard/LibraryCard.jsx";
-import LanguageSwitch from "../../Shared/LanguageSwitch/LanguageSwitch.jsx";
+import NotifsCard from "../../Shared/NotifsCard/NotifsCard.jsx";
 
 export default function AuthLayout() {
     return (
@@ -17,6 +17,11 @@ export default function AuthLayout() {
             <main className="auth-content">
                 <Outlet />
             </main>
+
+            <aside>
+                <NotifsCard/>
+            {/*    Fav Playlist card  */}
+            </aside>
         </div>
     );
 }
