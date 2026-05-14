@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
 from app.models.user_album_status import MediaStatus
+from uuid import UUID
 
 
 class UserAlbumStatusCreate(BaseModel):
@@ -10,7 +11,7 @@ class UserAlbumStatusCreate(BaseModel):
 class UserAlbumStatusResponse(BaseModel):
     id: int
     user_id: str
-    album_id: int
+    album_id: UUID
     status: MediaStatus
     updated_at: datetime
 
