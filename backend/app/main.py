@@ -80,6 +80,7 @@ app.include_router(albums.router, prefix="/api/v1")
 
 # LES AUTRES ROUTES (PLAYLISTS, REVIEWS, INTERACTIONS)
 app.include_router(library.router, prefix="/api/v1")
+app.include_router(library.library_router, prefix="/api/v1")
 app.include_router(playlist.router, prefix="/api/v1")
 app.include_router(reviews.router, prefix="/api/v1")
 app.include_router(interactions.router, prefix="/api/v1")
