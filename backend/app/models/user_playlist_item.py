@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, ForeignKey, DateTime, Enum, UniqueConstraint
 from sqlalchemy.sql import func
 from app.db.session import Base
+from sqlalchemy.dialects.postgresql import UUID
 import enum
 
 
@@ -12,9 +13,12 @@ class UserPlaylistItem(Base):
     playlist_id = Column(Integer, ForeignKey(
         "playlists.id", ondelete="CASCADE"), nullable=False)
 
-    track_id = Column(Integer,  # TODO : remettre quand Krishna aura codé ForeignKey(
-                      #  "tracks.id", ondelete="CASCADE"), nullable=False)
-                      )
+    track_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("tracks.id", ondelete="CASCADE"),
+        nullable=False
+    )
+
 
     added_at = Column(DateTime, server_default=func.now(), nullable=False)
 

@@ -1,5 +1,6 @@
 from sqlalchemy.sql import func
 from sqlalchemy import Column, Text, Integer, ForeignKey, Boolean, CheckConstraint, DateTime, UniqueConstraint, String
+from sqlalchemy.dialects.postgresql import UUID
 from app.db.session import Base
 
 
@@ -11,7 +12,7 @@ class Review(Base):
     user_id = Column(String, ForeignKey(
         "users.id", ondelete="CASCADE"), nullable=False)
 
-    album_id = Column(Integer, ForeignKey(
+    album_id = Column(UUID(as_uuid=True), ForeignKey(
         "albums.id", ondelete="CASCADE"), nullable=False)
 
     rating = Column(Integer, CheckConstraint(
