@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from app.core.config import settings
 from app.db.session import engine, Base
-from app.api.v1 import auth, oauth, users
+from app.api.v1 import auth, oauth, users, websockets
 
 from app.api.v1 import library
 from app.api.v1 import playlist
@@ -82,3 +82,5 @@ app.include_router(interactions.router, prefix="/api/v1")
 
 app.include_router(follows.router, prefix="/api/v1")
 app.include_router(notifications.router, prefix="/api/v1")
+
+app.include_router(websockets.router, prefix="/api/v1")

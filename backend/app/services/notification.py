@@ -3,6 +3,7 @@ from sqlalchemy import select, desc
 from sqlalchemy import func
 from app.models import User
 from app.models.notification import Notification, NotificationType
+from app.core.websocket_manager import manager
 
 class NotificationService:
     async def create_notification(self,
@@ -13,22 +14,30 @@ class NotificationService:
                                   related_review_id: int = None,
                                   message: str = None
                                   ) -> Notification:
-                                    """Crée une notification en base de données."""
+        """Crée une notification en base de données."""
 
-                                    if user_id == related_user_id:
-                                        return None
+        if user_id == related_user_id:
+            return None
 
-                                    new_notification = Notification(
-                                        user_id=user_id,
-                                        type=notification_type,
-                                        related_user_id=related_user_id,
-                                        related_review_id=related_review_id,
-                                        message=message
-                                    )
+        new_notification = Notification(
+            user_id=user_id,
+            type=notification_type,
+            related_user_id=related_user_id,
+            related_review_id=related_review_id,
+            message=message
+        )
 
-                                    db.add(new_notification)
-                                    await db.flush()
-                                    return new_notification
+        db.add(new_notification)
+        await db.flush()
+
+        unread_count = await self.get_unread_count(db, user_id)
+        ws_message = {
+            "type": "new_notification",
+            "unread_count": unread_count
+        }
+        await manager.send_personal_notification(ws_message, user_id)
+
+        return new_notification
 
     async def get_user_notifications(self, db: AsyncSession, user_id: str, limit: int = 20, offset: int = 0):
         """Récupère les notifications d'un utilisateur, de la plus récente à la plus ancienne."""
