@@ -62,3 +62,20 @@ async def get_optional_user(
 
     except JWTError:
         return None
+
+def verify_ws_token(token: str) -> dict:
+    """Vérifie manuellement un token pour les WebSockets."""
+    try:
+        payload = jwt.decode(
+            token,
+            settings.JWT_SECRET_KEY,
+            algorithms=[settings.JWT_ALGORITHM]
+        )
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise ValueError("Token invalide: pas de user_id")
+
+        return {"user_id": user_id, "role": payload.get("role", "user")}
+
+    except JWTError:
+        raise ValueError("Token expiré ou corrompu")
