@@ -6,6 +6,7 @@ from app.db.session import get_db
 from app.core.dependencies import get_current_user
 from datetime import datetime, timezone
 
+from app.models.notification import NotificationType
 from app.models.reviews import Review
 from app.models.review_likes import ReviewLike
 from app.models.review_comments import ReviewComment
@@ -16,7 +17,7 @@ from app.schemas.review_likes import ReviewLikeResponse
 from app.schemas.reports import ReportCreate, ReportResponse
 from app.services.feed import feed_service
 from app.models.user_activity_feed import ActivityTypes
-
+from app.services.notification import notification_service
 
 router = APIRouter(tags=["interactions"])
 
@@ -102,6 +103,7 @@ async def create_comment(
         user_id=current_user["user_id"], review_id=review_id, content=body.content)
 
     db.add(new_comment)
+    await db.flush()
 
     await feed_service.log_activity(
         db=db,
@@ -110,8 +112,13 @@ async def create_comment(
         review_id=review_id
     )
 
-    # TODO : décommenter quand Elisa aussi codé create_notification pour notifier l'auteur de la review
-    # await create_notification(review.user_id, "COMMENT", review_id, db)
+    await notification_service.create_notification(
+        db=db,
+        user_id=review.user_id,
+        notification_type=NotificationType.COMMENT,
+        related_user_id=current_user["user_id"],
+        related_review_id=review.id
+    )
 
     await db.commit()
     await db.refresh(new_comment)

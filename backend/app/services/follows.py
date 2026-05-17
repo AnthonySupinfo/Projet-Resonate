@@ -6,6 +6,8 @@ from app.models.user import User
 from app.models.follow import Follow
 from app.services.feed import feed_service
 from app.models.user_activity_feed import ActivityTypes
+from app.services.notification import notification_service
+from app.models.notification import NotificationType
 
 class FollowService:
     async def follow_user(self, db: Session, follower_id: str, following_id: str):
@@ -34,6 +36,7 @@ class FollowService:
         # Insertion si tout est bon
         new_follow = Follow(follower_id=follower_id, following_id=following_id)
         db.add(new_follow)
+        await db.flush()
 
         # log activity feed
         await feed_service.log_activity(
@@ -41,6 +44,14 @@ class FollowService:
             user_id=follower_id,
             activity_type=ActivityTypes.FOLLOW_USER,
             target_user_id=following_id
+        )
+
+        # création de la notif
+        await notification_service.create_notification(
+            db=db,
+            user_id=following_id,
+            notification_type=NotificationType.FOLLOW,
+            related_user_id=follower_id
         )
 
         await db.commit()
