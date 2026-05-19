@@ -12,5 +12,6 @@ from .user_album_status import UserAlbumStatus
 from .user_playlist_item import UserPlaylistItem
 from .user_playlist_status import UserPlaylistStatus
 from .user_activity_feed import UserActivityFeed
+from .message import Conversation, Message
 
-__all__ = ["Base", "User", "Album", "Follow", "OAuthAccount", "UserActivityFeed"]
+__all__ = ["Base", "User", "Album", "Follow", "OAuthAccount", "UserActivityFeed", "Conversation", "Message"]
