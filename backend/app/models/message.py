@@ -20,7 +20,7 @@ class Conversation(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     __table_args__ = (
-        CheckConstraint('user1_id < user2_id', name='check_user1_less_than_user2'),
+        CheckConstraint('user1_id <= user2_id', name='check_user1_less_than_user2'),
         UniqueConstraint('user1_id', 'user2_id', name='unique_conversation_users')
     )
 
