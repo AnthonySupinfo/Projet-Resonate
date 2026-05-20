@@ -26,3 +26,9 @@ class ConversationItemResponse(BaseModel):
     last_message_date: Optional[datetime] = None
     last_message_is_read: Optional[bool] = None
     last_message_sender_id: Optional[str] = None
+
+class MessageCreate(BaseModel):
+    content: str
+
+class MessageUpdate(BaseModel):
+    content: str
