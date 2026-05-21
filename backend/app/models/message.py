@@ -30,7 +30,7 @@ class Message(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     conversation_id = Column(Integer, ForeignKey("conversations.id", ondelete="CASCADE"), nullable=False)
-    sender_id = Column(String, ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
+    sender_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
     content = Column(Text, nullable=False)
     status = Column(SQLEnum(MessageStatus), default=MessageStatus.PENDING, nullable=False)
