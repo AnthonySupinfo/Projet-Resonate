@@ -104,10 +104,12 @@ class LastFMService:
     async def get_album_detail(self, artist: str, album: str): 
 
         async with AsyncSessionLocal() as session: 
-            stmt = select(Album).where( 
+            
+            stmt = select(Album).where(
                 Album.artist_name == artist,
                 Album.name == album
             )
+
             result = await session.execute(stmt) # pour executer de maniere asynchrone 
             db_album = result.scalar_one_or_none() 
 
@@ -152,18 +154,24 @@ class LastFMService:
 
             # 5 UPSERT ALBUM
             lastfm_album_url = album_info.get("url") 
+            
+            # chercher avec la bonne clé UNIQUE
+            stmt = select(Album).where(Album.lastfm_url == lastfm_album_url)
+            result = await session.execute(stmt)
+            db_album = result.scalar_one_or_none()
 
-            if db_album: 
-                db_album.lastfm_url = lastfm_album_url # met à jour l'URL de l'album
+            if db_album:
+                db_album.name = album_info.get("name")
+                db_album.artist_name = artist_name
                 db_album.fetched_at = datetime.now(timezone.utc)
-            else: # sinon on le créer et on l'ajoute à la base de données
-                db_album = Album( 
+            else:
+                db_album = Album(
                     name=album_info.get("name"),
                     artist_name=artist_name,
                     lastfm_url=lastfm_album_url,
                     fetched_at=datetime.now(timezone.utc),
                 )
-                session.add(db_album) 
+                session.add(db_album)
 
             await session.flush()  # garantit db_album.id
 
