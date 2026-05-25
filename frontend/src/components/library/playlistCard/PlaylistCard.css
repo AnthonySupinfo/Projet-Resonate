@@ -3,6 +3,7 @@
     flex-direction: column;
     cursor: pointer;
     width: 100%;
+    overflow: hidden;
 }
 
 .playlist-card:hover .playlist-cover {
@@ -28,22 +29,22 @@
 .playlist-title {
     color: white;
     margin: 0 0 4px 0;
-    font-size: 0.9rem;
+    font-size: 0.9rem !important;
     font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-family: sans-serif;
+    font-family: 'Inter', sans-serif;
 }
 
 .playlist-meta {
     color: #8e8e93;
     margin: 0;
-    font-size: 0.75rem;
+    font-size: 0.75rem !important;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-family: sans-serif;
+    font-family: 'Inter', sans-serif;
 }
 
 .playlist-badge {

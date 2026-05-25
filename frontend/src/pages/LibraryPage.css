@@ -1,8 +1,14 @@
 .library-page-content {
-    padding-right: 40px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    margin: 0 auto;
     padding-bottom: 60px;
     color: white;
     font-family: sans-serif;
+    box-sizing: border-box;
 }
 
 .topbar-placeholder {

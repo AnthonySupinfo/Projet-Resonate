@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import './CreatePlaylistModal.css';
-import { createPlaylist } from '../../api/api';
+import { createPlaylist } from '../../../api/api';
 
 export default function CreatePlaylistModal({ isOpen, onClose, onPlaylistCreated }) {
     const [name, setName] = useState('');
