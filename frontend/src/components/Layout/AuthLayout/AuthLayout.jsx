@@ -14,6 +14,7 @@ export default function AuthLayout() {
                 <LibraryCard />
             </aside>
 
+
             <main className="auth-main-content">
                 <Outlet />
             </main>

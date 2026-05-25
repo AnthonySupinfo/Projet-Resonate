@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, ForeignKey, DateTime, Enum, UniqueConstraint, String
 from sqlalchemy.sql import func
 from app.db.session import Base
+from sqlalchemy.dialects.postgresql import UUID
 import enum
 
 

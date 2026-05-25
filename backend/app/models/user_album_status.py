@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, ForeignKey, DateTime, Enum, UniqueConstraint, String
 from sqlalchemy.sql import func
 from app.db.session import Base
+from sqlalchemy.dialects.postgresql import UUID
 import enum
 
 
@@ -19,7 +20,7 @@ class UserAlbumStatus(Base):
     user_id = Column(String, ForeignKey(
         "users.id", ondelete="CASCADE"), nullable=False)
 
-    album_id = Column(Integer, ForeignKey(
+    album_id = Column(UUID(as_uuid=True), ForeignKey(
         "albums.id", ondelete="CASCADE"), nullable=False)
 
     status = Column(Enum(MediaStatus), nullable=False)

@@ -1,10 +1,30 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.sql import func
+import uuid
+from sqlalchemy.orm import relationship
+
+
+
 from app.db.session import Base
+
 
 
 class Album(Base):
     __tablename__ = "albums"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
-    title = Column(String(255), nullable=False)
+    #  fusion des noms
+    name = Column(String, nullable=False)          # ton champ
+    title = Column(String, nullable=True)          # optionnel (compat collègue)
+
+    artist_name = Column(String, nullable=False)
+
+    lastfm_url = Column(String, unique=True, index=True)
+
+    fetched_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    tracks = relationship("Track", back_populates="album")
+

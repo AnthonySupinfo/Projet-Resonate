@@ -1,5 +1,6 @@
 from pydantic import BaseModel, field_validator
 from datetime import datetime
+from uuid import UUID
 
 
 class ReviewCreate(BaseModel):
@@ -29,7 +30,7 @@ class ReviewUpdate(BaseModel):
 class ReviewResponse(ReviewCreate):
     id: int
     user_id: str
-    album_id: int
+    album_id: UUID
     has_been_modified: bool
     posted_at: datetime
     updated_at: datetime
