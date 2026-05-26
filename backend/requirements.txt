@@ -39,3 +39,7 @@ email-validator==2.2.0
 
 # Email
 aiosmtplib==3.0.1
+
+# Rate limiting
+slowapi==0.1.9
+# limite le nombre de requêtes par IP sur les routes sensibles, protection contre le bruteforce et le spam.

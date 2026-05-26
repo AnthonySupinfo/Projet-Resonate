@@ -21,5 +21,16 @@ postgres_data/
 .idea/.DS_Store
 .idea/
 
+# Claude
+.claude/
+
+#nginx
+nginx/certs/
+
 README.DevA.md
 README.Guide.bdd.md
+README.HTTPS.md
+README.QstReponse.md
+README.RefreshToken.md
+README.Presentation.md
+README.Security.md

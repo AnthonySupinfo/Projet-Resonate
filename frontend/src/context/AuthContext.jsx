@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react"
-import { getMe } from "../api/auth"
+import { getMe, logoutServer } from "../api/auth"
 
 // Contexte d'authentification pour gérer l'état de connexion de l'utilisateur à travers l'application
 const AuthContext = createContext(null)
@@ -26,6 +26,7 @@ export function AuthProvider({ children }) {
       .then((userData) => {
         if (!userData) {
           localStorage.removeItem("token")
+          localStorage.removeItem("refresh_token")
           setUser(null)
           setToken(null)
           return
@@ -37,23 +38,32 @@ export function AuthProvider({ children }) {
       .finally(() => setLoading(false))
   }, [])
 
-  // Stocke le token et les infos utilisateur après login
-  async function handleLogin(accessToken) {
+  // Stocke les deux tokens et les infos utilisateur après login
+  async function handleLogin(accessToken, refreshToken) {
     localStorage.setItem("token", accessToken)
+    if (refreshToken) {
+      localStorage.setItem("refresh_token", refreshToken)
+    }
     setToken(accessToken)
     const userData = await getMe(accessToken)
     if (!userData) {
       // Token invalide — on nettoie tout
       localStorage.removeItem("token")
+      localStorage.removeItem("refresh_token")
       setToken(null)
       throw new Error("Token invalide")
     }
     setUser(userData)
   }
 
-  // Supprime le token et les infos utilisateur
-  function logout() {
+  // Déconnexion complète (serveur + client)
+  async function logout() {
+    const currentToken = localStorage.getItem("token")
+    if (currentToken) {
+      await logoutServer(currentToken)
+    }
     localStorage.removeItem("token")
+    localStorage.removeItem("refresh_token")
     setUser(null)
     setToken(null)
   }

@@ -5,7 +5,7 @@ from fastapi import HTTPException, status
 from app.core.config import settings
 from app.models.user import User
 from app.models.oauth_account import OAuthAccount
-from app.services.auth import create_access_token
+from app.services.auth import create_access_token, create_refresh_token
 
 # Fonctions Google
 async def get_google_access_token(code: str) -> str:
@@ -107,7 +107,7 @@ async def handle_oauth_user(
     provider_email: str,
     provider_username: str,
     db: AsyncSession
-) -> str:
+) -> dict:
     result = await db.execute(
         select(OAuthAccount).where(
             OAuthAccount.provider == provider,
@@ -126,7 +126,9 @@ async def handle_oauth_user(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Ce compte a été désactivé"
             )
-        return create_access_token(user.id, user.role)
+        access_token = create_access_token(user.id, user.role)
+        refresh_token = await create_refresh_token(user.id, db)
+        return {"access_token": access_token, "refresh_token": refresh_token}
 
     result = await db.execute(
         select(User).where(User.email == provider_email)
@@ -142,7 +144,9 @@ async def handle_oauth_user(
         )
         db.add(new_oauth)
         await db.commit()
-        return create_access_token(existing_user.id, existing_user.role)
+        access_token = create_access_token(existing_user.id, existing_user.role)
+        refresh_token = await create_refresh_token(existing_user.id, db)
+        return {"access_token": access_token, "refresh_token": refresh_token}
 
     base_username = provider_username.lower().replace(" ", "_")[:20]
     username = base_username
@@ -175,4 +179,6 @@ async def handle_oauth_user(
     await db.commit()
     await db.refresh(new_user)
 
-    return create_access_token(new_user.id, new_user.role)
+    access_token = create_access_token(new_user.id, new_user.role)
+    refresh_token = await create_refresh_token(new_user.id, db)
+    return {"access_token": access_token, "refresh_token": refresh_token}

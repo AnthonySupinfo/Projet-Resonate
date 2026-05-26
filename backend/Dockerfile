@@ -11,5 +11,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Ensuite, on copie le reste du code de l'application
 COPY . .
 
+# Créer un utilisateur non-root pour exécuter l'application (sécurité)
+RUN adduser --disabled-password --no-create-home appuser
+USER appuser
+
 # Exposer le port sur lequel FastAPI va tourner
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
