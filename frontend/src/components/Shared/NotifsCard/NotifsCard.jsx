@@ -5,33 +5,132 @@ import iconConversation from '../../../../public/icons/notifsbar/conversation.pn
 import iconLogout from '../../../../public/icons/notifsbar/logout.png';
 import logoResonate from '../../../../public/logoResonate.png';
 import {useAuth} from "../../../context/AuthContext.jsx";
+import {useEffect, useState} from "react";
+import NotifsModal from "./NotifsModal/NotifsModal.jsx";
+import { getProfile } from "../../../api/auth.js";
+import {notificationService} from "../../../api/notification.service.js";
 
 export default function NotifsCard() {
     const { logout } = useAuth();
     const navigate = useNavigate();
+
+    const [notifications, setNotifications] = useState([]);
+    const [unreadCount, setUnreadCount] = useState(0);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const [myAvatar, setMyAvatar] = useState(null);
+
+    const [lastSeenUnreadCount, setLastSeenUnreadCount] = useState(() => {
+        const saved = localStorage.getItem('lastSeenUnreadCount');
+        return saved ? parseInt(saved, 10) : 0;
+    });
+
+    useEffect(() => {
+        const fetchNotificationsData = async () => {
+            try {
+                const dataNotifs = await notificationService.getNotifications();
+                setNotifications(dataNotifs);
+
+                const dataNotifsCount = await notificationService.getUnreadCount();
+                const currentUnread = dataNotifsCount.unread_count;
+                setUnreadCount(currentUnread);
+
+                // if (token && !myAvatar) {
+                //     const profileData = await getProfile(token);
+                //     if (profileData) {
+                //         setMyAvatar(profileData.avatar_url);
+                //     }
+                // }
+
+                if (currentUnread < lastSeenUnreadCount) {
+                    setLastSeenUnreadCount(currentUnread);
+                    localStorage.setItem('lastSeenUnreadCount', currentUnread.toString());
+                }
+            } catch (err) {
+                console.error("Erreur de récupération au niveau des notifications", err);
+            }
+        };
+
+        fetchNotificationsData();
+    }, [lastSeenUnreadCount]);
+
+
+    const handleNotifButtonClick = () => {
+        if (!isModalOpen) {
+            setIsModalOpen(true);
+            setLastSeenUnreadCount(unreadCount);
+            localStorage.setItem('lastSeenUnreadCount', unreadCount.toString());
+        } else {
+            setIsModalOpen(false);
+        }
+    };
+
+    const handleReadSingle = async (id) => {
+        try {
+            await notificationService.markAsRead(id);
+
+            // prev est égale à la valeur précédente, sécurité comme useState est asynchrone
+            setNotifications(prev =>
+                prev.map(n => n.id === id ? { ...n, is_read: true } : n)
+            );
+
+            const newCount = Math.max(0, unreadCount - 1);
+            setUnreadCount(newCount);
+            setLastSeenUnreadCount(newCount);
+            localStorage.setItem('lastSeenUnreadCount', newCount.toString());
+        } catch (err) {
+            console.error("Erreur lors du marquage comme lu sur la notification sélectionnée", err);
+        }
+    };
+
+    const handleReadAll = async () => {
+        try {
+            await notificationService.markAllAsRead();
+            setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+            setUnreadCount(0);
+            setLastSeenUnreadCount(0);
+            localStorage.setItem('lastSeenUnreadCount', '0');
+        } catch (err) {
+            console.error("Erreur lors du marquage comme lu des notifications", err);
+        }
+    };
     const onLogoutClick = () => {
         logout();
         navigate('/');
     };
 
+    const showNotifBadge = unreadCount > lastSeenUnreadCount;
+
+    const newNotifsCount = unreadCount - lastSeenUnreadCount;
+
     return (
-        <div className="notifs-card">
-            <button className="notif-btn">
-                <img src={iconNotif} alt="Notifications" className="notif-icon" />
+        <div className="notifs-card-container">
+            <button className="notif-card-btn" onClick={handleNotifButtonClick} onMouseDown={(e) => e.stopPropagation()}>
+                <img src={iconNotif} alt="Notifications" className="notif-card-icon" />
+                {showNotifBadge && <span className="notif-card-badge">{newNotifsCount}</span>}
             </button>
 
-            <button className="notif-btn notif-badge-wrapper">
-                <img src={iconConversation} alt="Messages" className="notif-icon" />
-                {/*<span className="notif-badge">2</span>*/}
+            <button className="notif-card-btn chat-wrapper">
+                <img src={iconConversation} alt="Messages" className="notif-card-icon" />
+                <span className="notif-card-badge">2</span>
             </button>
 
-            <button className="notif-btn" onClick={onLogoutClick}>
-                <img src={iconLogout} alt="Se déconnecter" className="notif-icon" />
+            <button className="notif-card-btn" onClick={onLogoutClick}>
+                <img src={iconLogout} alt="Se déconnecter" className="notif-card-icon" />
             </button>
 
-            <Link to="/" className="notif-avatar">
-                <img src={logoResonate} alt="Accueil" className="notif-avatar-image" />
+            <Link to="/" className="notif-card-logo">
+                <img src={logoResonate} alt="Accueil" className="notif-card-logo-img" />
             </Link>
+
+            {isModalOpen && (
+                <NotifsModal
+                    notifications={notifications}
+                    onClose={() => setIsModalOpen(false)}
+                    onReadSingle={handleReadSingle}
+                    onReadAll={handleReadAll}
+                />
+            )}
         </div>
     );
 }

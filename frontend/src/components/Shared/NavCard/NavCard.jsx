@@ -1,5 +1,5 @@
 ﻿import './NavCard.css';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useLanguage } from "../../../context/LanguageContext.jsx"
 import { useAuth } from "../../../context/AuthContext.jsx";
 
@@ -8,7 +8,6 @@ import iconHomeSelected from '../../../../public/icons/nav/accueil-selected.png'
 import iconExploreUnselected from '../../../../public/icons/nav/explore-unselected.png';
 import iconExploreSelected from '../../../../public/icons/nav/explore-selected.png';
 import iconLoginUnselected from '../../../../public/icons/nav/login-unselected.png';
-import iconLogoutUnselected from '../../../../public/icons/nav/logout-unselected.png';
 import iconSocialUnselected from '../../../../public/icons/nav/social-unselected.png';
 import iconSocialSelected from '../../../../public/icons/nav/social-selected.png';
 import iconFavoritesUnselected from '../../../../public/icons/nav/favorites-unselected.png';
@@ -17,13 +16,7 @@ import iconFavoritesSelected from '../../../../public/icons/nav/favorites-select
 
 export default function NavCard() {
     const {t} = useLanguage();
-    const { user, logout } = useAuth();
-    const navigate = useNavigate();
-
-    const onLogoutClick = () => {
-        logout();
-        navigate('/');
-    };
+    const { user } = useAuth();
 
     return (
         <div className="nav-card">
@@ -68,12 +61,6 @@ export default function NavCard() {
                                 </>
                             )}
                         </NavLink>
-
-                        {/*TODO: à supprimer quand vraie nav user faite*/}
-                        <button onClick={onLogoutClick} className="nav-item btn-logout">
-                            <span className="nav-text">{t('layout.navLogout')}</span>
-                            <img src={iconLogoutUnselected} alt="" className="nav-icon" />
-                        </button>
                     </>
                 ) : (
                     // User déconnecté

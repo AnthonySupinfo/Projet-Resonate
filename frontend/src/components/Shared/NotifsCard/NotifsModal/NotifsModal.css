@@ -1,0 +1,125 @@
+.notifs-modal-container {
+    position: absolute;
+    top: calc(100% + 5px);
+    right: 0;
+    width: 360px;
+    max-height: 480px;
+    background-color: #68606B;
+    background-image: radial-gradient(circle at 40% 36%, rgba(131, 121, 139, 0.11) 0%, rgba(0, 0, 0, 0.09) 100%);
+    border-radius: 26px;
+    box-shadow: 0 3px 8px rgba(var(--shadow-rgb), 0.24);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    overflow: hidden;
+    animation: fadeInNotif 0.2s ease-out;
+}
+
+@keyframes fadeInNotif {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.notifs-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px 16px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 8px;
+}
+
+.notifs-modal-title {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 400;
+    color: var(--text-primary);
+}
+
+.notifs-global-menu-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.notifs-modal-menu-trigger {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+}
+
+.open-menu-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.notifs-modal-menu-trigger:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.notifs-context-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: var(--bg-card);
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(var(--shadow-rgb), 0.3);
+    padding: 6px;
+    min-width: 180px;
+    z-index: 110;
+}
+
+.notifs-context-item {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    text-align: left;
+    width: 100%;
+    padding: 10px 12px;
+    cursor: pointer;
+    border-radius: 8px;
+}
+
+.notifs-context-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.notifs-modal-body {
+    overflow-y: auto;
+    padding: 0 8px 16px 8px;
+    flex-grow: 1;
+    scrollbar-gutter: stable;
+}
+
+.notifs-modal-body::-webkit-scrollbar {
+    width: 4px;
+}
+
+.notifs-modal-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.notifs-empty-state {
+    text-align: center;
+    color: var(--text-muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    padding: 32px 0;
+}
