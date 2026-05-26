@@ -10,43 +10,62 @@
     margin-bottom: 20px;
 }
 
-.carousel-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: white;
-    margin: 0;
+.carousel-content-wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    min-height: 180px;
 }
 
-.carousel-actions {
-    display: flex;
-    gap: 12px;
+.carousel-title {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #ffffff;
+    font-family: 'Poppins', sans-serif;
 }
+
 
 .carousel-arrow {
-    background-color: transparent;
-    border: 1px solid #48484a;
-    color: white;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    background-color: rgba(35,33,36,0.6);
+    border: 1px solid #f1a2a2;
+    color: #f1a2a2;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
+    transition: all 0.2s;
+    margin-top: -12px;
 }
 
 .carousel-arrow:hover {
-    background-color: white;
-    color: black;
+    background-color: #f1a2a2;
+    color: white;
+    border-color: #f1a2a2;
+}
+
+.carousel-arrow.left {
+    left: -20px;
+}
+
+.carousel-arrow.right {
+    right: -20px;
 }
 
 .carousel-track {
     display: flex;
     gap: 24px;
     overflow-x: auto;
-    scroll-snap-type: x mandatory; /* pour s'arrêter pile sur une carte*/
+    scroll-behavior: smooth; /* pour s'arrêter pile sur une carte*/
     padding-bottom: 12px;
+    width: 100%;
 }
 
 .carousel-track::-webkit-scrollbar { /* cache la barre de défilement*/
@@ -54,7 +73,24 @@
 }
 
 .carousel-track > * { /* S'assure que les cartes ne s'écrasent pas */
-    flex: 0 0 auto;
+    flex: 0 0 160px;
     width: 160px;
+    min-width: 160px;
+    max-width: 160px;
     scroll-snap-align: start;
+}
+
+.see-all-btn {
+    background: transparent;
+    border: none;
+    color: #f1a2a2;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.see-all-btn:hover {
+    opacity: 0.75;
 }

@@ -1,8 +1,14 @@
 .library-page-content {
-    padding-right: 40px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    margin: 0 auto;
     padding-bottom: 60px;
     color: white;
     font-family: sans-serif;
+    box-sizing: border-box;
 }
 
 .topbar-placeholder {
@@ -12,10 +18,12 @@
 
 /*--Stats--*/
 .stats-container {
-    background-color: #1e1e1e;
-    border-radius: 24px;
+    background: #35313A;
+    background-image: radial-gradient(circle at bottom right, rgba(196, 165, 181, 0.55) 0%, rgba(153, 153, 153, 0) 70%);
+    border-radius: 35px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
     padding: 24px 32px;
-    margin-bottom: 48px;
+    margin-bottom: 32px;
 }
 
 .stats-title {
@@ -42,7 +50,7 @@
 .stat-number {
     font-size: 2.5rem;
     font-weight: 300;
-    color: #ff4b4b;
+    color: #f1a2a2;
     line-height: 1;
 }
 
@@ -53,7 +61,11 @@
     line-height: 1.2;
 }
 
-.carousel-static {
-    width: 160px;
-    flex: 0 0 auto;
+.carousel-section {
+    margin-bottom: 24px;
+    background: #35313A;
+    background-image: radial-gradient(circle at bottom right, rgba(196, 165, 181, 0.55) 0%, rgba(153, 153, 153, 0) 70%);
+    border-radius: 35px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    padding: 24px 22px;
 }

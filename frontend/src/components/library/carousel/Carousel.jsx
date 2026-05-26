@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import './Carousel.css';
 
-export default function Carousel({ title, children }) {
+export default function Carousel({ title, children, onSeeAll }) {
     const scrollRef = useRef(null); // useRef permet d'accéder direct à la div pour la scroller
 
     const scroll = (direction) => {
@@ -18,13 +18,17 @@ export default function Carousel({ title, children }) {
         <div className="carousel-section">
             <div className="carousel-header">
                 <h2 className="carousel-title">{title}</h2>
-                <div className="carousel-actions">
-                    <button className="carousel-arrow" onClick={() => scroll('left')}>←</button>
-                    <button className="carousel-arrow" onClick={() => scroll('right')}>→</button>
-                </div>
+            
+                {onSeeAll && (
+                    <button className="see-all-btn" onClick={onSeeAll}>Tout voir</button>
+                )}
             </div>
 
-            <div className="carousel-track" ref={scrollRef}>{children}</div>
-        </div>
+            <div className="carousel-content-wrapper">
+                <button className="carousel-arrow left" onClick={() => scroll('left')}>←</button>
+                    <div className="carousel-track" ref={scrollRef}>{children}</div>
+                    <button className="carousel-arrow right" onClick={() => scroll('right')}>→</button>
+                </div>
+            </div>
     );
 }

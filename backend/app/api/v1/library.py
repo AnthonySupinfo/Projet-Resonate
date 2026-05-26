@@ -2,11 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.orm import joinedload
 
 from app.db.session import get_db
 from app.models.user_album_status import UserAlbumStatus, MediaStatus
 from app.models.album import Album
-from app.schemas.user_album_status import UserAlbumStatusCreate, UserAlbumStatusResponse
+from app.schemas.user_album_status import UserAlbumStatusCreate, UserAlbumStatusResponse, UserAlbumStatusWithAlbumResponse
 from app.core.dependencies import get_current_user
 
 router = APIRouter(prefix="/albums", tags=["library"])
@@ -76,37 +77,20 @@ async def delete_album_status(
 library_router = APIRouter(prefix="/users", tags=["library"])
 
 
-@library_router.get("/me/library", response_model=list[UserAlbumStatusResponse])
+@library_router.get("/me/library", response_model=list[UserAlbumStatusWithAlbumResponse])
 async def get_my_library(
     status: MediaStatus | None = None,
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user)
 ):
-    query = select(UserAlbumStatus).filter(
-        UserAlbumStatus.user_id == current_user["user_id"])
+    query = (
+        select(UserAlbumStatus)
+        .options(joinedload(UserAlbumStatus.album))  # joint l'album
+        .filter(UserAlbumStatus.user_id == current_user["user_id"])
+    )
 
     if status:
         query = query.filter(UserAlbumStatus.status == status)
 
     result = await db.execute(query)
     return result.scalars().all()
-
-
-# -------------------------------------------
-
-# Route de test (A SUPPRIMER)
-
-@router.post("/dev/seed-album", status_code=status.HTTP_201_CREATED)
-async def seed_fake_album(db: AsyncSession = Depends(get_db)):
-    stmt = select(Album).limit(1)
-    result = await db.execute(stmt)
-    existing = result.scalars().first()
-
-    if existing:
-        return {"message": f"Un album existe déjà avec l'ID {existing.id}"}
-
-    new_album = Album(title="Album Test Backend")
-    db.add(new_album)
-    await db.commit()
-    await db.refresh(new_album)
-    return {"message": f"Faux album créé avec succès. Son ID est {new_album.id}"}

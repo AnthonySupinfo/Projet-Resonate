@@ -1,0 +1,164 @@
+.playlist-detail-page {
+    padding-right: 40px;
+    padding-bottom: 60px;
+    color: white;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.playlist-status-msg {
+    padding: 60px;
+    text-align: center;
+    color: #8e8e93;
+    font-size: 1.1rem;
+}
+
+.playlist-status-msg.error {
+    color: #ff4b4b;
+}
+
+.back-btn {
+    background: transparent;
+    border: none;
+    color: #8e8e93;
+    font-size: 0.95rem;
+    cursor: pointer;
+    margin-bottom: 24px;
+    padding: 0;
+    transition: color 0.2s;
+}
+
+.back-btn:hover {
+    color: white;
+}
+
+.playlist-header {
+    display: flex;
+    gap: 32px;
+    align-items: flex-end;
+    margin-bottom: 48px;
+}
+
+.playlist-main-cover {
+    width: 200px;
+    height: 200px;
+    border-radius: 16px;
+    object-fit: cover;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.playlist-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.playlist-type {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #8e8e93;
+}
+
+.playlist-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.1;
+}
+
+.playlist-desc {
+    color: #d1d5db;
+    font-size: 0.95rem;
+    margin: 0 0 16px 0;
+}
+
+.toggle-privacy-btn {
+    background-color: transparent;
+    border: 1px solid #48484a;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.toggle-privacy-btn:hover {
+    border-color: white;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/*Liste musiques*/
+.tracklist-section h3 {
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #2c2c2e;
+    padding-bottom: 12px;
+}
+
+.tracklist {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.track-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.track-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.track-number {
+    width: 32px;
+    color: #8e8e93;
+    font-size: 0.9rem;;
+}
+
+.track-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.track-name {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.track-artist {
+    font-size: 0.85rem;
+    color: #8e8e93;
+}
+
+.remove-track-btn {
+    background: transparent;
+    border: none;
+    color: #8e8e93;
+    font-size: 1.2rem;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s, color 0.2s;
+}
+
+.track-item:hover .remove-track-btn {
+    opacity: 1;
+}
+
+.remove-track-btn:hover {
+    color: #ff4b4b;
+}
+
+.empty-tracklist {
+    color: #8e8e93;
+    font-style: italic;
+    padding: 20px 0;
+}

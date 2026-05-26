@@ -4,10 +4,11 @@ import PlaylistCard from '../components/library/playlistCard/PlaylistCard';
 import AlbumCard from '../components/library/albumCard/AlbumCard';
 import './LibraryPage.css';
 import { getMyLibrary, getMyPlaylist } from '../api/api';
+import { useNavigate } from 'react-router-dom';
 
 // Données mockés pour tester visu 
 
-const fallbackAlbums = [
+/* const fallbackAlbums = [
     { id: 1, title: "BULLY", artist: "Kanye West", year: "2024", coverUrl: "https://placehold.co/400x400/2a2a2c/ffffff?text=BULLY"},
     { id: 2, title:"Clair Obscur", artist: "Lomepal", year: "2023", coverUrl: "https://placehold.co/400x400/1e40af/ffffff?text=Clair+Obscure"},
     { id: 3, title: "ARRANG", artist: "BTS", year: "2020", coverUrl: "https://placehold.co/400x400/1e40af/ffffff?text=ARRANG"},
@@ -22,17 +23,19 @@ const fallbackPlaylists = [
     { id: 104, name: "The life of a Show...", trackCount: 46, coverUrl: "https://placehold.co/400x400/b91c1c/ffffff?text=Show"},
     { id: 105, name: "The weeknd", trackCount: 29, coverUrl: "https://placehold.co/400x400/1a1a1a/ffffff?text=The+Weeknd"},
     { id: 106, name: "Bestof Mickael Jackson", trackCount: 53, coverUrl: "https://placehold.co/400x400/d97706/ffffff?text=Michael+Jackson"},
-];
+]; */
 
 export default function LibraryPage() {
     const [userPlaylists, setUserPlaylists] = useState([]);
     const [userAlbums, setUserAlbums] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const navigate = useNavigate();
+
     const [stats, setStats] = useState({
-        likedAlbums: 0,
-        followedPlaylists: 0,
-        playlistCreated: 0,
-        addedTracks: 0,
-        favoriteTracks: 0
+        albumsSauvegardes: 0,
+        albumTermines: 0,
+        albumEnCours: 0,
+        playlistsCrees: 0
     });
 
     useEffect(() => {
@@ -43,18 +46,17 @@ export default function LibraryPage() {
                     getMyLibrary()
                 ]);
 
-                setUserPlaylists(playlistsData.length > 0 ? playlistsData : fallbackPlaylists);
-                setUserAlbums(libraryData.length > 0 ? libraryData : fallbackAlbums);
+                setUserPlaylists(playlistsData.length > 0 ? playlistsData : []);
+                setUserAlbums(libraryData.length > 0 ? libraryData : []);
 
                 // Calcul des stats 
                 const totalTracks = playlistsData.reduce((total, playlist) => total + (playlist.trackCount || 0), 0);
 
                 setStats({
-                    likedAlbums: libraryData.length,
-                    followedPlaylists: playlistsData.length,
-                    playlistCreated: playlistsData.length,
-                    addedTracks: totalTracks > 0 ? totalTracks : 0,
-                    favoriteTracks: 0 // à remplacer par await getMyFavoritesTracks().length
+                    albumsSauvegardes: libraryData.length,
+                    albumTermines: libraryData.filter (item => item.status === 'COMPLETED').length,
+                    albumEnCours: libraryData.filter (item => item.status === 'LISTENING').length,
+                    playlistsCrees: playlistsData.length
                 });
             } catch (error) {
                 console.error("Erreur lors de la récupération des données", error);
@@ -76,48 +78,48 @@ export default function LibraryPage() {
                 <h3 className="stats-title">Statistiques</h3>
                 <div className="stats-grid">
                     <div className="stat-item">
-                        <span className="stat-number">{stats.likedAlbums}</span>
-                        <span className="stat-label">albums aimés</span>
+                        <span className="stat-number">{stats.albumsSauvegardes}</span>
+                        <span className="stat-label">albums sauvegardés</span>
                     </div>
                     <div className="stat-item">
-                        <span className="stat-number">{stats.followedPlaylists}</span>
-                        <span className="stat-label">playlists suivies</span>
+                        <span className="stat-number">{stats.albumTermines}</span>
+                        <span className="stat-label">albums terminés</span>
                     </div>
                     <div className="stat-item">
-                        <span className="stat-number">{stats.playlistCreated}</span>
-                        <span className="stat-label">Playlists créées</span>
+                        <span className="stat-number">{stats.albumEnCours}</span>
+                        <span className="stat-label">En cours d'écoute</span>
                     </div>
                     <div className="stat-item">
-                        <span className="stat-number">{stats.addedTracks}</span>
-                        <span className="stat-label">titres ajoutés</span>
+                        <span className="stat-number">{stats.playlistsCrees}</span>
+                        <span className="stat-label">playlists créées</span>
                     </div>
                 </div>
             </div>
 
             <Carousel title="Ajouté récemment">
-                {userAlbums.slice(0, 2).map(album => (
+                {userAlbums.slice(0, 10).map(album => (
                     <AlbumCard key={`recent-a-${album.id}`} album={album.album || album} />
                 ))}
-                {userPlaylists.slice(0, 2).map(playlist => (
+                {userPlaylists.slice(0,10).map(playlist => (
                     <PlaylistCard key={`recent-p-${playlist.id}`} playlist={playlist} />
                 ))}
             </Carousel>
 
-            <Carousel title="Albums préférés">
+            <Carousel title="Albums préférés" onSeeAll={() => navigate('/library/albums')}>
                 {userAlbums.map(item => {
                     const albumData = item.album || item;
                     return <AlbumCard key={`album-${albumData.id}`} album={albumData} />
                 })}
             </Carousel>
 
-            <Carousel title="Playlist préférées">
+            <Carousel title="Playlist préférées" onSeeAll={() => navigate('/library/playlists')}>
                 {userPlaylists.map(item => {
                     const playlistData = item.playlist || item;
                     return <PlaylistCard key={`pref-${playlistData.id}`} playlist={playlistData} />
                 })}
             </Carousel>
 
-            <Carousel title="Playlist personnalisées">
+            <Carousel title="Playlist personnalisées" onSeeAll={() => navigate('/library/playlists')}>
                 <div className="static-card create-card carousel-static">
                     <div className="static-cover create-cover">
                         <span className="plus-icon">+</span>
@@ -133,7 +135,7 @@ export default function LibraryPage() {
                     <p className="static-meta">{stats.favoriteTracks} musiques</p>
                 </div>
 
-                {userPlaylists.slice(0, 3).map(playlist => ( 
+                {userPlaylists.map(playlist => ( 
                     <PlaylistCard key={`custom-${playlist.id}`} playlist={playlist} />
                 ))}
             </Carousel>

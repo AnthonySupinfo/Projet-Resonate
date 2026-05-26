@@ -15,6 +15,7 @@
     border-radius: 12px;
     overflow: hidden;
     margin-bottom: 12px;
+    border-radius: 16px;
 }
 
 .album-cover {
@@ -35,12 +36,16 @@
     font-family: sans-serif;
 }
 
-.album-meta {
-    color: #8e8e93;
+.album-meta, .playlist-meta {
+    color: #b1b1b1;
     margin: 0;
     font-size: 0.75rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     font-family: sans-serif;
+}
+
+.playlist-cover-wrapper {
+    border-radius: 16px;
 }

@@ -3,6 +3,7 @@ from sqlalchemy.sql import func
 from app.db.session import Base
 from sqlalchemy.dialects.postgresql import UUID
 import enum
+from sqlalchemy.orm import relationship
 
 
 class MediaStatus(enum.Enum):
@@ -26,6 +27,8 @@ class UserAlbumStatus(Base):
     status = Column(Enum(MediaStatus), nullable=False)
 
     updated_at = Column(DateTime, server_default=func.now(), nullable=False)
+
+    album = relationship("Album", lazy="select")
 
     __table_args__ = (UniqueConstraint("user_id", "album_id",
                       name="unique_status_per_user_per_album"),)

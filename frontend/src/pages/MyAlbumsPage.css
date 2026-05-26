@@ -1,0 +1,72 @@
+.my-album-page {
+    padding-right: 40px;
+    color: white;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.page-title {
+    margin-bottom: 24px;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+/*Onglets*/
+.status-tabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid #2c2c2e;
+    padding-bottom: 12px;
+    overflow-x: auto;
+}
+
+.tab-item {
+    background: transparent;
+    border: none;
+    color: #8e8e93;
+    padding: 8px 16px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    border-radius: 8px;
+}
+
+.tab-item:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.tab-item.active {
+    background-image: linear-gradient(90deg, rgba(80,80,80,0.05) 1%, rgba(206, 187, 197, 0.25) 100%);
+    border: 1px solid rgba (239, 130, 130, 0.6);
+    box-shadow: 0 0 8px rgba (239, 130, 130, 0.3);
+    color: white;
+}
+
+/*Grille*/
+.albums-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 24px;
+}
+
+.album-item-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.personal-note {
+    font-size: 0.75rem;
+    color: #ff4b4b;
+    font-weight: 500;
+}
+
+.empty-state, .loading-state {
+    text-align: center;
+    padding: 60px;
+    color: #8e8e93;
+    font-style: italic;
+}

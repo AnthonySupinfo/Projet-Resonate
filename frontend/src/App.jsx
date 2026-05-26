@@ -13,6 +13,11 @@ import GuestLayout from "./components/Layout/GuestLayout/GuestLayout.jsx";
 import AuthLayout from "./components/Layout/AuthLayout/AuthLayout.jsx";
 import Explore from "./pages/Explore/Explore.jsx";
 
+import LibraryPage from "./pages/LibraryPage";
+import AllPlaylistPage from "./pages/AllPlaylistsPage";
+import PlaylistDetailPage from "./pages/PlaylistDetailPage";
+import MyAlbumsPage from "./pages/MyAlbumsPage";
+
 // Redirige vers /login si l'utilisateur n'est pas connecté
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -83,6 +88,11 @@ function AppRoutes() {
             {<Route path="/" element={<Home />} />}
             {<Route path="/explore" element={<Explore />} />}
             <Route path="/settings" element={<Settings />} />
+
+            <Route path="library" element={<LibraryPage />} />
+            <Route path="library/playlists" element={<AllPlaylistPage />} />
+            <Route path="library/playlists/:id" element={<PlaylistDetailPage />} />
+            <Route path="library/albums" element={<MyAlbumsPage />} />
         </Route>
 
       <Route path="/oauth/callback" element={<OAuthCallback />} />
