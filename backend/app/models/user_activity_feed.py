@@ -1,6 +1,8 @@
 ﻿import enum
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Enum as SQLEnum
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
+import uuid
 from app.db.session import Base
 
 
@@ -28,7 +30,7 @@ class UserActivityFeed(Base):
     target_user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=True)
     review_id = Column(Integer, ForeignKey("reviews.id", ondelete="CASCADE"), nullable=True)
     playlist_id = Column(Integer, ForeignKey("playlists.id", ondelete="CASCADE"), nullable=True)
-    album_id = Column(Integer, ForeignKey("albums.id", ondelete="CASCADE"), nullable=True)
+    album_id = Column(UUID(as_uuid=True), ForeignKey("albums.id", ondelete="CASCADE"), nullable=True)
     # TODO: Décommenter quand Krishna aura fait la table Track
     # track_id = Column(Integer, ForeignKey("tracks.id", ondelete="CASCADE"), nullable=True)
 
