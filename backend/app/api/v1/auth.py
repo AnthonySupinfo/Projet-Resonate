@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -7,10 +7,11 @@ from jose import jwt
 from datetime import datetime, timedelta, timezone
 from app.db.session import get_db
 from app.schemas.auth import RegisterRequest, LoginRequest, TokenResponse, UserResponse
-from app.services.auth import register_user, login_user
+from app.services.auth import register_user, login_user, rotate_refresh_token, revoke_all_refresh_tokens
 from app.services.email import send_reset_password_email
 from app.core.dependencies import get_current_user, require_admin
 from app.core.config import settings
+from app.core.limiter import limiter
 from app.models.user import User
 import bcrypt
 import re
@@ -18,23 +19,51 @@ import re
 # Router
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-# POST /auth/register
+# POST /auth/register (3 inscriptions max par minute par IP)
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def register(data: RegisterRequest, db: AsyncSession = Depends(get_db)):
+@limiter.limit("3/minute")
+async def register(request: Request, data: RegisterRequest, db: AsyncSession = Depends(get_db)):
     user = await register_user(data, db)
     return user
 
-# POST /auth/login
+# POST /auth/login (5 tentatives max par minute par IP)
 @router.post("/login", response_model=TokenResponse)
-async def login(data: LoginRequest, db: AsyncSession = Depends(get_db)):
-    token = await login_user(data.email, data.password, db)
-    return TokenResponse(access_token=token)
+@limiter.limit("5/minute")
+async def login(request: Request, data: LoginRequest, db: AsyncSession = Depends(get_db)):
+    tokens = await login_user(data.email, data.password, db)
+    return TokenResponse(
+        access_token=tokens["access_token"],
+        refresh_token=tokens["refresh_token"]
+    )
 
-# POST /auth/token - Swagger uniquement
+# POST /auth/token - Swagger uniquement (5 tentatives max par minute par IP)
 @router.post("/token", include_in_schema=False)
-async def login_swagger(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
-    token = await login_user(form_data.username, form_data.password, db)
-    return TokenResponse(access_token=token)
+@limiter.limit("5/minute")
+async def login_swagger(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+    tokens = await login_user(form_data.username, form_data.password, db)
+    return TokenResponse(
+        access_token=tokens["access_token"],
+        refresh_token=tokens["refresh_token"]
+    )
+
+# POST /auth/refresh (10 refresh max par minute par IP)
+class RefreshRequest(BaseModel):
+    refresh_token: str
+
+@router.post("/refresh", response_model=TokenResponse)
+@limiter.limit("10/minute")
+async def refresh(request: Request, data: RefreshRequest, db: AsyncSession = Depends(get_db)):
+    result = await rotate_refresh_token(data.refresh_token, db)
+    return TokenResponse(
+        access_token=result["access_token"],
+        refresh_token=result["refresh_token"]
+    )
+
+# POST /auth/logout (révoque tous les refresh tokens de l'utilisateur)
+@router.post("/logout", status_code=status.HTTP_200_OK)
+async def logout(current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    await revoke_all_refresh_tokens(current_user["user_id"], db)
+    return {"message": "Déconnexion réussie"}
 
 # GET /auth/me
 @router.get("/me", tags=["auth"])
@@ -69,9 +98,10 @@ async def check_availability(data: CheckAvailabilityRequest, db: AsyncSession = 
         raise HTTPException(status_code=409, detail="Cet identifiant est déjà pris.")
     return {"available": True}
 
-# POST /auth/forgot-password
+# POST /auth/forgot-password (3 demandes max par minute par IP)
 @router.post("/forgot-password", status_code=status.HTTP_200_OK)
-async def forgot_password(data: ForgotPasswordRequest, db: AsyncSession = Depends(get_db)):
+@limiter.limit("3/minute")
+async def forgot_password(request: Request, data: ForgotPasswordRequest, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(User.email == data.email))
     user = result.scalar_one_or_none()
 
@@ -93,9 +123,10 @@ async def forgot_password(data: ForgotPasswordRequest, db: AsyncSession = Depend
     return {"message": "Si cet email existe, un lien de réinitialisation a été envoyé."}
 
 
-# POST /auth/reset-password
+# POST /auth/reset-password (3 tentatives max par minute par IP)
 @router.post("/reset-password", status_code=status.HTTP_200_OK)
-async def reset_password(data: ResetPasswordRequest, db: AsyncSession = Depends(get_db)):
+@limiter.limit("3/minute")
+async def reset_password(request: Request, data: ResetPasswordRequest, db: AsyncSession = Depends(get_db)):
     if len(data.new_password) < 6:
         raise HTTPException(status_code=422, detail="Le mot de passe doit faire au moins 6 caractères")
 

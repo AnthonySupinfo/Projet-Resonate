@@ -1,10 +1,11 @@
-
 import asyncio
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-
+from app.core.limiter import limiter
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
 from app.core.config import settings
 from app.db.session import engine, Base
 
@@ -20,6 +21,7 @@ from app.models.reports import Report
 from app.models.user_album_status import UserAlbumStatus
 from app.models.user_playlist_status import UserPlaylistStatus
 from app.models.user_playlist_item import UserPlaylistItem
+from app.models.refresh_token import RefreshToken
 
 # IMPORT DES ROUTERS
 from app.api.v1 import auth, oauth, users, albums
@@ -29,7 +31,7 @@ from app.api.v1 import library, playlist, reviews, interactions
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("TABLES DETECTED:", Base.metadata.tables.keys())
-    await asyncio.sleep(2)  # laisse le temps à la DB
+    await asyncio.sleep(2)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
@@ -43,8 +45,18 @@ app = FastAPI(
     redoc_url=None
 )
 
+app.state.limiter = limiter
+app.add_middleware(SlowAPIMiddleware)
 
-# GESTION GLOBALE DES ERREURS
+# Gestion du rate limiting (429 Too Many Requests)
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
+    return JSONResponse(
+        status_code=429,
+        content={"detail": "Trop de requêtes. Réessayez dans quelques instants."}
+    )
+
+# Gestion globale des erreurs
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     if settings.ENVIRONMENT == "development":
@@ -57,14 +69,13 @@ async def global_exception_handler(request: Request, exc: Exception):
         content={"detail": "Une erreur interne est survenue"}
     )
 
-
-# CORS
+# CORS (autoriser uniquement le frontend à accéder à l'API)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[settings.FRONTEND_URL],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 
@@ -75,7 +86,7 @@ app.include_router(oauth.router, prefix="/api/v1")
 # ROUTES UTILISATEUR
 app.include_router(users.router, prefix="/api/v1")
 
-# ROUTES ALBUMS / LAST.FM (TON CODE)
+# ROUTES ALBUMS / LAST.FM
 app.include_router(albums.router, prefix="/api/v1")
 
 # LES AUTRES ROUTES (PLAYLISTS, REVIEWS, INTERACTIONS)
@@ -90,4 +101,3 @@ app.include_router(interactions.router, prefix="/api/v1")
 @app.get("/health")
 def health_check():
     return {"status": "ok", "service": "resonate-backend"}
-

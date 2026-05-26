@@ -21,7 +21,7 @@ async def google_login():
         f"?client_id={settings.GOOGLE_CLIENT_ID}"
         "&response_type=code"
         "&scope=openid email profile"
-        f"&redirect_uri=http://localhost:8000/api/v1/oauth/google/callback"
+        f"&redirect_uri=https://localhost/api/v1/oauth/google/callback"
         "&access_type=offline"
     )
     return RedirectResponse(url=google_auth_url)
@@ -37,7 +37,7 @@ async def google_callback(code: str, db: AsyncSession = Depends(get_db)):
     user_info = await get_google_user_info(access_token)
 
     # Gère les 3 cas (reconnexion, liaison, création)
-    jwt_token = await handle_oauth_user(
+    tokens = await handle_oauth_user(
         provider="google",
         provider_user_id=user_info["id"],
         provider_email=user_info["email"],
@@ -45,9 +45,9 @@ async def google_callback(code: str, db: AsyncSession = Depends(get_db)):
         db=db
     )
 
-    # Redirige vers le frontend avec le JWT
+    # Redirige vers le frontend avec les tokens
     return RedirectResponse(
-        url=f"{settings.FRONTEND_URL}/oauth/callback?token={jwt_token}"
+        url=f"{settings.FRONTEND_URL}/oauth/callback?token={tokens['access_token']}&refresh_token={tokens['refresh_token']}"
     )
 
 # GITHUB
@@ -59,7 +59,7 @@ async def github_login():
         "https://github.com/login/oauth/authorize"
         f"?client_id={settings.GITHUB_CLIENT_ID}"
         "&scope=user:email"
-        f"&redirect_uri=http://localhost:8000/api/v1/oauth/github/callback"
+        f"&redirect_uri=https://localhost/api/v1/oauth/github/callback"
     )
     return RedirectResponse(url=github_auth_url)
 
@@ -73,7 +73,7 @@ async def github_callback(code: str, db: AsyncSession = Depends(get_db)):
     user_info = await get_github_user_info(access_token)
 
     # Gère les 3 cas (reconnexion, liaison, création)
-    jwt_token = await handle_oauth_user(
+    tokens = await handle_oauth_user(
         provider="github",
         provider_user_id=str(user_info["id"]),
         provider_email=user_info["email"],
@@ -81,7 +81,7 @@ async def github_callback(code: str, db: AsyncSession = Depends(get_db)):
         db=db
     )
 
-    # Redirige vers le frontend avec le JWT
+    # Redirige vers le frontend avec les tokens
     return RedirectResponse(
-        url=f"{settings.FRONTEND_URL}/oauth/callback?token={jwt_token}"
+        url=f"{settings.FRONTEND_URL}/oauth/callback?token={tokens['access_token']}&refresh_token={tokens['refresh_token']}"
     )

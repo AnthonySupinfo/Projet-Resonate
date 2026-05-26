@@ -57,7 +57,7 @@ export default function Login() {
     setLoading(true)
     try {
       const data = await login(email, password)
-      await handleLogin(data.access_token)
+      await handleLogin(data.access_token, data.refresh_token)
       navigate("/")
     } catch (err) {
       setError(err.message)

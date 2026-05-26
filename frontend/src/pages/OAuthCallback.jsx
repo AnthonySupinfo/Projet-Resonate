@@ -12,6 +12,7 @@ export default function OAuthCallback() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const token = params.get("token")
+    const refreshToken = params.get("refresh_token")
 
     if (!token) {
       setStatus("Token manquant")
@@ -19,7 +20,7 @@ export default function OAuthCallback() {
       return
     }
 
-    handleLogin(token)
+    handleLogin(token, refreshToken)
       .then(() => {
         window.location.replace("/")
       })

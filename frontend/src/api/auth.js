@@ -1,5 +1,66 @@
 const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"
 
+// Flag pour éviter les appels refresh en parallèle
+let isRefreshing = false
+let refreshPromise = null
+
+// Renouvelle les tokens via le refresh token
+export async function refreshTokens(refreshToken) {
+  const response = await fetch(`${API_URL}/api/v1/auth/refresh`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ refresh_token: refreshToken })
+  })
+  if (!response.ok) return null
+  return await response.json()
+}
+
+// Fetch authentifié avec retry automatique sur 401
+export async function authFetch(url, options = {}) {
+  const token = localStorage.getItem("token")
+  const config = {
+    ...options,
+    headers: {
+      ...options.headers,
+      "Authorization": `Bearer ${token}`
+    }
+  }
+
+  let response = await fetch(url, config)
+
+  // Si 401 → tente un refresh transparent
+  if (response.status === 401) {
+    const refreshToken = localStorage.getItem("refresh_token")
+    if (!refreshToken) return response
+
+    // Un seul refresh à la fois
+    if (!isRefreshing) {
+      isRefreshing = true
+      refreshPromise = refreshTokens(refreshToken)
+    }
+
+    const tokens = await refreshPromise
+    isRefreshing = false
+    refreshPromise = null
+
+    if (!tokens) {
+      localStorage.removeItem("token")
+      localStorage.removeItem("refresh_token")
+      return response
+    }
+
+    // Stocke les nouveaux tokens
+    localStorage.setItem("token", tokens.access_token)
+    localStorage.setItem("refresh_token", tokens.refresh_token)
+
+    // Rejoue la requête originale avec le nouveau token
+    config.headers["Authorization"] = `Bearer ${tokens.access_token}`
+    response = await fetch(url, config)
+  }
+
+  return response
+}
+
 // Inscription
 export async function register(email, username, password, firstName, lastName, birthDate, avatarUrl) {
   const response = await fetch(`${API_URL}/api/v1/auth/register`, {
@@ -60,6 +121,18 @@ export function loginWithGoogle() {
 
 export function loginWithGithub() {
   window.location.href = `${API_URL}/api/v1/oauth/github/login`
+}
+
+// Déconnexion côté serveur (révoque les refresh tokens)
+export async function logoutServer(token) {
+  try {
+    await fetch(`${API_URL}/api/v1/auth/logout`, {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${token}` }
+    })
+  } catch {
+    // Ignore on déconnecte côté client dans tous les cas
+  }
 }
 
 // Profil complet (Settings)
