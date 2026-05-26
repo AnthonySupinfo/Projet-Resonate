@@ -12,6 +12,8 @@ import Home from "./pages/Home/Home"
 import GuestLayout from "./components/Layout/GuestLayout/GuestLayout.jsx";
 import AuthLayout from "./components/Layout/AuthLayout/AuthLayout.jsx";
 import Explore from "./pages/Explore/Explore.jsx";
+import Profile from "./pages/Profile/Profile.jsx";
+import Social from "./pages/Social/Social.jsx";
 
 import LibraryPage from "./pages/LibraryPage";
 import AllPlaylistPage from "./pages/AllPlaylistsPage";
@@ -87,6 +89,9 @@ function AppRoutes() {
         }>
             {<Route path="/" element={<Home />} />}
             {<Route path="/explore" element={<Explore />} />}
+            {<Route path="/profile" element={<Profile />} />}
+            {<Route path="/settings" element={<Settings/>}/>}
+            {<Route path="/social" element={<Social/>}/>}
             <Route path="/settings" element={<Settings />} />
 
             <Route path="library" element={<LibraryPage />} />

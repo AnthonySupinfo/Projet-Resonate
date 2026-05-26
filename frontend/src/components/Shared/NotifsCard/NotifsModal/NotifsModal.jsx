@@ -1,0 +1,75 @@
+import { useState, useEffect, useRef } from 'react';
+import NotifsItem from './NotifsItem/NotifsItem';
+import iconMenu from '../../../../../public/icons/notifsbar/menu.png';
+import './NotifsModal.css';
+
+export default function NotifsModal({ notifications, onClose, onReadSingle, onReadAll }) {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const modalRef = useRef(null);
+    const menuRef = useRef(null);
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (modalRef.current && !modalRef.current.contains(event.target)) {
+                onClose();
+            }
+        }
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [onClose]);
+
+    useEffect(() => {
+        function handleMenuOutside(event) {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setIsMenuOpen(false);
+            }
+        }
+        if (isMenuOpen) {
+            document.addEventListener('mousedown', handleMenuOutside);
+        }
+        return () => document.removeEventListener('mousedown', handleMenuOutside);
+    }, [isMenuOpen]);
+
+    return (
+        <div className="notifs-modal-container" ref={modalRef}>
+            <div className="notifs-modal-header">
+                <h4 className="notifs-modal-title">Notifications</h4>
+                <div className="notifs-global-menu-wrapper" ref={menuRef}>
+                    <button
+                        className="notifs-modal-menu-trigger"
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    >
+                        <img src={iconMenu} alt="Menu" className="open-menu-icon" />
+                    </button>
+                    {isMenuOpen && (
+                        <div className="notifs-context-dropdown">
+                            <button
+                                className="notifs-context-item"
+                                onClick={() => {
+                                    onReadAll();
+                                    setIsMenuOpen(false);
+                                }}
+                            >
+                                Marquer tout comme lu
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            <div className="notifs-modal-body">
+                {notifications.length === 0 ? (
+                    <div className="notifs-empty-state">Aucune notification</div>
+                ) : (
+                    notifications.map((notif) => (
+                        <NotifsItem
+                            key={notif.id}
+                            notification={notif}
+                            onRead={onReadSingle}
+                        />
+                    ))
+                )}
+            </div>
+        </div>
+    );
+}

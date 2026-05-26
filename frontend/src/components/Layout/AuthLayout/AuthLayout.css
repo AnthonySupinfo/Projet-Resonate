@@ -1,20 +1,20 @@
-.auth-layout-container {
+﻿.auth-layout {
     display: grid;
-    grid-template-columns: 280px 1fr;
-    gap: 32px;
+    grid-template-columns: 260px 1fr 200px;
+    gap: 18px;
     min-height: 100vh;
-    background: #111114;
-    padding: 32px;
+    background: linear-gradient(160deg, var(--bg-main-start) 35%, var(--bg-main-end) 100%);
+    padding: 12px;
     box-sizing: border-box;
+    color: var(--text-primary);
 }
 
-.auth-main-content {
-    min-width: 0;
-    width: 100%;
-}
-
-.auth-sidebar {
+.auth-layout aside {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 12px;
+}
+
+.auth-content {
+    min-width: 0;
 }
