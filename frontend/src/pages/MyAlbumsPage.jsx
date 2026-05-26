@@ -12,7 +12,7 @@ export default function MyAlbumsPage() {
         const fetchLibrary = async () => {
             setIsLoading(true);
             try {
-                const data = await getMyLibrary();
+                const data = await getMyLibrary( activeTab !== 'ALL' ? activeTab : null);
                 setLibrary(data);
             } catch(error) {
                 console.error("Erreur chargement bibliothèque", error)
@@ -21,12 +21,10 @@ export default function MyAlbumsPage() {
             }
         };
         fetchLibrary();
-    }, []);
+    }, [activeTab]);
 
     // Filtre selon l'onglet actif
-    const filteredLibrary = activeTab === 'ALL'
-        ? library 
-        : library.filter(item => item.status === activeTab );
+    const filteredLibrary = library;
 
     const tabs = [
         { id: 'ALL', label: 'Tout voir' },

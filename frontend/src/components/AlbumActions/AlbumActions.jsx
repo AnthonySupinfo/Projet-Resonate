@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { upsertAlbumStatus, getMyLibrary, getMyPlaylist } from '../../../api/api';
+import { upsertAlbumStatus, getMyLibrary, getMyPlaylist, addTrackToPlaylist, removeTrackFromPlaylist } from '../../../api/api';
 import './AlbumActions.css';
 
 export default function AlbumActions({ albumId }) {
     const [currentStatus, setCurrentStatus] = useState(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [getMyPlaylists, setMyPlaylists] = useState([]);
+    const [playlists, setPlaylists] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
@@ -17,8 +17,8 @@ export default function AlbumActions({ albumId }) {
                     setCurrentStatus(existingItem.status);
                 }
 
-                const playlists = await getMyPlaylist();
-                setMyPlaylists(playlists);
+                const fetchedPlaylists = await getMyPlaylist();
+                setPlaylists(fetchedPlaylists);
             }catch (error) {
                 console.error("Erreur lors du chargement des données AlbumActions", error);
             }
@@ -80,10 +80,10 @@ export default function AlbumActions({ albumId }) {
                 {isDropdownOpen && (
                     <div className="dropdown-menu">
                         <ul className="dropdown-list">
-                            {getMyPlaylists.length === 0 ? (
+                            {playlists.length === 0 ? (
                                 <li className="dropdown-item empty">Aucune playlist</li>
                             ): (
-                                getMyPlaylists.map(playlist => (
+                                playlists.map(playlist => (
                                     <li
                                         key={playlist.id}
                                         className="dropdown-item"

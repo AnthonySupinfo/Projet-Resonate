@@ -20,6 +20,11 @@
     font-family: 'Poppins', sans-serif;
 }
 
+.library-title:hover {
+    color: rgba(239, 130, 130, 0.6);
+    transition: color 0.2s;
+}
+
 .library-tabs {
     display: flex;
     gap: 12px;

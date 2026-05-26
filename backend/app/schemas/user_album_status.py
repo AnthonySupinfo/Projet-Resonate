@@ -16,3 +16,23 @@ class UserAlbumStatusResponse(BaseModel):
     updated_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class AlbumInStatus(BaseModel):
+    id: UUID
+    name: str
+    artist_name: str
+    image_url: str | None = None
+
+    model_config = {"from_attributes": True}
+
+
+class UserAlbumStatusWithAlbumResponse(BaseModel):
+    id: int
+    user_id: str
+    album_id: UUID
+    status: MediaStatus
+    updated_at: datetime
+    album: AlbumInStatus | None = None
+
+    model_config = {"from_attributes": True}

@@ -1,4 +1,4 @@
-const BASE_URL = (import.meta.env.VITE_API_BASE _URL || "http://localhost:8000") + "/api/v1"; // ajout pour ne pas avoir à réécrire
+const BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8000") + "/api/v1"; // ajout pour ne pas avoir à réécrire
 
 const getToken = () => localStorage.getItem("token")
 
@@ -51,7 +51,7 @@ export const getPlaylist = async (playlistId) => {
 }
 
 export const createPlaylist = async ({ name, description, is_public }) => {
-    const res = await fetch(`${BASE_URL}/playlists/`, { 
+    const res = await fetch(`${BASE_URL}/playlists`, { 
         method: "POST",
         headers: authHeaders(),
         body: JSON.stringify({ name, description, is_public })
@@ -84,6 +84,16 @@ export const removeTrackFromPlaylist = async (playlistId, trackId) => {
         headers: authHeaders(),
     })
     if(!res.ok) throw new Error ("Erreur lors de la suppression de la track de la playlist")
+}
+
+export const addTrackToPlaylist = async (playlistId, trackId) => {
+    const res = await fetch(`${BASE_URL}/playlists/${playlistId}/tracks`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ track_id: trackId })
+    })
+    if(!res.ok) throw new Error ("Erreur lors de l'ajout à la playlist")
+    return res.json()
 }
 
 // Review

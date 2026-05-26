@@ -5,9 +5,7 @@ import uuid
 from sqlalchemy.orm import relationship
 
 
-
 from app.db.session import Base
-
 
 
 class Album(Base):
@@ -17,7 +15,8 @@ class Album(Base):
 
     #  fusion des noms
     name = Column(String, nullable=False)          # ton champ
-    title = Column(String, nullable=True)          # optionnel (compat collègue)
+    # optionnel (compat collègue)
+    title = Column(String, nullable=True)
 
     artist_name = Column(String, nullable=False)
 
@@ -27,4 +26,3 @@ class Album(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     tracks = relationship("Track", back_populates="album")
-
