@@ -25,6 +25,8 @@ export default function NotifsCard() {
         return saved ? parseInt(saved, 10) : 0;
     });
 
+    const token = localStorage.getItem("token");
+
     useEffect(() => {
         const fetchNotificationsData = async () => {
             try {
@@ -35,12 +37,12 @@ export default function NotifsCard() {
                 const currentUnread = dataNotifsCount.unread_count;
                 setUnreadCount(currentUnread);
 
-                // if (token && !myAvatar) {
-                //     const profileData = await getProfile(token);
-                //     if (profileData) {
-                //         setMyAvatar(profileData.avatar_url);
-                //     }
-                // }
+                if (token && !myAvatar) {
+                    const profileData = await getProfile(token);
+                    if (profileData) {
+                        setMyAvatar(profileData.avatar_url);
+                    }
+                }
 
                 if (currentUnread < lastSeenUnreadCount) {
                     setLastSeenUnreadCount(currentUnread);
@@ -129,6 +131,7 @@ export default function NotifsCard() {
                     onClose={() => setIsModalOpen(false)}
                     onReadSingle={handleReadSingle}
                     onReadAll={handleReadAll}
+                    myAvatar={myAvatar}
                 />
             )}
         </div>

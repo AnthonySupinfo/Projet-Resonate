@@ -3,7 +3,7 @@ import NotifsItem from './NotifsItem/NotifsItem';
 import iconMenu from '../../../../../public/icons/notifsbar/menu.png';
 import './NotifsModal.css';
 
-export default function NotifsModal({ notifications, onClose, onReadSingle, onReadAll }) {
+export default function NotifsModal({ notifications, onClose, onReadSingle, onReadAll, myAvatar }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const modalRef = useRef(null);
     const menuRef = useRef(null);
@@ -66,6 +66,7 @@ export default function NotifsModal({ notifications, onClose, onReadSingle, onRe
                             key={notif.id}
                             notification={notif}
                             onRead={onReadSingle}
+                            myAvatar={myAvatar}
                         />
                     ))
                 )}

@@ -7,7 +7,7 @@ import iconComment from '../../../../../../public/icons/notifsbar/comment.png';
 import iconFollow from '../../../../../../public/icons/notifsbar/follow.png';
 import iconMenu from '../../../../../../public/icons/notifsbar/menu.png';
 
-export default function NotifsItem({ notification, onRead }) {
+export default function NotifsItem({ notification, onRead, myAvatar }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuRef = useRef(null);
     const { user } = useAuth();
@@ -75,12 +75,23 @@ export default function NotifsItem({ notification, onRead }) {
 
     const renderThumbnail = () => {
         if (notification.type === 'FOLLOW') {
+            const isImageUrl = myAvatar && (myAvatar.startsWith('http') || myAvatar.startsWith('/') || myAvatar.startsWith('data:image'));
+
             return (
-                <img
-                    src={user?.avatar_url || "https://placehold.co/44x44/35313a/ffffff?text=U"}
-                    alt="Avatar"
-                    className="notif-thumbnail circular"
-                />
+                <div className="avatar-preview">
+                    {isImageUrl ? (
+                        <img
+                            src={myAvatar}
+                            alt="avatar"
+                            className="avatar-img"
+                            onError={e => e.target.style.display = "none"}
+                        />
+                    ) : myAvatar ? (
+                        <span className="avatar-emoji">{myAvatar}</span>
+                    ) : (
+                        <span className="avatar-placeholder">👤</span>
+                    )}
+                </div>
             );
         }
 
