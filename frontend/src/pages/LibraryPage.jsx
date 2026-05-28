@@ -68,6 +68,10 @@ export default function LibraryPage() {
         fetchUserData();
     }, []);
 
+    const handlePlaylistStatusChange = (updatedPlaylist) => {
+        setUserPlaylists(prev => prev.map(p => p.id === updatedPlaylist.id ? updatedPlaylist : p));
+    };
+
     return (
         <div className="library-page-content">
 
@@ -101,7 +105,7 @@ export default function LibraryPage() {
                     <AlbumCard key={`recent-a-${album.id}`} album={album.album || album} />
                 ))}
                 {userPlaylists.slice(0,10).map(playlist => (
-                    <PlaylistCard key={`recent-p-${playlist.id}`} playlist={playlist} />
+                    <PlaylistCard key={`recent-p-${playlist.id}`} playlist={playlist} onPlaylistUpdated={handlePlaylistStatusChange}/>
                 ))}
             </Carousel>
 
@@ -115,7 +119,7 @@ export default function LibraryPage() {
             <Carousel title="Playlist préférées" onSeeAll={() => navigate('/library/playlists')}>
                 {userPlaylists.map(item => {
                     const playlistData = item.playlist || item;
-                    return <PlaylistCard key={`pref-${playlistData.id}`} playlist={playlistData} />
+                    return <PlaylistCard key={`pref-${playlistData.id}`} playlist={playlistData} onPlaylistUpdated={handlePlaylistStatusChange}/>
                 })}
             </Carousel>
 
@@ -136,7 +140,7 @@ export default function LibraryPage() {
                 </div>
 
                 {userPlaylists.map(playlist => ( 
-                    <PlaylistCard key={`custom-${playlist.id}`} playlist={playlist} />
+                    <PlaylistCard key={`custom-${playlist.id}`} playlist={playlist} onPlaylistUpdated={handlePlaylistStatusChange}/>
                 ))}
             </Carousel>
         </div>

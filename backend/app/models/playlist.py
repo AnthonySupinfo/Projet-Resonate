@@ -28,6 +28,7 @@ class Playlist(Base):
     description = Column(Text, nullable=True)
 
     is_public = Column(Boolean, nullable=False, server_default="false")
+    is_favorite = Column(Boolean, default=False, nullable=False)
 
     # func.now permet de demander à la BDD l'heure actuelle
     created_at = Column(DateTime, server_default=func.now(), nullable=False)

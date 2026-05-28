@@ -1,6 +1,7 @@
 ﻿import { Outlet } from "react-router-dom";
 import NavCard from "../../Shared/NavCard/NavCard";
 import LibraryCard from "../../library/libraryCard/LibraryCard";
+import FavoritePlaylistCard from "../../Shared/FavoritePlaylistCard/FavoritePlaylistCard";
 import './AuthLayout.css';
 
 export default function AuthLayout() {
@@ -17,6 +18,10 @@ export default function AuthLayout() {
             <main className="auth-main-content">
                 <Outlet />
             </main>
+
+            <aside className="auth-sidebar-right">
+                <FavoritePlaylistCard/>
+            </aside>
         </div>
     );
 }

@@ -51,9 +51,10 @@ export const getPlaylist = async (playlistId) => {
 }
 
 export const createPlaylist = async ({ name, description, is_public }) => {
-    const res = await fetch(`${BASE_URL}/playlists`, { 
+    const res = await fetch(`${BASE_URL}/playlists/`, { 
         method: "POST",
         headers: authHeaders(),
+        credentials: "include",
         body: JSON.stringify({ name, description, is_public })
     })
     if(!res.ok) throw new Error ("Erreur lors de la création de la playlist")

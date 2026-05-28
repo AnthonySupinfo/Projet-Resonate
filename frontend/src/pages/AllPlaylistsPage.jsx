@@ -36,6 +36,10 @@ export default function AllPlaylistsPage() {
         setPlaylists([newPlaylist, ...playlists]); // ajoute new playlist dans liste
     };
 
+    const handlePlaylistStatusChange = (updatedPlaylist) => {
+        setPlaylists(prev => prev.map(p => p.id === updatedPlaylist.id ? updatedPlaylist : p));
+    };
+
     return (
         <div className="all-page-content">
 
@@ -88,7 +92,7 @@ export default function AllPlaylistsPage() {
 
                     {/* Boucle d'affichage */}
                     {playlists.map(playlist => (
-                        <PlaylistCard key={playlist.id} playlist={playlist} />
+                        <PlaylistCard key={playlist.id} playlist={playlist} onPlaylistUpdated={handlePlaylistStatusChange}/>
                     ))}
                 </div>
             </div>

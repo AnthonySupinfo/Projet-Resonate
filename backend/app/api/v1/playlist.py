@@ -68,6 +68,9 @@ async def update_playlist(
     if body.is_public is not None:
         existing.is_public = body.is_public
 
+    if body.is_favorite is not None:
+        existing.is_favorite = body.is_favorite
+
     await db.commit()
     await db.refresh(existing)
     return existing
