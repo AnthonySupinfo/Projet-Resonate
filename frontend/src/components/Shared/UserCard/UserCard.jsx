@@ -2,46 +2,36 @@
 import './UserCard.css';
 import { Link } from 'react-router-dom';
 import { useAuth } from "../../../context/AuthContext.jsx";
-import { getProfile } from "../../../api/auth.js";
+import { getProfile, getUserStats } from "../../../api/auth.js";
 
 export default function UserCard() {
     const { user } = useAuth();
     const [fetchedUser, setFetchedUser] = useState(null);
     const [stats, setStats] = useState({ followers_count: 0, playlists_count: 0, reviews_count: 0 });
-    const token = localStorage.getItem("token");
 
     useEffect(() => {
         const loadProfile = async () => {
-            if (token) {
-                try {
-                    const data = await getProfile(token);
-                    if (data) {
-                        setFetchedUser(data);
-                    }
-                } catch (err) {
-                    console.error("Erreur lors de la récupération du profil", err);
+            try {
+                const data = await getProfile();
+                if (data) {
+                    setFetchedUser(data);
                 }
+            } catch (err) {
+                console.error("Erreur lors de la récupération du profil", err);
             }
         };
 
         loadProfile();
-    }, [token]);
+    }, []);
 
     const currentUser = fetchedUser || user;
 
     useEffect(() => {
         const fetchStats = async () => {
-            if (currentUser?.id && token) {
+            if (currentUser?.id) {
                 try {
-                    const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://localhost";
-                    const response = await fetch(`${baseUrl}/api/v1/users/${currentUser.id}/stats`, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
-
-                    if (response.ok) {
-                        const data = await response.json();
+                    const data = await getUserStats(currentUser.id);
+                    if (data) {
                         setStats(data);
                     }
                 } catch (err) {
@@ -51,7 +41,7 @@ export default function UserCard() {
         };
 
         fetchStats();
-    }, [currentUser?.id, token]);
+    }, [currentUser?.id]);
 
     const myAvatar = currentUser?.avatar_url;
     const isImageUrl = myAvatar && (myAvatar.startsWith('http') || myAvatar.startsWith('/') || myAvatar.startsWith('data:image'));
@@ -100,7 +90,7 @@ export default function UserCard() {
                 <div className="stat-divider"></div>
 
                 <div className="stat-item">
-                    <span className="stat-number">489</span>
+                    <span className="stat-number">{stats.listening_minutes || 0}</span>
                     <span className="stat-label">Minutes<br/>d'écoute</span>
                 </div>
             </div>

@@ -157,3 +157,9 @@ export async function exportData() {
   if (!response.ok) throw new Error("Erreur lors de l'export")
   return await response.json()
 }
+
+export async function getUserStats(userId) {
+  const response = await authFetch(`${API_URL}/api/v1/users/${userId}/stats`)
+  if (!response.ok) return null
+  return await response.json()
+}

@@ -1,0 +1,9 @@
+.profile-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 32px 40px;
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 100vh;
+}

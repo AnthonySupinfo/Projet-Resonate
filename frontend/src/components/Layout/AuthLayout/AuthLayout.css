@@ -18,3 +18,7 @@
 .auth-content {
     min-width: 0;
 }
+
+.auth-layout.profile-mode {
+    grid-template-columns: 260px 1fr;
+}
