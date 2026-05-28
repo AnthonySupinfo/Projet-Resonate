@@ -8,6 +8,7 @@ from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
 
 from app.db.session import AsyncSessionLocal
 from app.models.album import Album
@@ -130,27 +131,28 @@ class LastFMService:
                 raise HTTPException(404, "Album introuvable sur Last.fm.")
 
             # 4 UPSERT ARTIST
-            artist_name = album_info.get("artist") 
+            artist_name = album_info.get("artist")
+
             if artist_name:
-                lastfm_artist_url = f"https://www.last.fm/music/{artist_name.replace(' ', '+')}" 
+                lastfm_artist_url = f"https://www.last.fm/music/{artist_name.replace(' ', '+')}"
             else:
                 lastfm_artist_url = None
 
+            # UPSERT DOIT TOUJOURS S’EXÉCUTER (PAS DANS ELSE)
+            stmt = select(Artist).where(Artist.lastfm_url == lastfm_artist_url)
+            result = await session.execute(stmt)
+            db_artist = result.scalar_one_or_none()
 
-            stmt = select(Artist).where(Artist.name == artist_name) 
-            result = await session.execute(stmt) 
-            db_artist = result.scalar_one_or_none() 
-
-            if db_artist: 
-                db_artist.lastfm_url = lastfm_artist_url # met à jour l'URL de l'artiste
-                db_artist.fetched_at = datetime.now(timezone.utc) 
-            else: # sinon on le créer et on l'ajoute à la base de données
-                db_artist = Artist( 
+            if db_artist:
+                db_artist.name = artist_name
+                db_artist.fetched_at = datetime.now(timezone.utc)
+            else:
+                db_artist = Artist(
                     name=artist_name,
                     lastfm_url=lastfm_artist_url,
                     fetched_at=datetime.now(timezone.utc),
                 )
-                session.add(db_artist) 
+                session.add(db_artist)
 
             # 5 UPSERT ALBUM
             lastfm_album_url = album_info.get("url") 
@@ -199,53 +201,59 @@ class LastFMService:
 
             return self._serialize_album(db_album) 
 
-    async def get_artist_detail(self, name: str): # donction async
+    async def get_artist_detail(self, name: str): # fonction async
         """
         Détails d’un artiste avec Smart Cache BDD.
         """
 
-        async with AsyncSessionLocal() as session: 
-            stmt = select(Artist).where(Artist.name == name) 
-            result = await session.execute(stmt) # execute de maniere asynchrone
-            db_artist = result.scalar_one_or_none() 
+        
+        async with AsyncSessionLocal() as session:
 
-            # 2 Cache valide → retour immédiat
-            if db_artist and is_cache_valid(db_artist.fetched_at): 
-                return self._serialize_artist(db_artist) 
+                # 1 appel Last.fm DIRECT AVANT
+                params = {
+                    "method": "artist.getinfo",
+                    "artist": name,
+                }
+                data = await self._request(params)
 
-            # 3 Cache absent ou périmé → appel Last.fm
-            params = {
-                "method": "artist.getinfo", 
-                "artist": name,
-            }
-            data = await self._request(params) 
-            artist_info = data.get("artist") # on stocke les données dans artist_info
-            if not artist_info:
-                raise HTTPException(404, "Artiste introuvable sur Last.fm.")
+                artist_info = data.get("artist")
+                if not artist_info:
+                    raise HTTPException(404, "Artiste introuvable sur Last.fm.")
 
-            lastfm_url = artist_info.get("url") 
+                artist_name = artist_info.get("name")
+                lastfm_url = artist_info.get("url")
 
-            # 4 UPSERT artiste
-            if db_artist: 
-                db_artist.lastfm_url = lastfm_url
-                db_artist.fetched_at = datetime.now(timezone.utc)
-            else: # sinon on le créer et on l'ajoute à la base de données
-                db_artist = Artist(
-                    name=name,
-                    lastfm_url=lastfm_url,
-                    fetched_at=datetime.now(timezone.utc),
-                )
-                session.add(db_artist) # ajoute à la session
+                # 2 chercher avec clé UNIQUE 
+                stmt = select(Artist).where(Artist.lastfm_url == lastfm_url)
+                result = await session.execute(stmt)
+                db_artist = result.scalar_one_or_none()
 
-            await session.commit()
-            await session.refresh(db_artist) 
+                # 3 cache valide
+                if db_artist and is_cache_valid(db_artist.fetched_at):
+                    return self._serialize_artist(db_artist)
 
-            return {
-                "name": db_artist.name,
-                "lastfm_url": db_artist.lastfm_url,
-                "fetched_at": db_artist.fetched_at.isoformat(),
-                "source": "api" # indique que les données proviennent de l'API
-            }
+                # 4 UPSERT propre
+                if db_artist:
+                    db_artist.name = artist_name
+                    db_artist.fetched_at = datetime.now(timezone.utc)
+                else:
+                    db_artist = Artist(
+                        name=artist_name,
+                        lastfm_url=lastfm_url,
+                        fetched_at=datetime.now(timezone.utc),
+                    )
+                    session.add(db_artist)
+
+                await session.commit()
+                await session.refresh(db_artist)
+
+                return {
+                    "name": db_artist.name,
+                    "lastfm_url": db_artist.lastfm_url,
+                    "fetched_at": db_artist.fetched_at.isoformat(),
+                    "source": "api"
+                }
+
     
     def _serialize_album(self, album: Album) -> dict: 
         return { # retourne un dictionnaire avec les informations de l'album 
