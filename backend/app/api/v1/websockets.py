@@ -23,8 +23,17 @@ async def websocket_endpoint(websocket: WebSocket):
         token_data = verify_ws_token(token)
         user_id = token_data["user_id"]
 
+    except WebSocketDisconnect:
+        return
+
+
+    except asyncio.TimeoutError:
+        print("Connexion WS refusée : Timeout")
+        await websocket.close(code=1008)
+        return
+
     except Exception as e:
-        print(f"Connexion WebSocket refusée : {e}")
+        print(f"Connexion WS refusée (Erreur) : {e}")
         await websocket.close(code=1008)
         return
 

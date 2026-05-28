@@ -93,11 +93,9 @@ export async function login(email, password) {
   return data
 }
 
-// Profil connecté
-export async function getMe(token) {
-  const response = await fetch(`${API_URL}/api/v1/auth/me`, {
-    headers: { "Authorization": `Bearer ${token}` }
-  })
+// Profil connecté — utilise authFetch pour le refresh automatique
+export async function getMe() {
+  const response = await authFetch(`${API_URL}/api/v1/auth/me`)
   if (!response.ok) return null
   return await response.json()
 }
@@ -124,34 +122,28 @@ export function loginWithGithub() {
 }
 
 // Déconnexion côté serveur (révoque les refresh tokens)
-export async function logoutServer(token) {
+export async function logoutServer() {
   try {
-    await fetch(`${API_URL}/api/v1/auth/logout`, {
-      method: "POST",
-      headers: { "Authorization": `Bearer ${token}` }
+    await authFetch(`${API_URL}/api/v1/auth/logout`, {
+      method: "POST"
     })
   } catch {
     // Ignore on déconnecte côté client dans tous les cas
   }
 }
 
-// Profil complet (Settings)
-export async function getProfile(token) {
-  const response = await fetch(`${API_URL}/api/v1/users/me`, {
-    headers: { "Authorization": `Bearer ${token}` }
-  })
+// Profil complet (Settings) — utilise authFetch pour le refresh automatique
+export async function getProfile() {
+  const response = await authFetch(`${API_URL}/api/v1/users/me`)
   if (!response.ok) return null
   return await response.json()
 }
 
-// Modifier le profil (avatar, bio, website, theme)
-export async function updateProfile(token, data) {
-  const response = await fetch(`${API_URL}/api/v1/users/me`, {
+// Modifier le profil (avatar, bio, website, theme) — utilise authFetch pour le refresh automatique
+export async function updateProfile(data) {
+  const response = await authFetch(`${API_URL}/api/v1/users/me`, {
     method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data)
   })
   const result = await response.json()
@@ -159,11 +151,9 @@ export async function updateProfile(token, data) {
   return result
 }
 
-// Télécharger ses données (RGPD)
-export async function exportData(token) {
-  const response = await fetch(`${API_URL}/api/v1/users/me/export`, {
-    headers: { "Authorization": `Bearer ${token}` }
-  })
+// Télécharger ses données (RGPD) — utilise authFetch pour le refresh automatique
+export async function exportData() {
+  const response = await authFetch(`${API_URL}/api/v1/users/me/export`)
   if (!response.ok) throw new Error("Erreur lors de l'export")
   return await response.json()
 }
