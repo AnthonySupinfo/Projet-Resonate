@@ -1,9 +1,9 @@
 .header-card-container {
     background-color: var(--bg-card);
     background-image: radial-gradient(
-            circle at top left,
-            rgba(var(--grad-rose-rgb), 0.1) 0%,
-            rgba(var(--grad-gris-rgb), 0) 60%
+            circle at bottom right,
+            rgba(var(--grad-rose-rgb), 0.55) 0%,
+            rgba(var(--grad-gris-rgb), 0) 70%
     );
     border-radius: 35px;
     box-shadow: 0 4px 12px rgba(var(--shadow-rgb), 0.25);
