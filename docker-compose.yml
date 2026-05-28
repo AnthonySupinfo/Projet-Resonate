@@ -43,6 +43,8 @@ services:
   backend:
     build: ./backend
     restart: always
+    volumes:
+      - ./backend:/app
     env_file:
       - ./backend/.env
     depends_on:
@@ -63,6 +65,9 @@ services:
       - backend
     networks:
       - frontend_backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
 
   # Reverse proxy HTTPS
   nginx:

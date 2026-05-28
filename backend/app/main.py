@@ -8,6 +8,15 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from app.core.config import settings
 from app.db.session import engine, Base
+from app.api.v1 import auth, oauth, users, websockets
+
+from app.api.v1 import library
+from app.api.v1 import playlist
+from app.api.v1 import interactions
+from app.api.v1 import reviews
+from app.api.v1 import follows
+from app.api.v1 import notifications
+from app.api.v1 import message
 
 # IMPORT DES MODELES (OBLIGATOIRE POUR create_all)
 from app.models.album import Album
@@ -41,6 +50,7 @@ app = FastAPI(
     title="Resonate API",
     version="1.0.0",
     lifespan=lifespan,
+    # Afficher la documentation Swagger uniquement en développement
     docs_url="/docs" if settings.ENVIRONMENT == "development" else None,
     redoc_url=None
 )
@@ -81,6 +91,8 @@ app.add_middleware(
 
 # ROUTES AUTH
 app.include_router(auth.router, prefix="/api/v1")
+
+# Routes d'authentification OAuth (Google, GitHub)
 app.include_router(oauth.router, prefix="/api/v1")
 
 # ROUTES UTILISATEUR
@@ -101,3 +113,8 @@ app.include_router(interactions.router, prefix="/api/v1")
 @app.get("/health")
 def health_check():
     return {"status": "ok", "service": "resonate-backend"}
+app.include_router(follows.router, prefix="/api/v1")
+app.include_router(notifications.router, prefix="/api/v1")
+app.include_router(message.router, prefix="/api/v1")
+
+app.include_router(websockets.router, prefix="/api/v1")

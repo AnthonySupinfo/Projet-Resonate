@@ -1,4 +1,4 @@
-const BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8000") + "/api/v1"; // ajout pour ne pas avoir à réécrire
+const BASE_URL = (import.meta.env.VITE_API_BASE_URL) + "/api/v1"; // ajout pour ne pas avoir à réécrire
 
 const getToken = () => localStorage.getItem("token")
 
@@ -51,7 +51,7 @@ export const getPlaylist = async (playlistId) => {
 }
 
 export const createPlaylist = async ({ name, description, is_public }) => {
-    const res = await fetch(`${BASE_URL}/playlists/`, { 
+    const res = await fetch(`${BASE_URL}/playlists/`, {
         method: "POST",
         headers: authHeaders(),
         credentials: "include",

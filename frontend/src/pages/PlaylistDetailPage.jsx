@@ -54,7 +54,7 @@ export default function PlaylistDetailPage() {
             <button className="back-btn" onClick={() => navigate(-1)}>← Retour</button>
             <div className="playlist-header">
                 <img
-                    src={playlist.coverUrl || "https://placehold.co/200x200/2a2a2c/ffffff?text=Playlist"}
+                    src={playlist.cover_url || playlist.coverUrl ||  "https://placehold.co/200x200/2a2a2c/ffffff?text=Playlist"}
                     alt={playlist.name}
                     className="playlist-main-cover"
                 />

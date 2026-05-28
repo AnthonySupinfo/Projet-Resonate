@@ -4,6 +4,8 @@ import "./index.css"
 import App from "./App"
 import '@fontsource/poppins/300.css';
 import '@fontsource/inter/400.css';
+import '@fontsource/inter/300.css';
+import '@fontsource/inter/200.css';
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

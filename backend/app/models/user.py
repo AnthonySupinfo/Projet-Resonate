@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, date
 from sqlalchemy import String, Boolean, DateTime, Date, Text, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.session import Base
 
 class User(Base):
@@ -47,3 +47,20 @@ class User(Base):
     bio: Mapped[str] = mapped_column(Text, nullable=True, default=None)
     website: Mapped[str] = mapped_column(String, nullable=True, default=None)
     theme: Mapped[str] = mapped_column(String, default="dark", nullable=False)
+
+    # Following
+    following: Mapped[list["User"]] = relationship(
+        "User",
+        secondary="follows",
+        primaryjoin="User.id == Follow.follower_id",
+        secondaryjoin="User.id == Follow.following_id",
+        back_populates="followers"
+    )
+
+    followers: Mapped[list["User"]] = relationship(
+        "User",
+        secondary="follows",
+        primaryjoin="User.id == Follow.following_id",
+        secondaryjoin="User.id == Follow.follower_id",
+        back_populates="following"
+    )

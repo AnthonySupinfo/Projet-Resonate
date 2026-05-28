@@ -1,8 +1,8 @@
 ﻿.header-card {
-    background-color: #35313A;
-    background-image: radial-gradient(circle at 100% 200%, rgba(196, 165, 181, 0.8) 0%, rgba(153, 153, 153, 0) 50%);
+    background-color: var(--bg-card);
+    background-image: radial-gradient(circle at 100% 200%, rgba(var(--grad-rose-rgb), 0.8) 0%, rgba(var(--grad-gris-rgb), 0) 50%);
     border-radius: 35px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 4px 12px rgba(var(--shadow-rgb), 0.25);
 
     min-height: 340px;
     padding: 30px 32px;
@@ -21,7 +21,7 @@
     padding: 12px 20px;
     width: 100%;
     max-width: 450px;
-    color: #f2f3fb;
+    color: var(--text-soft);
     display: flex;
     align-items: center;
     gap: 10px;
@@ -44,7 +44,7 @@
 
 .header-title {
     margin: 0;
-    color: #ffffff;
+    color: var(--text-primary);
     font-size: 32px;
     font-weight: 500;
     line-height: 1;
@@ -52,7 +52,7 @@
 
 .header-subtitle {
     margin: 0;
-    color: #b1b1b1;
+    color: var(--text-muted);
     font-size: 14px;
     font-weight: 400;
     font-family: 'Inter', sans-serif;

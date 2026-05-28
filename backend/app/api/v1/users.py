@@ -6,6 +6,9 @@ from app.core.dependencies import get_current_user
 from app.models.user import User
 from app.schemas.auth import UserProfileResponse, UpdateProfileRequest
 import json
+from typing import List
+from app.schemas.feed import FeedItemResponse
+from app.services.feed import feed_service
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -67,3 +70,13 @@ async def export_data(
     }
 
     return export
+
+
+@router.get("/me/feed", response_model=List[FeedItemResponse])
+async def get_my_feed(
+        db: AsyncSession = Depends(get_db),
+        current_user: dict = Depends(get_current_user)
+):
+    """Récupère le fil d'actualités."""
+
+    return await feed_service.get_user_feed(db, current_user["user_id"])

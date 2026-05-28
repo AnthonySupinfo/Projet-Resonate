@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { upsertAlbumStatus, getMyLibrary, getMyPlaylist, addTrackToPlaylist, removeTrackFromPlaylist } from '../../../api/api';
+import CreatePlaylistModal from '../library/modals/CreatePlaylistModal';
 import './AlbumActions.css';
 
 export default function AlbumActions({ albumId }) {
@@ -7,6 +8,7 @@ export default function AlbumActions({ albumId }) {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [playlists, setPlaylists] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -80,6 +82,7 @@ export default function AlbumActions({ albumId }) {
                 {isDropdownOpen && (
                     <div className="dropdown-menu">
                         <ul className="dropdown-list">
+                            <li className="dropdown-item create-option" onClick={() => { setIsCreateModalOpen(true); setIsDropdownOpen(false);}}> Créer une nouvelle playlist</li>
                             {playlists.length === 0 ? (
                                 <li className="dropdown-item empty">Aucune playlist</li>
                             ): (
@@ -88,7 +91,6 @@ export default function AlbumActions({ albumId }) {
                                         key={playlist.id}
                                         className="dropdown-item"
                                         onClick={() => {
-                                            console.log(`Ajout du track à la playlist ${playlist.id}`); // à modifier quand Krishna aura sa partie
                                             setIsDropdownOpen(false);
                                         }}
                                     > {playlist.name}
@@ -101,6 +103,14 @@ export default function AlbumActions({ albumId }) {
                 )}
 
             </div>
+
+            <CreatePlaylistModal 
+                isOpen={isCreateModalOpen} 
+                onClose={() => setIsCreateModalOpen(false)} 
+                onPlaylistCreated={(newPlaylist) => { 
+                    setPlaylists([newPlaylist, ...playlists]); 
+                }}
+            />
         </div>
     );
 }

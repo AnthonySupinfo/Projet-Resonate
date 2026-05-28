@@ -1,8 +1,8 @@
 ﻿.logo-card {
-    background-color: #35313A;
-    background-image: radial-gradient(circle at bottom right, rgba(196, 165, 181, 0.55) 0%, rgba(153, 153, 153, 0) 70%);
+    background-color: var(--bg-card);
+    background-image: radial-gradient(circle at bottom right, rgba(var(--grad-rose-rgb), 0.55) 0%, rgba(var(--grad-gris-rgb), 0) 70%);
     border-radius: 35px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 4px 12px rgba(var(--shadow-rgb), 0.25);
     padding: 32px 16px;
 }
 
@@ -26,7 +26,7 @@
 }
 
 .logo-viewport:hover {
-    box-shadow: 0 0 30px rgba(196, 165, 181, 0.6);
+    box-shadow: 0 0 30px rgba(var(--grad-rose-rgb), 0.6);
 }
 
 .logo-image {
@@ -42,7 +42,7 @@
 }
 
 .logo-text {
-    color: #ffffff;
+    color: var(--text-primary);
     font-family: 'Poppins', sans-serif;
     font-size: 1.25rem;
     font-weight: 300;

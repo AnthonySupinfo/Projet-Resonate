@@ -1,26 +1,28 @@
 ﻿import { Outlet } from "react-router-dom";
-import NavCard from "../../Shared/NavCard/NavCard";
-import LibraryCard from "../../library/libraryCard/LibraryCard";
 import FavoritePlaylistCard from "../../Shared/FavoritePlaylistCard/FavoritePlaylistCard";
 import './AuthLayout.css';
+import NavCard from "../../Shared/NavCard/NavCard.jsx";
+import UserCard from "../../Shared/UserCard/UserCard.jsx";
+import LibraryCard from "../../library/libraryCard/LibraryCard.jsx";
+import NotifsCard from "../../Shared/NotifsCard/NotifsCard.jsx";
 
 export default function AuthLayout() {
     return (
-        <div className="auth-layout-container">
-            {/*Mettre ici la user card + nav card + librairie card*/}
-            {/*<header>Resonate - Bienvenue (version user connecté)</header>*/}
-
-            <aside className="auth-sidebar">
+        <div className="auth-layout">
+            <aside>
+                <UserCard />
                 <NavCard />
                 <LibraryCard />
             </aside>
 
-            <main className="auth-main-content">
+            <main className="auth-content">
                 <Outlet />
             </main>
 
-            <aside className="auth-sidebar-right">
+            <aside>
+                <NotifsCard/>
                 <FavoritePlaylistCard/>
+            {/*    Fav Playlist card  */}
             </aside>
         </div>
     );
