@@ -28,7 +28,7 @@ export async function authFetch(url, options = {}) {
 
   let response = await fetch(url, config)
 
-  // Si 401 → tente un refresh transparent
+  // Si 401 (tente un refresh transparent)
   if (response.status === 401) {
     const refreshToken = localStorage.getItem("refresh_token")
     if (!refreshToken) return response
@@ -93,7 +93,7 @@ export async function login(email, password) {
   return data
 }
 
-// Profil connecté — utilise authFetch pour le refresh automatique
+// Profil connecté utilise authFetch pour le refresh automatique
 export async function getMe() {
   const response = await authFetch(`${API_URL}/api/v1/auth/me`)
   if (!response.ok) return null
@@ -132,14 +132,14 @@ export async function logoutServer() {
   }
 }
 
-// Profil complet (Settings) — utilise authFetch pour le refresh automatique
+// Profil complet (Settings) utilise authFetch pour le refresh automatique
 export async function getProfile() {
   const response = await authFetch(`${API_URL}/api/v1/users/me`)
   if (!response.ok) return null
   return await response.json()
 }
 
-// Modifier le profil (avatar, bio, website, theme) — utilise authFetch pour le refresh automatique
+// Modifier le profil (avatar, bio, website, theme) utilise authFetch pour le refresh automatique
 export async function updateProfile(data) {
   const response = await authFetch(`${API_URL}/api/v1/users/me`, {
     method: "PATCH",
@@ -151,7 +151,7 @@ export async function updateProfile(data) {
   return result
 }
 
-// Télécharger ses données (RGPD) — utilise authFetch pour le refresh automatique
+// Télécharger ses données (RGPD) utilise authFetch pour le refresh automatique
 export async function exportData() {
   const response = await authFetch(`${API_URL}/api/v1/users/me/export`)
   if (!response.ok) throw new Error("Erreur lors de l'export")
