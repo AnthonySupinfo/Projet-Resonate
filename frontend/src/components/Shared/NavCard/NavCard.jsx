@@ -53,7 +53,7 @@ export default function NavCard() {
                             )}
                         </NavLink>
 
-                        <NavLink to="/favorites" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+                        <NavLink to="/library" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
                             {({ isActive }) => (
                                 <>
                                     <span className="nav-text">{t('layout.navFav')}</span>

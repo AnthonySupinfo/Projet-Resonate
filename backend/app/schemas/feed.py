@@ -13,7 +13,7 @@ class FeedItemResponse(BaseModel):
     actor_username: str
     actor_avatar: Optional[str] = None
 
-    targer_user_id: Optional[str] = None
+    target_user_id: Optional[str] = None
     target_user_username: Optional[str] = None
 
     playlist_id: Optional[int] = None

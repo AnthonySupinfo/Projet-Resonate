@@ -1,0 +1,77 @@
+const BASE_URL = (import.meta.env.VITE_API_BASE_URL) + "/api/v1";
+
+const getToken = () => localStorage.getItem("token");
+
+const authHeaders = () => ({
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${getToken()}`
+});
+
+export const feedService = {
+    async getFeed() {
+        const response = await fetch(`${BASE_URL}/users/me/feed`, {
+            headers: authHeaders()
+        });
+        if (!response.ok) throw new Error('Erreur réseau');
+        const data = await response.json();
+
+        return data.map(item => ({
+            id: item.id,
+            type: item.activity_type,
+            timeAgo: new Date(item.created_at).toLocaleDateString(),
+            user: {
+                id: item.actor_id,
+                name: item.actor_username,
+                avatar: item.actor_avatar || item.actor_username?.charAt(0).toUpperCase() || '?'
+            },
+            target: {
+                name: item.target_user_username || item.album_title || item.playlist_name || "Élément",
+                artist: "",
+                playlistName: item.playlist_name
+            },
+            data: {
+                name: item.target_user_username,
+                username: item.target_user_username ? `@${item.target_user_username}` : "",
+                avatarUrl: item.target_user_avatar || item.target_user_username?.charAt(0).toUpperCase() || '?',
+                title: item.album_title,
+                coverUrl: item.cover_url
+            }
+        }));
+    },
+
+    async followUser(userId) {
+        const response = await fetch(`${BASE_URL}/users/${userId}/follow`, {
+            method: 'POST',
+            headers: authHeaders()
+        });
+        if (!response.ok) throw new Error('Erreur réseau');
+        return response.json();
+    },
+
+    async unfollowUser(userId) {
+        const response = await fetch(`${BASE_URL}/users/${userId}/follow`, {
+            method: 'DELETE',
+            headers: authHeaders()
+        });
+        if (!response.ok) throw new Error('Erreur réseau');
+        return true;
+    },
+
+    async followPlaylist(playlistId) {
+        const response = await fetch(`${BASE_URL}/playlists/${playlistId}/follow`, {
+            method: 'POST',
+            headers: authHeaders()
+        });
+        if (!response.ok) throw new Error('Erreur réseau');
+        return response.json();
+    },
+
+    async unfollowPlaylist(playlistId) {
+        const response = await fetch(`${BASE_URL}/playlists/${playlistId}/follow`, {
+            method: 'DELETE',
+            headers: authHeaders()
+        });
+        if (!response.ok) throw new Error('Erreur réseau');
+        return true;
+    }
+};
