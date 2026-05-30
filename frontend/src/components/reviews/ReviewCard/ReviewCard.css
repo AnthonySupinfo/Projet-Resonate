@@ -1,9 +1,14 @@
 .review-card {
-    background-color: #2c2c2e;
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 16px;
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 20px;
+    padding: 20px 24px;
     transition: opacity 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.review-card:hover {
+    background-color: rgba(255,255,255,0.05);
 }
 
 .review-card.deleting {
@@ -38,7 +43,7 @@
 
 .review-username {
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: 500;
     color: white;
     font-family: 'Poppins', sans-serif;
 }
@@ -51,7 +56,7 @@
 
 .review-content {
     font-size: 0.95rem;
-    color: #e5e5ea;
+    color: #f2f3fb;
     line-height: 1.5;
     margin: 0 0 20px 0;
     font-family: 'Inter', sans-serif;
@@ -63,31 +68,32 @@
     justify-content: space-between;
     align-items: center;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
-    padding-top: 12px;
+    padding-top: 16px;
 }
 
-.review-interactions {
+.review-interactions,
+.review-actions {
     display: flex;
-    gap: 16px;
+    gap: 12px;
 }
 
 .interaction-btn, .action-btn {
     background: transparent;
     border: none; 
     color: #8e8e93;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 6px;
     padding: 6px 12px;
-    border-radius: 20px;
+    border-radius: 16px;
     transition: all 0.2s;
     font-family: 'Inter', sans-serif;
 }
 
 .interaction-btn:hover, .action-btn:hover {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(255, 255, 255, 0.08);
     color: white;
 }
 
@@ -109,16 +115,17 @@
 .comments-section {
     margin-top: 16px;
     padding-top: 16px;
-    border-top: 1px dashed rgba(255, 255, 255, 0.1);
+    border-top: 1px dashed rgba(255, 255, 255, 0.05);
 }
 
-.comment-list {
+.comments-list {
     display: flex;
     flex-direction: column;
     gap: 12px;
     margin-bottom: 16px;
-    max-height: 200px;
+    max-height: 250px;
     overflow-y: auto;
+    padding-right: 4px;
 }
 
 .comments-list::webkit-scrollbar {
@@ -135,15 +142,17 @@
     color: #8e8e93;
     font-style: italic;
     margin: 0;
+    text-align: center;
+    padding: 10px 0;
 }
 
 .comment-item {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    background-color: rgba(0,0,0,0.15);
-    padding: 10px 14px;
-    border-radius: 12px;;
+    background-color: linear-gradient(90deg, rgba(80,80,80,0.05) 1%, rgba(206, 187,197, 0.10) 100%);
+    padding: 12px 16px;
+    border-radius: 16px;;
 }
 
 .comment-content {
@@ -154,13 +163,16 @@
 
 .comment-author {
     font: 0.8rem;
-    font-weight: 600;
+    font-weight: 500;
     color: #f1a2a2;
+    font-family: 'Poppins', sans-serif;
 }
 
 .comment-text {
     font-size: 0.9rem;
     color: #e5e5ea;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.4;
 }
 
 .delete-comment-btn {
@@ -169,17 +181,19 @@
     color: #8e8e93;
     cursor: pointer;
     font-size: 0.8rem;
-    padding: 4px;
-    transition: color 0.2s;
+    padding: 4px 8px;
+    border-radius: 50%;
+    transition: color 0.2s, background-color 0.2s;
 }
 
 .delete-comment-btn:hover {
     color: #ff4b4b;
+    background-color: rgba(255, 75, 75, 0.1);
 }
 
 .comment-form {
     display: flex;
-    gap: 8px;
+    gap: 12px;
 }
 
 .comment-input {
@@ -187,27 +201,33 @@
     background-color: rgba(0, 0, 0, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 20px;
-    padding: 8px 16px;
+    padding: 10px 16px;
     color: white;
     font-size: 0.9rem;
     outline: none;
     transition: border-color 0.2s;
+    font-family: 'Inter', sans-serif;
 }
 
 .comment-input:focus {
     border-color: #f1a2a2;
 }
 
+.comment-input::placeholder {
+    color: #8e8e93;
+}
+
 .comment-submit-btn {
     background-color: #48484a;
     border: none;
     color: white;
-    padding: 8px 16px;
+    padding: 0 20px;
     border-radius: 20px;
     font-size: 0.85rem;
     font-weight: 500;
     cursor: pointer;
-    transition: border-color 0.2s;
+    transition: background-color 0.2s;
+    font-family: 'Inter', sans-serif;
 }
 
 .comment-submit-btn:hover:not(:disabled) {
@@ -218,4 +238,11 @@
 .comment-submit-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+.inline-edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
 }

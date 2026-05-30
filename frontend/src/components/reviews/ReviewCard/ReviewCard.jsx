@@ -1,9 +1,17 @@
 import { useState } from 'react';
 import StarRating from '../StarRating/StarRating';
-import { likeReview, unlikeReview, deleteReview, reportReview, createCommentReview, deleteCommentReview } from '../../../api/api';
+import { likeReview, unlikeReview, deleteReview, reportReview, createCommentReview, deleteCommentReview, updateReview } from '../../../api/api';
 import './ReviewCard.css';
+import { useAuth } from '../../../context/AuthContext';
+import { getUserStats } from '../../../api/auth';
 
-export default function ReviewCard({ review, currentUserId, onReviewDeleted }) {
+export default function ReviewCard({ review, onReviewDeleted }) {
+
+    const { user } = useAuth();
+    const currentUserId = user?.user_id || user?.id;
+
+    const [currentReview, setCurrentReview] = useState(review);
+
     const [isLiked, setIsLiked] = useState(review.is_liked_by_user || false);
     const [likesCount, setLikesCount] = useState(review.like_count || 0);
     const [isLiking, setIsLiking] = useState(false);
@@ -13,6 +21,12 @@ export default function ReviewCard({ review, currentUserId, onReviewDeleted }) {
     const [comments, setComments] = useState(review.comments || []);
     const [newComment, setNewComment] = useState('');
     const [isCommenting, setIsCommenting] = useState(false);
+
+    const [isEditing, setIsEditing] = useState(false);
+    const [editRating, setEditRating] = useState(currentReview.rating);
+    const [editContent, setEditContent] = useState(currentReview.content || '');
+    const [isUpdating, setIsUpdating] = useState(false);
+
 
     const formattedDate = new Date(review.posted_at).toLocaleDateString('fr-FR', {
         year: 'numeric', month: 'long', day: 'numeric'
@@ -28,9 +42,9 @@ export default function ReviewCard({ review, currentUserId, onReviewDeleted }) {
 
         try {
             if (nextStatus) {
-                await likeReview(review.id);
+                await likeReview(currentReview.id);
             } else {
-                await unlikeReview(review.id);
+                await unlikeReview(currentReview.id);
             }
         } catch (error) {
             console.error("Erreur lors du like", error);
@@ -45,8 +59,8 @@ export default function ReviewCard({ review, currentUserId, onReviewDeleted }) {
         if (window.confirm("Voulez-vous vraiment supprimer cette critique ?")) {
             setIsDeleting(true);
             try {
-                await deleteReview(review.id);
-                if (onReviewDeleted) onReviewDeleted(review.id);
+                await deleteReview(currentReview.id);
+                if (onReviewDeleted) onReviewDeleted(currentReview.id);
             } catch (error) {
                 console.error("Erreur de suppression", error);
                 alert("Impossible de supprimer la critique");
@@ -59,11 +73,28 @@ export default function ReviewCard({ review, currentUserId, onReviewDeleted }) {
         const reason = window.prompt("Pourquoi signalez vous cette critique ? (Spam, Insultes, etc)");
         if(reason) {
             try {
-                await reportReview(review.id, reason);
+                await reportReview(currentReview.id, reason);
                 alert ("Merci, la critique a été signalée à l'équipe de modération.");
             } catch (error) {
                 alert("Erreur lors du signalement");
             }
+        }
+    };
+
+    const handleEditSubmit = async (e) => {
+        e.preventDefault();
+        setIsUpdating(true);
+        try {
+            const updatedRev = await updateReview(currentReview.id, {
+                rating: editRating,
+                content: editContent.trim()
+            });
+            setCurrentReview({ ...currentReview, rating: updatedRev.rating, content: updatedRev.content, has_been_modified: true});
+            setIsEditing(false);
+        } catch (error) {
+            alert("Erreur lors de la modification.");
+        } finally {
+            setIsUpdating(false);
         }
     };
 
@@ -73,10 +104,10 @@ export default function ReviewCard({ review, currentUserId, onReviewDeleted }) {
 
         setIsCommenting(true);
         try {
-            const addedComment = await createCommentReview(review.id, newComment.trim()); 
+            const addedComment = await createCommentReview(currentReview.id, newComment.trim()); 
             setComments([...comments, {
                 ...addedComment,
-                username: "Moi",// a modifier pour fetch les vraies commentaire 
+                username: user?.username,// a modifier pour fetch les vraies commentaire 
                 user_id: currentUserId
             }]);
             setNewComment('');
@@ -105,40 +136,59 @@ export default function ReviewCard({ review, currentUserId, onReviewDeleted }) {
                 <div className="review-author-info">
                     <img src={review.avatar_url || `https://placehold.co/40x40/2a2a2c/ffffff?text=${review.username?.[0] || 'U'}`} alt="Avatar" className="review-avatar"/>
                     <div className="review-meta">
-                        <span className="review-username">{review.username || "Utilisateur"}</span>
-                        <span className="review-date">{formattedDate} {review.has_been_modified && "(Modifié)"}</span>
+                        <span className="review-username">{currentReview.username || "Utilisateur"}</span>
+                        <span className="review-date">{formattedDate} {currentReview.has_been_modified && "(Modifié)"}</span>
                     </div>
                 </div>
 
-                <StarRating rating={review.rating} readOnly={true} />
+                {!isEditing && <StarRating rating={currentReview.rating} readOnly={true} />}
             </div>
 
-            {review.content && (
-                <p className="review-content">{review.content}</p>
+            {isEditing ? (
+                <form onSubmit={handleEditSubmit} className="inline-edit-form">
+                    <div className="inline-edit-rating">
+                        <StarRating rating={editRating} onRatingChange={setEditRating} readOnly={isUpdating} />
+                    </div>
+                    <textarea className="review-textarea" value={editContent} onChange={(e) => setEditContent(e.target.value)} disabled={isUpdating} rows="3"/>
+                    <div className="edit-actions">
+                        <button type="button" className="btn-cancel" onClick={() => setIsEditing(false)} disabled={isUpdating}>Annuler</button>
+                        <button type="submit" className="btn-submit-review" disabled={isUpdating}>Enregistrer</button>
+                    </div>
+                </form>
+
+            ) : (
+                <>
+                    {currentReview.content && <p className="review-content">{currentReview.content}</p>}
+                </>
             )}
 
-            <div className="review-card-footer">
-                <div className="review-interactions">
-                    <button 
-                        className={`interaction-btn like-btn ${isLiked ? 'active' : ''}`} 
-                        onClick={handleLikeClick} 
-                        disabled={isLiking}>
-                            {isLiked ? '❤️' : '🤍'} <span className="count">{likesCount}</span>
-                    </button>
+            {!isEditing && (
+                <div className="review-card-footer">
+                    <div className="review-interactions">
+                        <button 
+                            className={`interaction-btn like-btn ${isLiked ? 'active' : ''}`} 
+                            onClick={handleLikeClick} 
+                            disabled={isLiking}>
+                                {isLiked ? '❤️' : '🤍'} <span className="count">{likesCount}</span>
+                        </button>
 
-                    <button className={`interactions-btn comment-btn ${showComments ? 'active' : ''}`} onClick={() => setShowComments(!showComments)}>
-                        {showComments ? 'Masquer' : 'Commenter'} {comments.length > 0 && `(${comments.length})`}
-                    </button>
-                </div>
+                        <button className={`interactions-btn comment-btn ${showComments ? 'active' : ''}`} onClick={() => setShowComments(!showComments)}>
+                            {showComments ? 'Masquer' : 'Commenter'} {comments.length > 0 && `(${comments.length})`}
+                        </button>
+                    </div>
 
-                <div className="review-actions">
-                    {String(currentUserId) === String(review.user_id) ? (
-                        <button className="actions-btn delete-btn" onClick={handleDeleteClick}>Supprimer</button>
-                    ) : (
-                        <button className="action-btn report-btn" onClick={handleReportClick} title="Signaler">Signaler</button>
-                    )}
+                    <div className="review-actions">
+                        {String(currentUserId) === String(currentReview.user_id) ? (
+                            <>
+                                <button className="action-btn edit-btn" onClick={() => setIsEditing(true)}>Modifier</button>
+                                <button className="action-btn delete-btn" onClick={handleDeleteClick}>Supprimer</button>
+                            </>
+                        ) : (
+                            <button className="action-btn report-btn" onClick={handleReportClick} title="Signaler">Signaler</button>
+                        )}
+                    </div>
                 </div>
-            </div>
+            )}
 
             {showComments && (
                 <div className="comments-section">

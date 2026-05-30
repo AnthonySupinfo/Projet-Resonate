@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.db.session import get_db
@@ -9,6 +9,9 @@ import json
 from typing import List
 from app.schemas.feed import FeedItemResponse
 from app.services.feed import feed_service
+from app.schemas.stats import UserStatsResponse
+from app.services.stats_service import stats_service
+
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -80,3 +83,19 @@ async def get_my_feed(
     """Récupère le fil d'actualités."""
 
     return await feed_service.get_user_feed(db, current_user["user_id"])
+
+
+@router.get("/{user_id}/stats", response_model=UserStatsResponse)
+async def get_user_statistics(
+        user_id: str,
+        db: AsyncSession = Depends(get_db)
+):
+    """Renvoie les statistiques d'un utilisateur"""
+
+    user = await db.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Utilisateur introuvable.")
+
+    stats = await stats_service.get_user_stats(db, user_id)
+
+    return stats

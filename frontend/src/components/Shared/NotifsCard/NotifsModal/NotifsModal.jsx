@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
+import { useLanguage } from "../../../../context/LanguageContext.jsx";
 import NotifsItem from './NotifsItem/NotifsItem';
 import iconMenu from '../../../../../public/icons/notifsbar/menu.png';
 import './NotifsModal.css';
 
-export default function NotifsModal({ notifications, onClose, onReadSingle, onReadAll }) {
+export default function NotifsModal({ notifications, onClose, onReadSingle, onReadAll, myAvatar }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const modalRef = useRef(null);
     const menuRef = useRef(null);
+    const { t } = useLanguage();
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -33,13 +35,13 @@ export default function NotifsModal({ notifications, onClose, onReadSingle, onRe
     return (
         <div className="notifs-modal-container" ref={modalRef}>
             <div className="notifs-modal-header">
-                <h4 className="notifs-modal-title">Notifications</h4>
+                <h4 className="notifs-modal-title">{t('layout.notifTitle')}</h4>
                 <div className="notifs-global-menu-wrapper" ref={menuRef}>
                     <button
                         className="notifs-modal-menu-trigger"
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
                     >
-                        <img src={iconMenu} alt="Menu" className="open-menu-icon" />
+                        <img src={iconMenu} alt={t('layout.altMenu')} className="open-menu-icon" />
                     </button>
                     {isMenuOpen && (
                         <div className="notifs-context-dropdown">
@@ -50,7 +52,7 @@ export default function NotifsModal({ notifications, onClose, onReadSingle, onRe
                                     setIsMenuOpen(false);
                                 }}
                             >
-                                Marquer tout comme lu
+                                {t('layout.notifReadAll')}
                             </button>
                         </div>
                     )}
@@ -59,13 +61,14 @@ export default function NotifsModal({ notifications, onClose, onReadSingle, onRe
 
             <div className="notifs-modal-body">
                 {notifications.length === 0 ? (
-                    <div className="notifs-empty-state">Aucune notification</div>
+                    <div className="notifs-empty-state">{t('layout.notifEmpty')}</div>
                 ) : (
                     notifications.map((notif) => (
                         <NotifsItem
                             key={notif.id}
                             notification={notif}
                             onRead={onReadSingle}
+                            myAvatar={myAvatar}
                         />
                     ))
                 )}

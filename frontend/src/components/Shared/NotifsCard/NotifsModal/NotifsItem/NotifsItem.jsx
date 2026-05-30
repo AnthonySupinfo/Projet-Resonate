@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import { useAuth } from "../../../../../context/AuthContext.jsx";
+import { useLanguage } from "../../../../../context/LanguageContext.jsx";
+import {useAuth} from "../../../../../context/AuthContext.jsx";
 import './NotifsItem.css';
 import iconDefault from '../../../../../../public/icons/notifsbar/default.png';
 import iconLike from '../../../../../../public/icons/notifsbar/like.png';
@@ -7,10 +8,12 @@ import iconComment from '../../../../../../public/icons/notifsbar/comment.png';
 import iconFollow from '../../../../../../public/icons/notifsbar/follow.png';
 import iconMenu from '../../../../../../public/icons/notifsbar/menu.png';
 
-export default function NotifsItem({ notification, onRead }) {
+export default function NotifsItem({ notification, onRead, myAvatar }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuRef = useRef(null);
     const { user } = useAuth();
+    const { t } = useLanguage();
+
     console.log("Données du user connecté :", user);
 
     useEffect(() => {
@@ -26,7 +29,38 @@ export default function NotifsItem({ notification, onRead }) {
     }, [isMenuOpen]);
 
     const formatTime = (dateString) => {
-        return "Il y a 2h";
+        if (!dateString) return "";
+
+        const pastDate = new Date(dateString);
+        const now = new Date();
+        const diffInSeconds = Math.floor((now - pastDate) / 1000);
+
+        if (diffInSeconds < 60) {
+            return t('layout.timeJustNow');
+        }
+
+        const diffInMinutes = Math.floor(diffInSeconds / 60);
+        if (diffInMinutes < 60) {
+            return t('layout.timeMinutesAgo').replace('{time}', diffInMinutes);
+        }
+
+        const diffInHours = Math.floor(diffInMinutes / 60);
+        if (diffInHours < 24) {
+            return t('layout.timeHoursAgo').replace('{time}', diffInHours);
+        }
+
+        const diffInDays = Math.floor(diffInHours / 24);
+        if (diffInDays < 7) {
+            return t('layout.timeDaysAgo').replace('{time}', diffInDays);
+        }
+
+        // Déduit la langue locale (fr-FR ou en-US) en fonction d'une clé traduite
+        const locale = t('layout.navHome') === 'Home' ? 'en-US' : 'fr-FR';
+
+        return new Intl.DateTimeFormat(locale, {
+            day: 'numeric',
+            month: 'short'
+        }).format(pastDate);
     };
 
     const renderMessage = () => {
@@ -34,60 +68,71 @@ export default function NotifsItem({ notification, onRead }) {
             return <span className="notif-text-content">{notification.message}</span>;
         }
 
-        const username = notification.related_user_username || "Un utilisateur";
+        const username = notification.related_user_username || t('layout.notifDefaultUser');
 
         switch (notification.type) {
             case "LIKE":
                 return (
                     <span className="notif-text-content">
-                        <strong>{username}</strong> aime votre contenu
+                        <strong>{username}</strong> {t('layout.notifLike')}
                     </span>
                 );
             case "COMMENT":
                 return (
                     <span className="notif-text-content">
-                        <strong>{username}</strong> a commenté votre publication
+                        <strong>{username}</strong> {t('layout.notifComment')}
                     </span>
                 );
             case "FOLLOW":
                 return (
                     <span className="notif-text-content">
-                        <strong>{username}</strong> vous suit
+                        <strong>{username}</strong> {t('layout.notifFollow')}
                     </span>
                 );
             default:
-                return <span className="notif-text-content">Nouvelle activité de <strong>{username}</strong></span>;
+                return <span className="notif-text-content">{t('layout.notifDefaultActivity')} <strong>{username}</strong></span>;
         }
     };
 
     const getOverlayIcon = () => {
         switch (notification.type) {
             case "LIKE":
-                return <img src={iconLike} alt="Like" className="overlay-icon-img" />;
+                return <img src={iconLike} alt={t('layout.altLike')} className="overlay-icon-img" />;
             case "COMMENT":
-                return <img src={iconComment} alt="Comment" className="overlay-icon-img" />;
+                return <img src={iconComment} alt={t('layout.altComment')} className="overlay-icon-img" />;
             case "FOLLOW":
-                return <img src={iconFollow} alt="Follow" className="overlay-icon-img" />;
+                return <img src={iconFollow} alt={t('layout.altFollow')} className="overlay-icon-img" />;
             default:
-                return <img src={iconDefault} alt="Notif" className="overlay-icon-img" />;
+                return <img src={iconDefault} alt={t('layout.altDefault')} className="overlay-icon-img" />;
         }
     };
 
     const renderThumbnail = () => {
         if (notification.type === 'FOLLOW') {
+            const isImageUrl = myAvatar && (myAvatar.startsWith('http') || myAvatar.startsWith('/') || myAvatar.startsWith('data:image'));
+
             return (
-                <img
-                    src={user?.avatar_url || "https://placehold.co/44x44/35313a/ffffff?text=U"}
-                    alt="Avatar"
-                    className="notif-thumbnail circular"
-                />
+                <div className="avatar-preview">
+                    {isImageUrl ? (
+                        <img
+                            src={myAvatar}
+                            alt={t('layout.altAvatar')}
+                            className="avatar-img"
+                            onError={e => e.target.style.display = "none"}
+                        />
+                    ) : myAvatar ? (
+                        <span className="avatar-emoji">{myAvatar}</span>
+                    ) : (
+                        <span className="avatar-placeholder">👤</span>
+                    )}
+                </div>
             );
         }
 
         return (
             <img
                 src={"https://placehold.co/44x44/1a1a1a/ffffff?text=C"}
-                alt="Cover"
+                alt={t('layout.altCover')}
                 className="notif-thumbnail rounded"
             />
         );
@@ -100,13 +145,16 @@ export default function NotifsItem({ notification, onRead }) {
             <div
                 className={`notifs-item-container ${notification.is_read ? 'read' : 'unread'}`}
                 onClick={() => {
-                    console.log("Navigation vers la page..."); // ToDo : à remplacer quand les pages seront pretes
+                    if (!notification.is_read) {
+                        onRead(notification.id);
+                    }
+                    console.log("Navigation vers la page..."); // ToDo: à remplacer quand la page sera prete
                 }}
             >
                 <div className="notif-avatar-wrapper">
                     <img
                         src={notification.related_user_avatar || "https://placehold.co/40x40/35313a/ffffff?text=U"}
-                        alt=""
+                        alt={t('layout.altAvatar')}
                         className="notif-item-avatar"
                     />
                     <div className="notif-type-overlay">{getOverlayIcon()}</div>
@@ -129,7 +177,7 @@ export default function NotifsItem({ notification, onRead }) {
                             setIsMenuOpen(!isMenuOpen);
                         }}
                     >
-                        <img src={iconMenu} alt="Menu" className="item-menu-icon" />
+                        <img src={iconMenu} alt={t('layout.altMenu')} className="item-menu-icon" />
                     </button>
 
                     {isMenuOpen && (
@@ -143,7 +191,7 @@ export default function NotifsItem({ notification, onRead }) {
                                     setIsMenuOpen(false);
                                 }}
                             >
-                                Marquer comme lu
+                                {t('layout.notifReadOne')}
                             </button>
                         </div>
                     )}

@@ -5,10 +5,11 @@ import iconConversation from '../../../../public/icons/notifsbar/conversation.pn
 import iconLogout from '../../../../public/icons/notifsbar/logout.png';
 import logoResonate from '../../../../public/logoResonate.png';
 import {useAuth} from "../../../context/AuthContext.jsx";
-import {useEffect, useState} from "react";
+import {useEffect, useState, useCallback } from "react";
 import NotifsModal from "./NotifsModal/NotifsModal.jsx";
 import { getProfile } from "../../../api/auth.js";
 import {notificationService} from "../../../api/notification.service.js";
+import {useNotificationSocket} from "../../../hooks/useNotificationSocket.js";
 
 export default function NotifsCard() {
     const { logout } = useAuth();
@@ -25,6 +26,22 @@ export default function NotifsCard() {
         return saved ? parseInt(saved, 10) : 0;
     });
 
+    const token = localStorage.getItem("token");
+
+    const handleNewWebSocketNotification = useCallback((data) => {
+        console.log("Nouvelle activité reçue du serveur", data);
+
+        if (data.unread_count !== undefined) {
+            setUnreadCount(data.unread_count);
+
+            notificationService.getNotifications()
+                .then(setNotifications)
+                .catch(console.error);
+        }
+    }, []);
+
+    useNotificationSocket(token, handleNewWebSocketNotification);
+
     useEffect(() => {
         const fetchNotificationsData = async () => {
             try {
@@ -35,12 +52,12 @@ export default function NotifsCard() {
                 const currentUnread = dataNotifsCount.unread_count;
                 setUnreadCount(currentUnread);
 
-                // if (token && !myAvatar) {
-                //     const profileData = await getProfile(token);
-                //     if (profileData) {
-                //         setMyAvatar(profileData.avatar_url);
-                //     }
-                // }
+                if (token && !myAvatar) {
+                    const profileData = await getProfile(token);
+                    if (profileData) {
+                        setMyAvatar(profileData.avatar_url);
+                    }
+                }
 
                 if (currentUnread < lastSeenUnreadCount) {
                     setLastSeenUnreadCount(currentUnread);
@@ -129,6 +146,7 @@ export default function NotifsCard() {
                     onClose={() => setIsModalOpen(false)}
                     onReadSingle={handleReadSingle}
                     onReadAll={handleReadAll}
+                    myAvatar={myAvatar}
                 />
             )}
         </div>
