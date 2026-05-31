@@ -1,0 +1,88 @@
+.chat-header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    height: 55px;
+    box-sizing: border-box;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid var(--divider-color);
+    flex-shrink: 0;
+}
+
+.chat-header-container:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.chat-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.chat-header-avatar-wrapper {
+    position: relative;
+    display: flex;
+}
+
+.chat-header-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.chat-status-dot {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 12px;
+    height: 12px;
+    background-color: var(--success-icon);
+    border: 2px solid var(--bg-card);
+    border-radius: 50%;
+}
+
+.chat-header-title {
+    color: var(--text-primary);
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 500;
+    margin: 0;
+    padding-top: 3px;
+}
+
+.chat-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.chat-action-btn {
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+}
+
+.chat-action-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.chat-action-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    opacity: 0.8;
+}
+
+.chat-action-icon.chevron {
+    width: 16px;
+    height: 16px;
+}

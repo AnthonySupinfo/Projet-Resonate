@@ -5,6 +5,8 @@ from typing import List
 
 from app.db.session import get_db
 from app.core.dependencies import get_current_user
+from app.schemas.auth import UserProfileResponse
+from app.services.follows import follow_service
 from app.services.message import message_service
 from app.schemas.message import ConversationItemResponse, MessageResponse
 from app.models.message import Message, Conversation
@@ -118,3 +120,11 @@ async def update_message(
 
     except ValueError as e:
         raise HTTPException(status_code=403, detail=str(e))
+
+
+@router.get("/friends", response_model=List[UserProfileResponse])
+async def get_chat_friends(
+    db: AsyncSession = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    return await follow_service.get_mutual_friends(db, current_user["user_id"])

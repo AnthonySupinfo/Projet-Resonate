@@ -5,6 +5,7 @@ import NavCard from "../../Shared/NavCard/NavCard.jsx";
 import UserCard from "../../Shared/UserCard/UserCard.jsx";
 import LibraryCard from "../../library/libraryCard/LibraryCard.jsx";
 import NotifsCard from "../../Shared/NotifsCard/NotifsCard.jsx";
+import ChatModal from "../../Shared/ChatModal/ChatModal.jsx";
 
 export default function AuthLayout() {
     const location = useLocation();
@@ -41,6 +42,8 @@ export default function AuthLayout() {
                     <FavoritePlaylistCard/>
                 </aside>
             )}
+
+            <ChatModal />
         </div>
     );
 }

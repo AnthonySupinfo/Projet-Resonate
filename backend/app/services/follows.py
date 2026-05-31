@@ -97,7 +97,18 @@ class FollowService:
         result = await db.execute(stmt)
         return result.scalars().all()
 
+    async def get_mutual_friends(self, db: AsyncSession, user_id: str):
+        subq = select(Follow.follower_id).where(Follow.following_id == user_id)
 
+        stmt = (
+            select(User)
+            .join(Follow, Follow.following_id == User.id)
+            .where(Follow.follower_id == user_id)
+            .where(User.id.in_(subq))
+        )
+
+        result = await db.execute(stmt)
+        return result.scalars().all()
 
 
 follow_service = FollowService()
