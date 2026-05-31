@@ -90,6 +90,7 @@ function AppRoutes() {
             {<Route path="/" element={<Home />} />}
             {<Route path="/explore" element={<Explore />} />}
             {<Route path="/profile" element={<Profile />} />}
+            {<Route path="/user/:id" element={<Profile />} />}
             {<Route path="/settings" element={<Settings/>}/>}
             {<Route path="/social" element={<Social/>}/>}
             <Route path="/settings" element={<Settings />} />

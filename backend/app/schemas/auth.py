@@ -68,6 +68,7 @@ class UserProfileResponse(BaseModel):
     bio: Optional[str] = None
     website: Optional[str] = None
     theme: str = "dark"
+    is_followed_by_me: bool = False
 
     class Config:
         from_attributes = True

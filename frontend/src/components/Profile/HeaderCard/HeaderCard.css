@@ -109,7 +109,13 @@
     margin-top: 2px;
 }
 
-.header-edit-btn {
+.header-actions-group {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.header-action-btn {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -119,15 +125,43 @@
     font-family: 'Inter', sans-serif;
     font-size: 0.9rem;
     font-weight: 400;
-    padding: 8px 16px;
+    padding: 8px 20px;
     border-radius: 20px;
     text-decoration: none;
+    cursor: pointer;
     transition: all 0.2s ease;
 }
 
-.header-edit-btn:hover {
+.header-action-btn:hover {
     background-color: rgba(255, 255, 255, 0.15);
     border-color: rgba(255, 255, 255, 0.3);
+}
+
+.header-action-btn.follow-btn {
+    padding: 8px 24px;
+}
+
+.header-icon-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.6;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.header-icon-btn:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.action-icon-img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
 }
 
 .header-bottom-section {
@@ -178,12 +212,4 @@
     color: var(--text-muted);
     font-style: italic;
     opacity: 0.6;
-}
-
-.edit-icon-img {
-    width: 16px;
-    height: 16px;
-    object-fit: contain;
-    opacity: 0.9;
-    transition: transform 0.2s ease;
 }
