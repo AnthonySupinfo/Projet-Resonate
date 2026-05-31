@@ -22,10 +22,12 @@ class Review(Base):
 
     has_been_modified = Column(Boolean, nullable=False, server_default="false")
 
-    posted_at = Column(DateTime, server_default=func.now(), nullable=False)
-    updated_at = Column(DateTime, server_default=func.now(), nullable=False)
-    deleted_at = Column(DateTime, nullable=True)
+    posted_at = Column(DateTime(timezone=True),
+                       server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True),
+                        server_default=func.now(), nullable=False)
+    deleted_at = Column(DateTime(timezone=True), nullable=True)
 
     # contrainte unique grâce à variable args
     __table_args__ = (UniqueConstraint("user_id", "album_id",
-                      name='unique review per person per album'),)
+                                       name='unique review per person per album'),)

@@ -5,6 +5,7 @@ from sqlalchemy import select, func
 from app.db.session import get_db
 from app.models.reviews import Review
 from app.models.album import Album
+from app.models.user import User
 
 # from app.models.user_activity_feed import UserActivityFeed, ActivityType
 from app.schemas.review import ReviewCreate, ReviewUpdate, ReviewResponse
@@ -123,20 +124,32 @@ async def get_album_reviews(
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user)
 ):
-    stmt_album = select(Album).filter(Album.id == album_id)
+    stmt_album = (
+        select(Review, User.username, User.avatar_url)
+        .join(User, Review.user_id == User.id)
+        .where(Review.album_id == album_id, Review.deleted_at == None)
+        .order_by(Review.posted_at.desc())
+        .offset((page - 1) * limit)
+        .limit(limit)
+    )
     result_album = await db.execute(stmt_album)
-    album = result_album.scalars().first()
+    album = reviews_data = []
 
-    if not album:
-        raise HTTPException(status_code=404, detail="Album introuvable")
+    for row in result_album.all():
+        review_obj = row[0]
+        username = row[1]
+        avatar_url = row[2]
 
-    offset = (page - 1) * limit
-
-    stmt = (select(Review).filter(Review.album_id == album_id, Review.deleted_at == None)
-            .order_by(Review.posted_at.desc())  # + récent en premier
-            .offset(offset)
-            .limit(limit)
-            )
-
-    result = await db.execute(stmt)
-    return result.scalars().all()
+        reviews_data.append({
+            "id": review_obj.id,
+            "user_id": review_obj.user_id,
+            "album_id": review_obj.album_id,
+            "rating": review_obj.rating,
+            "content": review_obj.content,
+            "has_been_modified": review_obj.has_been_modified,
+            "posted_at": review_obj.posted_at,
+            "updated_at": review_obj.updated_at,
+            "username": username,
+            "avatar_url": avatar_url
+        })
+    return reviews_data

@@ -76,7 +76,11 @@ export const deletePlaylist = async (playlistId) => {
         method: "DELETE",
         headers: authHeaders(),
     })
-    if(!res.ok) throw new Error ("Erreur lors de la suppression de la playlist")
+    if(!res.ok) {
+        const errorData = await res.json().catch(() => null);
+        const errorMessage = errorData?.detail || "Erreur inconnue côté serveur";
+        throw new Error(errorMessage);
+    }
 }
 
 export const removeTrackFromPlaylist = async (playlistId, trackId) => {

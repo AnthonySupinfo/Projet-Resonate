@@ -31,5 +31,6 @@ class Playlist(Base):
     is_favorite = Column(Boolean, default=False, nullable=False)
 
     # func.now permet de demander à la BDD l'heure actuelle
-    created_at = Column(DateTime, server_default=func.now(), nullable=False)
-    deleted_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime(timezone=True),
+                        server_default=func.now(), nullable=False)
+    deleted_at = Column(DateTime(timezone=True), nullable=True)

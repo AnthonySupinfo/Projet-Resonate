@@ -16,8 +16,10 @@ class ReviewComment(Base):
 
     content = Column(Text, nullable=False)
 
-    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+    created_at = Column(DateTime(timezone=True),
+                        server_default=func.now(), nullable=False)
     has_been_modified = Column(
         Boolean, server_default="false", nullable=False,)
-    updated_at = Column(DateTime, server_default=func.now(), nullable=False)
-    deleted_at = Column(DateTime, nullable=True)
+    updated_at = Column(DateTime(timezone=True),
+                        server_default=func.now(), nullable=False)
+    deleted_at = Column(DateTime(timezone=True), nullable=True)

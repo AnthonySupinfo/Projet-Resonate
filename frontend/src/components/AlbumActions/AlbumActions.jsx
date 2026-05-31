@@ -29,7 +29,6 @@ export default function AlbumActions({ albumId }) {
         if (albumId) fetchData();
     }, [albumId]);
 
-    // màj de la BDD 
     const handleStatusClick = async (newStatus) => {
         setIsLoading(true);
         try {
@@ -39,6 +38,18 @@ export default function AlbumActions({ albumId }) {
             console.error ("Erreur mise à jour du statut", error);
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleAddedToPlaylist = async (playlistId, playlistName) => {
+        try {
+            await addTrackToPlaylist(playlistId, albumId);
+            alert(`Album ajouté avec succès à la playlist "${playlistName}" !`);
+        } catch (error) {
+            console.error("Erreur lors de l'ajout à la playlist", error);
+            alert("Cet album est déjà dans la playlist ou une erreur est survenue.");
+        } finally {
+            setIsDropdownOpen(false);
         }
     };
 
@@ -90,10 +101,9 @@ export default function AlbumActions({ albumId }) {
                                     <li
                                         key={playlist.id}
                                         className="dropdown-item"
-                                        onClick={() => {
-                                            setIsDropdownOpen(false);
-                                        }}
-                                    > {playlist.name}
+                                        onClick={() => handleAddedToPlaylist(playlist.id, playlist.name)}
+                                    > 
+                                        {playlist.name}
 
                                     </li>
                                 ))

@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Carousel from '../components/library/carousel/Carousel'
 import PlaylistCard from '../components/library/playlistCard/PlaylistCard';
 import AlbumCard from '../components/library/albumCard/AlbumCard';
 import './LibraryPage.css';
 import { getMyLibrary, getMyPlaylist } from '../api/api';
 import { useNavigate } from 'react-router-dom';
+import CreatePlaylistModal from '../components/library/modals/CreatePlaylistModal';
 
 // Données mockés pour tester visu 
 
@@ -30,6 +31,7 @@ export default function LibraryPage() {
     const [userAlbums, setUserAlbums] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const [stats, setStats] = useState({
         albumsSauvegardes: 0,
@@ -38,38 +40,51 @@ export default function LibraryPage() {
         playlistsCrees: 0
     });
 
-    useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                const [playlistsData, libraryData] = await Promise.all([
-                    getMyPlaylist(),
-                    getMyLibrary()
-                ]);
+    const fetchUserData = useCallback(async () => {
+        try {
+            const [playlistData, libraryData] = await Promise.all([
+                getMyPlaylist(),
+                getMyLibrary()
+            ]);
 
-                setUserPlaylists(playlistsData.length > 0 ? playlistsData : []);
-                setUserAlbums(libraryData.length > 0 ? libraryData : []);
+            setUserPlaylists(playlistData.length > 0 ? playlistData : []);
+            setUserAlbums(libraryData.length > 0 ? libraryData : []);
 
-                // Calcul des stats 
-                const totalTracks = playlistsData.reduce((total, playlist) => total + (playlist.trackCount || 0), 0);
-
-                setStats({
+            setStats({
                     albumsSauvegardes: libraryData.length,
                     albumTermines: libraryData.filter (item => item.status === 'COMPLETED').length,
                     albumEnCours: libraryData.filter (item => item.status === 'LISTENING').length,
-                    playlistsCrees: playlistsData.length
+                    playlistsCrees: playlistData.length
                 });
-            } catch (error) {
+        } catch (error) {
                 console.error("Erreur lors de la récupération des données", error);
-                setUserPlaylists(fallbackPlaylists); // fausse données si erreur de fetch
-                setUserAlbums(fallbackAlbums);
+                setUserPlaylists([]);
+                setUserAlbums([]);
                 setStats({ likedAlbums: 0, followedPlaylists: 0, playlistCreated: 0, addedTracks: 0, favoriteTracks: 0 });
-            }
-        };
-        fetchUserData();
+        } finally {
+                setIsLoading(false);
+        }
     }, []);
+
+    useEffect(() => {
+        fetchUserData();
+
+        window.addEventListener("playlistUpdated", fetchUserData);
+        window.addEventListener("favoriteChanged", fetchUserData);
+
+        return () => {
+            window.removeEventListener("playlistUpdated", fetchUserData);
+            window.removeEventListener("favoriteChanged", fetchUserData);
+        };
+    }, [fetchUserData]);
 
     const handlePlaylistStatusChange = (updatedPlaylist) => {
         setUserPlaylists(prev => prev.map(p => p.id === updatedPlaylist.id ? updatedPlaylist : p));
+    };
+
+    const handlePlaylistCreated = (newPlaylist) => {
+        setUserPlaylists([newPlaylist, ...userPlaylists]);
+        setStats(prev => ({ ...prev, playlistsCrees: prev.playlistsCrees + 1 }));
     };
 
     return (
@@ -117,14 +132,17 @@ export default function LibraryPage() {
             </Carousel>
 
             <Carousel title="Playlist préférées" onSeeAll={() => navigate('/library/playlists')}>
-                {userPlaylists.map(item => {
-                    const playlistData = item.playlist || item;
-                    return <PlaylistCard key={`pref-${playlistData.id}`} playlist={playlistData} onPlaylistUpdated={handlePlaylistStatusChange}/>
-                })}
+                {userPlaylists
+                    .filter(item => item.playlist ? item.playlist.is_favorite : item.is_favorite)
+                    .map(item => {
+                        const playlistData = item.playlist || item;
+                        return <PlaylistCard key={`pref-${playlistData.id}`} playlist={playlistData} onPlaylistUpdated={handlePlaylistStatusChange}/>
+                    })
+                }
             </Carousel>
 
             <Carousel title="Playlist personnalisées" onSeeAll={() => navigate('/library/playlists')}>
-                <div className="static-card create-card carousel-static">
+                <div className="static-card create-card carousel-static" onClick={() => setIsModalOpen(true)}>
                     <div className="static-cover create-cover">
                         <span className="plus-icon">+</span>
                     </div>
@@ -143,6 +161,8 @@ export default function LibraryPage() {
                     <PlaylistCard key={`custom-${playlist.id}`} playlist={playlist} onPlaylistUpdated={handlePlaylistStatusChange}/>
                 ))}
             </Carousel>
+
+            <CreatePlaylistModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onPlaylistCreated={handlePlaylistCreated} />
         </div>
     );
 }
