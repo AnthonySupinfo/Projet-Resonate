@@ -49,7 +49,7 @@ async def create_playlist(
         is_public=body.is_public
     )
     db.add(new_playlist)
-    
+
     await db.flush()
 
     await feed_service.log_activity(
@@ -59,7 +59,6 @@ async def create_playlist(
         playlist_id=new_playlist.id
     )
 
-    await db.commit()
     await db.refresh(new_playlist)
     return new_playlist
 
@@ -79,6 +78,9 @@ async def update_playlist(
         existing.description = body.description
     if body.is_public is not None:
         existing.is_public = body.is_public
+
+    if body.is_favorite is not None:
+        existing.is_favorite = body.is_favorite
 
     await db.commit()
     await db.refresh(existing)
@@ -171,7 +173,6 @@ async def add_track_playlist(
         track_id=body.track_id
     )
 
-    await db.commit()
     await db.refresh(new_item)
     return new_item
 

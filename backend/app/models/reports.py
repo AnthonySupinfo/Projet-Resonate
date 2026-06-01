@@ -26,9 +26,10 @@ class Report(Base):
     status = Column(Enum(ReportStatus), nullable=False,
                     server_default="PENDING")
 
-    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+    created_at = Column(DateTime(timezone=True),
+                        server_default=func.now(), nullable=False)
 
     reviewed_by_id = Column(String, ForeignKey(
         "users.id", ondelete="SET NULL"), nullable=True)
 
-    resolved_at = Column(DateTime, nullable=True)
+    resolved_at = Column(DateTime(timezone=True), nullable=True)

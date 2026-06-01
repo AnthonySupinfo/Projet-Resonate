@@ -35,4 +35,7 @@ class ReviewResponse(ReviewCreate):
     posted_at: datetime
     updated_at: datetime
 
+    username: str | None = None
+    avatar_url: str | None = None
+
     model_config = {"from_attributes": True}

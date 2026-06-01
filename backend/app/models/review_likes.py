@@ -12,4 +12,5 @@ class ReviewLike(Base):
     review_id = Column(Integer, ForeignKey(
         "reviews.id", ondelete="CASCADE"), nullable=False, primary_key=True)
 
-    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+    created_at = Column(DateTime(timezone=True),
+                        server_default=func.now(), nullable=False)

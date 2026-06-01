@@ -19,8 +19,8 @@ class UserPlaylistItem(Base):
         nullable=False
     )
 
-
-    added_at = Column(DateTime, server_default=func.now(), nullable=False)
+    added_at = Column(DateTime(timezone=True),
+                      server_default=func.now(), nullable=False)
 
     __table_args__ = (UniqueConstraint(
         "playlist_id", "track_id", name="unique_track_per_playlist"),)

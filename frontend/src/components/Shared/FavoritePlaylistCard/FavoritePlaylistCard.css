@@ -1,0 +1,98 @@
+.fav-playlist-card {
+    background-color: #35313A;
+    background-image: radial-gradient(circle at bottom right, rgba(196, 165, 181, 0.55) 0%, rgba(153, 153, 153, 0) 70%);
+    border-radius: 35px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    padding: 24px 22px;
+    color: white;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-height: calc(100vh - 64px);
+}
+
+.fav-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin: 0 0 20px 0;
+    color: #ffffff;
+}
+
+.fav-tracks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.fav-tracks-list::-webkit-scrollbar {
+    display: none;
+}
+
+.fav-track-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background-image: linear-gradient(90deg, rgba(80, 80, 80, 0.05) 1%, rgba(206, 187, 197, 0.15) 100%);
+    background-clip: padding-box;
+    border-radius: 20px;
+    transition: all 0.2s ease-in-out;
+    border: 1px solid transparent;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.fav-track-item:hover {
+    background-image: linear-gradient(90deg, rgba(80, 80, 80, 0.05) 1%, rgba(206, 187, 197, 0.15) 100%);
+}
+
+.fav-track-cover {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.fav-track-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+.fav-track-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fav-track-artist {
+    font-size: 0.75rem;
+    color: #c5c7d6;
+    white-space: hidden;
+    text-overflow: ellipsis;
+}
+
+.fav-track-icon {
+    font-size: 1rem;
+    filter: drop-shadow(0, 0 4px rgba(239, 130, 130, 0.6));
+    margin-left: auto;
+}
+
+.fav-playlist-card.empty, .fav-playlist-card.loading {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.empty-msg {
+    color: #c5c7d6;
+    font-size: 0.85rem;
+}

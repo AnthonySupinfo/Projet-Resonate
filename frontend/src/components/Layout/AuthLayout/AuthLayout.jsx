@@ -1,4 +1,5 @@
-﻿import { Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
+import FavoritePlaylistCard from "../../Shared/FavoritePlaylistCard/FavoritePlaylistCard";
 import './AuthLayout.css';
 import NavCard from "../../Shared/NavCard/NavCard.jsx";
 import UserCard from "../../Shared/UserCard/UserCard.jsx";
@@ -36,9 +37,8 @@ export default function AuthLayout() {
             </main>
 
             {hasRightSidebar && (
-                <aside className="right-sidebar">
-                    <div className="fav-playlist-placeholder">
-                    </div>
+                <aside>
+                    <FavoritePlaylistCard/>
                 </aside>
             )}
         </div>

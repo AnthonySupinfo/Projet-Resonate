@@ -22,6 +22,8 @@ export default function LibraryCard() {
             }
         };
         load();
+        window.addEventListener("playlistUpdated", load);
+        return () => window.removeEventListener("playlistUpdated", load);
     }, []);
 
     const handlePlaylistCreated = (newPlaylist) => setPlaylists([newPlaylist, ...playlists]);

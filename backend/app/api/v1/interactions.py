@@ -62,7 +62,6 @@ async def like_review(
         review_id=review_id
     )
 
-    await db.commit()
     await db.refresh(new_like)
     return new_like
 
@@ -120,7 +119,6 @@ async def create_comment(
         related_review_id=review.id
     )
 
-    await db.commit()
     await db.refresh(new_comment)
     return new_comment
 

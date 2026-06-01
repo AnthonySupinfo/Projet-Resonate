@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { upsertAlbumStatus, getMyLibrary, getMyPlaylist, addTrackToPlaylist, removeTrackFromPlaylist } from '../../../api/api';
+import CreatePlaylistModal from '../library/modals/CreatePlaylistModal';
 import './AlbumActions.css';
 
 export default function AlbumActions({ albumId }) {
@@ -7,6 +8,7 @@ export default function AlbumActions({ albumId }) {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [playlists, setPlaylists] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -27,7 +29,6 @@ export default function AlbumActions({ albumId }) {
         if (albumId) fetchData();
     }, [albumId]);
 
-    // màj de la BDD 
     const handleStatusClick = async (newStatus) => {
         setIsLoading(true);
         try {
@@ -37,6 +38,18 @@ export default function AlbumActions({ albumId }) {
             console.error ("Erreur mise à jour du statut", error);
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleAddedToPlaylist = async (playlistId, playlistName) => {
+        try {
+            await addTrackToPlaylist(playlistId, albumId);
+            alert(`Album ajouté avec succès à la playlist "${playlistName}" !`);
+        } catch (error) {
+            console.error("Erreur lors de l'ajout à la playlist", error);
+            alert("Cet album est déjà dans la playlist ou une erreur est survenue.");
+        } finally {
+            setIsDropdownOpen(false);
         }
     };
 
@@ -80,6 +93,7 @@ export default function AlbumActions({ albumId }) {
                 {isDropdownOpen && (
                     <div className="dropdown-menu">
                         <ul className="dropdown-list">
+                            <li className="dropdown-item create-option" onClick={() => { setIsCreateModalOpen(true); setIsDropdownOpen(false);}}> Créer une nouvelle playlist</li>
                             {playlists.length === 0 ? (
                                 <li className="dropdown-item empty">Aucune playlist</li>
                             ): (
@@ -87,11 +101,9 @@ export default function AlbumActions({ albumId }) {
                                     <li
                                         key={playlist.id}
                                         className="dropdown-item"
-                                        onClick={() => {
-                                            console.log(`Ajout du track à la playlist ${playlist.id}`); // à modifier quand Krishna aura sa partie
-                                            setIsDropdownOpen(false);
-                                        }}
-                                    > {playlist.name}
+                                        onClick={() => handleAddedToPlaylist(playlist.id, playlist.name)}
+                                    > 
+                                        {playlist.name}
 
                                     </li>
                                 ))
@@ -101,6 +113,14 @@ export default function AlbumActions({ albumId }) {
                 )}
 
             </div>
+
+            <CreatePlaylistModal 
+                isOpen={isCreateModalOpen} 
+                onClose={() => setIsCreateModalOpen(false)} 
+                onPlaylistCreated={(newPlaylist) => { 
+                    setPlaylists([newPlaylist, ...playlists]); 
+                }}
+            />
         </div>
     );
 }

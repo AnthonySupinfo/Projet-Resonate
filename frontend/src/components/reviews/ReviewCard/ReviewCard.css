@@ -1,0 +1,248 @@
+.review-card {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 20px;
+    padding: 20px 24px;
+    transition: opacity 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.review-card:hover {
+    background-color: rgba(255,255,255,0.05);
+}
+
+.review-card.deleting {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.review-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.review-author-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.review-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.review-meta {
+    display: flex;
+    flex-direction: column;
+}
+
+.review-username {
+    font-size: 1rem;
+    font-weight: 500;
+    color: white;
+    font-family: 'Poppins', sans-serif;
+}
+
+.review-date {
+    font-size: 0.8rem;
+    color: #8e8e93;
+    font-family: 'Inter', sans-serif;
+}
+
+.review-content {
+    font-size: 0.95rem;
+    color: #f2f3fb;
+    line-height: 1.5;
+    margin: 0 0 20px 0;
+    font-family: 'Inter', sans-serif;
+    white-space: pre-wrap;
+}
+
+.review-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 16px;
+}
+
+.review-interactions,
+.review-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.interaction-btn, .action-btn {
+    background: transparent;
+    border: none; 
+    color: #8e8e93;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 16px;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+}
+
+.interaction-btn:hover, .action-btn:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: white;
+}
+
+.interaction-btn.like-btn.active {
+    color: #f1a2a2;
+}
+
+.action-btn.delete-btn:hover {
+    color: #ff4b4b;
+    background-color: rgba(255, 75, 75, 0.1);
+}
+
+.action-btn.report-btn:hover {
+    color: #ff9f0a;
+}
+
+/* Section commentaires */
+
+.comments-section {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px dashed rgba(255, 255, 255, 0.05);
+}
+
+.comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+    max-height: 250px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.comments-list::webkit-scrollbar {
+    width: 4px;
+}
+
+.comments-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.no-comments {
+    font-size: 0.85rem;
+    color: #8e8e93;
+    font-style: italic;
+    margin: 0;
+    text-align: center;
+    padding: 10px 0;
+}
+
+.comment-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    background-color: linear-gradient(90deg, rgba(80,80,80,0.05) 1%, rgba(206, 187,197, 0.10) 100%);
+    padding: 12px 16px;
+    border-radius: 16px;;
+}
+
+.comment-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.comment-author {
+    font: 0.8rem;
+    font-weight: 500;
+    color: #f1a2a2;
+    font-family: 'Poppins', sans-serif;
+}
+
+.comment-text {
+    font-size: 0.9rem;
+    color: #e5e5ea;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.4;
+}
+
+.delete-comment-btn {
+    background: transparent;
+    border: none;
+    color: #8e8e93;
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    border-radius: 50%;
+    transition: color 0.2s, background-color 0.2s;
+}
+
+.delete-comment-btn:hover {
+    color: #ff4b4b;
+    background-color: rgba(255, 75, 75, 0.1);
+}
+
+.comment-form {
+    display: flex;
+    gap: 12px;
+}
+
+.comment-input {
+    flex: 1;
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 10px 16px;
+    color: white;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: 'Inter', sans-serif;
+}
+
+.comment-input:focus {
+    border-color: #f1a2a2;
+}
+
+.comment-input::placeholder {
+    color: #8e8e93;
+}
+
+.comment-submit-btn {
+    background-color: #48484a;
+    border: none;
+    color: white;
+    padding: 0 20px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-family: 'Inter', sans-serif;
+}
+
+.comment-submit-btn:hover:not(:disabled) {
+    background-color: #f1a2a2;
+    color: #111114;
+}
+
+.comment-submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.inline-edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}

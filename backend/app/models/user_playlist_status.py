@@ -25,7 +25,8 @@ class UserPlaylistStatus(Base):
 
     status = Column(Enum(MediaStatus), nullable=False)
 
-    updated_at = Column(DateTime, server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True),
+                        server_default=func.now(), nullable=False)
 
     __table_args__ = (UniqueConstraint("user_id", "playlist_id",
                       name="unique_status_per_user_per_playlist"),)
