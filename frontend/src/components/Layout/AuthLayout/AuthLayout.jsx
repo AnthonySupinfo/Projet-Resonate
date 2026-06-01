@@ -6,36 +6,62 @@ import UserCard from "../../Shared/UserCard/UserCard.jsx";
 import LibraryCard from "../../library/libraryCard/LibraryCard.jsx";
 import NotifsCard from "../../Shared/NotifsCard/NotifsCard.jsx";
 import ChatModal from "../../Shared/ChatModal/ChatModal.jsx";
+import {useNotificationSocket} from "../../../hooks/useNotificationSocket.js";
+import {useAuth} from "../../../context/AuthContext.jsx";
+import { ChatContext } from "../../../context/ChatContext.jsx";
+import {useState} from "react";
 
 export default function AuthLayout() {
     const location = useLocation();
+    const { token } = useAuth();
+
+    const [incomingChatEvent, setIncomingChatEvent] = useState(null);
+    const handleIncomingWebsocketMessage = (data) => {
+        console.log("WebSocket a reçu un message :", data);
+
+        switch (data.type) {
+            case 'new_message':
+            case 'conversation_read':
+                setIncomingChatEvent({ ...data, timestamp: Date.now() });
+                break;
+
+            case 'notification':
+                break;
+
+            default:
+                console.warn("Type de message inconnu :", data.type);
+        }
+    };
+
+    useNotificationSocket(token, handleIncomingWebsocketMessage);
 
     const isHomePage = location.pathname === '/';
     const hasRightSidebar = location.pathname === '/' || location.pathname === '/social';
 
     return (
-        <div className={`auth-layout ${!hasRightSidebar ? 'profile-mode' : ''} ${isHomePage ? 'home-mode' : ''}`}>
-            <aside className="left-sidebar">
-                <UserCard />
-                <NavCard />
-                <LibraryCard />
-            </aside>
+        <ChatContext.Provider value={{ incomingChatEvent }}>
+            <div className={`auth-layout ${!hasRightSidebar ? 'profile-mode' : ''} ${isHomePage ? 'home-mode' : ''}`}>
+                <aside className="left-sidebar">
+                    <UserCard />
+                    <NavCard />
+                    <LibraryCard />
+                </aside>
 
-            <div className="auth-topbar">
-                {!isHomePage && (
-                    <div className="search-placeholder">
-                        🔍 Que voulez-vous écouter ?
+                <div className="auth-topbar">
+                    {!isHomePage && (
+                        <div className="search-placeholder">
+                            🔍 Que voulez-vous écouter ?
+                        </div>
+                    )}
+
+                    <div className="notifs-wrapper">
+                        <NotifsCard />
                     </div>
-                )}
-
-                <div className="notifs-wrapper">
-                    <NotifsCard />
                 </div>
-            </div>
 
-            <main className="auth-content">
-                <Outlet />
-            </main>
+                <main className="auth-content">
+                    <Outlet />
+                </main>
 
             {hasRightSidebar && (
                 <aside>
@@ -43,7 +69,8 @@ export default function AuthLayout() {
                 </aside>
             )}
 
-            <ChatModal />
-        </div>
+                <ChatModal />
+            </div>
+        </ChatContext.Provider>
     );
 }

@@ -4,11 +4,30 @@ import HeaderChatConv from './HeaderChatConv/HeaderChatConv.jsx';
 import MessageItem from './MessageItem/MessageItem.jsx';
 import FooterChatConv from './FooterChatConv/FooterChatConv.jsx';
 import { chatService } from '../../../../api/chat.service.js';
+import {useChatContext} from "../../../../context/ChatContext.jsx";
 
 export default function ChatConversation({ conversationId, friend, onBack }) {
     const [messages, setMessages] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const messagesEndRef = useRef(null);
+    const { incomingChatEvent } = useChatContext();
+
+    useEffect(() => {
+        if (!incomingChatEvent) return;
+
+        if (incomingChatEvent.type === 'new_message') {
+            if (incomingChatEvent.conversation_id === conversationId) {
+                setMessages(prevMessages => {
+                    const exists = prevMessages.some(m => m.id === incomingChatEvent.message.id);
+                    if (exists) return prevMessages;
+
+                    return [...prevMessages, incomingChatEvent.message];
+                });
+
+                chatService.markConversationRead(conversationId).catch(console.error);
+            }
+        }
+    }, [incomingChatEvent, conversationId]);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
