@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from uuid import UUID
 
 from app.db.session import get_db
 from app.models.playlist import Playlist, PlaylistType
@@ -180,7 +181,7 @@ async def add_track_playlist(
 @router.delete("/{playlist_id}/tracks/{track_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_track_playlist(
     playlist_id: int,
-    track_id: int,
+    track_id: UUID,
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user)
 ):

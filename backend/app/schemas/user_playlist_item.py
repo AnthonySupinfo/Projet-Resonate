@@ -4,7 +4,7 @@ from uuid import UUID
 
 
 class PlaylistItemAdd(BaseModel):
-    track_id: int
+    track_id: UUID
 
 
 class PlaylistItemResponse(BaseModel):
