@@ -4,6 +4,7 @@ import ChatHeader from './ChatHeader/ChatHeader.jsx';
 import ChatNewConv from './ChatNewConv/ChatNewConv.jsx';
 import ChatConversation from './ChatConversation/ChatConversation.jsx';
 import ChatConvList from './ChatConvList/ChatConvList.jsx';
+import { useChatContext } from '../../../context/ChatContext.jsx';
 import { chatService } from '../../../api/chat.service.js';
 
 export default function ChatModal() {
@@ -12,6 +13,16 @@ export default function ChatModal() {
     const [conversations, setConversations] = useState([]);
     const [activeConversationId, setActiveConversationId] = useState(null);
     const [activeFriend, setActiveFriend] = useState(null);
+
+    const { incomingChatEvent } = useChatContext();
+
+    useEffect(() => {
+        if (incomingChatEvent && incomingChatEvent.type === 'new_message') {
+            chatService.getConversations()
+                .then(data => setConversations(data))
+                .catch(console.error);
+        }
+    }, [incomingChatEvent]);
 
     useEffect(() => {
         if (isOpen) {
@@ -27,6 +38,14 @@ export default function ChatModal() {
         }
     }, [isOpen]);
 
+    useEffect(() => {
+        const handleToggle = () => setIsOpen(prev => !prev);
+
+        window.addEventListener('toggleChatModal', handleToggle);
+
+        return () => window.removeEventListener('toggleChatModal', handleToggle);
+    }, []);
+
     const toggleChat = () => setIsOpen(!isOpen);
 
     const handleNewMessageClick = () => {
@@ -40,6 +59,14 @@ export default function ChatModal() {
         setActiveConversationId(conversationId);
         setActiveFriend(friend);
         setCurrentView('conversation');
+
+        setConversations(prevConvs =>
+            prevConvs.map(conv =>
+                conv.conversation_id === conversationId
+                    ? { ...conv, last_message_is_read: true }
+                    : conv
+            )
+        );
     };
 
     const handleSendNew = (conversationId, friend) => {
@@ -54,6 +81,10 @@ export default function ChatModal() {
         setCurrentView('list');
         setActiveConversationId(null);
         setActiveFriend(null);
+
+        chatService.getConversations()
+            .then(data => setConversations(data))
+            .catch(console.error);
     };
 
     return (

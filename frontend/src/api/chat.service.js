@@ -58,5 +58,23 @@ export const chatService = {
         });
         if (!response.ok) throw new Error('Erreur réseau');
         return true;
+    },
+
+    async getUnreadCount() {
+        const response = await fetch(`${BASE_URL}/conversations/unread-count`, {
+            headers: authHeaders()
+        });
+        if (!response.ok) throw new Error('Erreur réseau');
+        return response.json();
+    },
+
+    async editMessage(messageId, content) {
+        const response = await fetch(`${BASE_URL}/conversations/messages/${messageId}`, {
+            method: 'PATCH',
+            headers: authHeaders(),
+            body: JSON.stringify({ content })
+        });
+        if (!response.ok) throw new Error('Erreur réseau');
+        return response.json();
     }
 };

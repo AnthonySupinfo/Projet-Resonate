@@ -20,7 +20,7 @@ async def get_unread_message_count(
         db: AsyncSession = Depends(get_db),
         current_user: dict = Depends(get_current_user)
 ):
-    """Récupère le nom de messages non lus"""
+    """Récupère le nombre de messages non lus"""
     count = await message_service.get_unread_count(db, current_user["user_id"])
     return {"unread_count": count}
 

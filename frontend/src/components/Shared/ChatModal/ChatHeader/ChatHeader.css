@@ -24,13 +24,32 @@
 .chat-header-avatar-wrapper {
     position: relative;
     display: flex;
-}
-
-.chat-header-avatar {
+    align-items: center;
+    justify-content: center;
     width: 36px;
     height: 36px;
     border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.chat-header-avatar-image {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
     object-fit: cover;
+}
+
+.chat-header-avatar-emoji {
+    font-size: 18px;
+    line-height: 1;
+    user-select: none;
+}
+
+.chat-header-avatar-placeholder {
+    font-size: 18px;
+    opacity: 0.5;
+    user-select: none;
 }
 
 .chat-status-dot {
@@ -42,6 +61,7 @@
     background-color: var(--success-icon);
     border: 2px solid var(--bg-card);
     border-radius: 50%;
+    z-index: 2;
 }
 
 .chat-header-title {

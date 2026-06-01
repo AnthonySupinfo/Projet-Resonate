@@ -2,23 +2,25 @@ import './UserFollowBox.css';
 import followUser from '../../../../../../public/icons/notifsbar/follow.png';
 
 export default function UserFollowBox({ data }) {
-    const avatar = data?.avatarUrl;
-    const isImageUrl = avatar && (avatar.startsWith('http') || avatar.startsWith('/') || avatar.startsWith('data:image'));
+    const rawAvatar = data?.avatarUrl;
+    const isImageUrl = rawAvatar && (rawAvatar.startsWith('http') || rawAvatar.startsWith('/') || rawAvatar.startsWith('data:image'));
 
     return (
         <div className="social-item-user-box">
-            {isImageUrl ? (
-                <img
-                    src={avatar}
-                    alt="Avatar"
-                    className="social-user-avatar"
-                    onError={(e) => (e.target.style.display = "none")}
-                />
-            ) : avatar ? (
-                <div className="social-user-avatar text-avatar">{avatar}</div>
-            ) : (
-                <div className="social-user-avatar text-avatar">👤</div>
-            )}
+            <div className="social-user-avatar-wrapper">
+                {isImageUrl ? (
+                    <img
+                        src={rawAvatar}
+                        alt={data?.name || "Avatar"}
+                        className="social-user-avatar-image"
+                        onError={(e) => (e.target.style.display = "none")}
+                    />
+                ) : rawAvatar ? (
+                    <span className="social-user-avatar-emoji">{rawAvatar}</span>
+                ) : (
+                    <span className="social-user-avatar-placeholder">👤</span>
+                )}
+            </div>
 
             <div className="social-user-info">
                 <h4 className="social-user-name">{data?.name}</h4>

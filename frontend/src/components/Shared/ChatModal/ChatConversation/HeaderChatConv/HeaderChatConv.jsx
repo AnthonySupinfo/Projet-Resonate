@@ -3,7 +3,9 @@ import chevronDown from '../../../../../../public/icons/chevronDown.png';
 
 export default function HeaderChatConv({ friend, onBack }) {
     const friendName = friend?.name || friend?.username || 'Ami';
-    const friendAvatar = friend?.avatarUrl || "https://placehold.co/40x40/555/FFF?text=U";
+    const rawAvatar = friend?.avatarUrl;
+
+    const isImageUrl = rawAvatar && (rawAvatar.startsWith('http') || rawAvatar.startsWith('/') || rawAvatar.startsWith('data:image'));
 
     return (
         <div className="header-chat-conv">
@@ -12,7 +14,20 @@ export default function HeaderChatConv({ friend, onBack }) {
             </button>
 
             <div className="header-chat-friend-info">
-                <img src={friendAvatar} alt={friendName} className="header-chat-avatar" />
+                <div className="header-chat-avatar-wrapper">
+                    {isImageUrl ? (
+                        <img
+                            src={rawAvatar}
+                            alt={friendName}
+                            className="header-chat-avatar-image"
+                            onError={e => e.target.style.display = "none"}
+                        />
+                    ) : rawAvatar ? (
+                        <span className="header-chat-avatar-emoji">{rawAvatar}</span>
+                    ) : (
+                        <span className="header-chat-avatar-placeholder">👤</span>
+                    )}
+                </div>
                 <span className="header-chat-name">{friendName}</span>
             </div>
         </div>

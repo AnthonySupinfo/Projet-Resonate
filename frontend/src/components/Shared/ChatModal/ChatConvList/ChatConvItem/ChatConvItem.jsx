@@ -2,8 +2,10 @@ import './ChatConvItem.css';
 
 export default function ChatConvItem({ conversation, onSelect }) {
     const isUnread = conversation.last_message_is_read === false && conversation.last_message_sender_id === conversation.other_user_id;
-    const avatar = conversation.other_user_avatar || "https://placehold.co/40x40/555/FFF?text=U";
+    const rawAvatar = conversation.other_user_avatar;
     const displayName = conversation.other_user_username;
+
+    const isImageUrl = rawAvatar && (rawAvatar.startsWith('http') || rawAvatar.startsWith('/') || rawAvatar.startsWith('data:image'));
 
     const formatTime = (dateString) => {
         if (!dateString) return "";
@@ -19,7 +21,18 @@ export default function ChatConvItem({ conversation, onSelect }) {
     return (
         <div className="chat-conv-item-container" onClick={() => onSelect(conversation)}>
             <div className="chat-conv-avatar-wrapper">
-                <img src={avatar} alt={displayName} className="chat-conv-avatar" />
+                {isImageUrl ? (
+                    <img
+                        src={rawAvatar}
+                        alt={displayName}
+                        className="chat-conv-avatar-image"
+                        onError={e => e.target.style.display = "none"}
+                    />
+                ) : rawAvatar ? (
+                    <span className="chat-conv-avatar-emoji">{rawAvatar}</span>
+                ) : (
+                    <span className="chat-conv-avatar-placeholder">👤</span>
+                )}
             </div>
 
             <div className="chat-conv-details">

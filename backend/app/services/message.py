@@ -21,6 +21,8 @@ class MessageService:
 
     async def get_conversations(self, db: AsyncSession, user_id: str):
         """Récupère la liste des conversations"""
+        user_id_str = str(user_id)
+
         stmt = select(Conversation).where(
             or_(Conversation.user1_id == user_id, Conversation.user2_id == user_id)
         )
@@ -29,9 +31,15 @@ class MessageService:
 
         injected_conversations = []
         for conversation in conversations:
-            other_user_id = conversation.user2_id if conversation.user1_id == user_id else conversation.user1_id
+            if str(conversation.user1_id) == user_id_str:
+                other_user_id = str(conversation.user2_id)
+            else:
+                other_user_id = str(conversation.user1_id)
+
             other_user = await db.get(User, other_user_id)
+
             if not other_user:
+                print(f"⚠️ BUG : Utilisateur {other_user_id} introuvable pour la conv {conversation.id}")
                 continue
 
             msg_stmt = (
@@ -55,14 +63,14 @@ class MessageService:
             }
             injected_conversations.append(item)
 
-            def get_date_for_sorting(conversation_item):
-                if conversation_item["last_message_date"] is not None:
-                    return conversation_item["last_message_date"].timestamp()
-                else:
-                    return 0
+        def get_date_for_sorting(conversation_item):
+            if conversation_item["last_message_date"] is not None:
+                return conversation_item["last_message_date"].timestamp()
+            else:
+                return 0
 
-            injected_conversations.sort(key=get_date_for_sorting, reverse=True)
-            return injected_conversations
+        injected_conversations.sort(key=get_date_for_sorting, reverse=True)
+        return injected_conversations
 
     async def get_or_create_conversation(self, db: AsyncSession, user_a_id: str, user_b_id: str) -> Conversation:
             """Trouve la conversation existante ou la créer"""
@@ -70,7 +78,7 @@ class MessageService:
             if not is_mutual:
                 raise ValueError("Vous devez vous suivre mutuellement pour démarrer une conversation.")
 
-            u1_id, u2_id = sorted([user_a_id, user_b_id])
+            u1_id, u2_id = sorted([str(user_a_id), str(user_b_id)])
 
             stmt = select(Conversation).where(
                 and_(Conversation.user1_id == u1_id, Conversation.user2_id == u2_id)
@@ -167,10 +175,10 @@ class MessageService:
             "conversation_id": conversation_id
         }
 
+        await db.execute(stmt)
+
         from app.core.websocket_manager import manager
         await manager.send_personal_notification(ws_payload, other_user_id)
-
-        await db.execute(stmt)
 
 
     async def edit_message(self, db: AsyncSession, message_id: int, sender_id: str, new_content: str) -> Message:
