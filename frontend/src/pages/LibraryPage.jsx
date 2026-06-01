@@ -5,12 +5,22 @@ import AlbumCard from '../components/library/albumCard/AlbumCard';
 import './LibraryPage.css';
 import { getMyLibrary, getMyPlaylist } from '../api/api';
 import { useNavigate } from 'react-router-dom';
+import { Chart, Doughnut } from 'react-chartjs-2';
+import { Chart as ChartJS, ArcElement, Legend, Tooltip } from 'chart.js';
 import CreatePlaylistModal from '../components/library/modals/CreatePlaylistModal';
+
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 // Données mockés pour tester visu 
 
-/* const fallbackAlbums = [
-    { id: 1, title: "BULLY", artist: "Kanye West", year: "2024", coverUrl: "https://placehold.co/400x400/2a2a2c/ffffff?text=BULLY"},
+const fallbackAlbums = [
+    { id: 1, status: 'COMPLETED', album: { id: 101, name: "BULLY", artist_name: "Kanye West", image_url: "https://placehold.co/400x400/2a2a2c/ffffff?text=BULLY"} },
+    { id: 2, status: 'LISTENING', album: { id: 102, name: "BULLY", artist_name: "Kanye West", image_url: "https://placehold.co/400x400/2a2a2c/ffffff?text=BULLY"} },
+    { id: 3, status: 'PLANNED', album: { id: 103, name: "BULLY", artist_name: "Kanye West", image_url: "https://placehold.co/400x400/2a2a2c/ffffff?text=BULLY"} },
+    { id: 4, status: 'DROPPED', album: { id: 104, name: "BULLY", artist_name: "Kanye West", image_url: "https://placehold.co/400x400/2a2a2c/ffffff?text=BULLY"} },
+    { id: 5, status: 'COMPLETED', album: { id: 105, name: "BULLY", artist_name: "Kanye West", image_url: "https://placehold.co/400x400/2a2a2c/ffffff?text=BULLY"} }
+];
+/*
     { id: 2, title:"Clair Obscur", artist: "Lomepal", year: "2023", coverUrl: "https://placehold.co/400x400/1e40af/ffffff?text=Clair+Obscure"},
     { id: 3, title: "ARRANG", artist: "BTS", year: "2020", coverUrl: "https://placehold.co/400x400/1e40af/ffffff?text=ARRANG"},
     { id: 4, title: "THIS MUSIC MAY...", artist: "ABBA", year: "2020", coverUrl: "https://placehold.co/400x400/b91c1c/ffffff?text=ABBA"},
@@ -37,6 +47,8 @@ export default function LibraryPage() {
         albumsSauvegardes: 0,
         albumTermines: 0,
         albumEnCours: 0,
+        albumPlanned: 0,
+        albumDropped: 0,
         playlistsCrees: 0
     });
 
@@ -48,19 +60,36 @@ export default function LibraryPage() {
             ]);
 
             setUserPlaylists(playlistData.length > 0 ? playlistData : []);
-            setUserAlbums(libraryData.length > 0 ? libraryData : []);
 
-            setStats({
-                    albumsSauvegardes: libraryData.length,
-                    albumTermines: libraryData.filter (item => item.status === 'COMPLETED').length,
-                    albumEnCours: libraryData.filter (item => item.status === 'LISTENING').length,
+            // A supprimer après test : 
+            const actualLibraryData = libraryData.length > 0 ? libraryData : fallbackAlbums;
+            setUserAlbums(actualLibraryData);
+
+            // à remettre après test : 
+            // setUserAlbums(libraryData.length > 0 ? libraryData : []);
+
+            setStats({ // modifier actuallibrary par juste libraryData
+                    albumsSauvegardes: actualLibraryData.length,
+                    albumTermines: actualLibraryData.filter (item => item.status === 'COMPLETED').length,
+                    albumEnCours: actualLibraryData.filter (item => item.status === 'LISTENING').length,
+                    albumPlanned: actualLibraryData.filter (item => item.status === 'PLANNED').length,
+                    albumDropped: actualLibraryData.filter (item => item.status === 'DROPPED').length,
                     playlistsCrees: playlistData.length
                 });
         } catch (error) {
                 console.error("Erreur lors de la récupération des données", error);
                 setUserPlaylists([]);
-                setUserAlbums([]);
-                setStats({ likedAlbums: 0, followedPlaylists: 0, playlistCreated: 0, addedTracks: 0, favoriteTracks: 0 });
+                setUserAlbums(fallbackAlbums); // modifier tableau vide après test
+                // à décommenter après tests 
+                // setStats({ albumsSauvegardes: 0, albumTermines: 0, albumEnCours: 0, albumPlanned: 0, albumDropped: 0, playlistsCrees: 0 });
+                setStats({  // a sup après tests
+                    albumsSauvegardes: fallbackAlbums.length, 
+                    albumTermines: fallbackAlbums.filter (item => item.status === 'COMPLETED').length,
+                    albumEnCours: fallbackAlbums.filter (item => item.status === 'LISTENING').length,
+                    albumPlanned: fallbackAlbums.filter (item => item.status === 'PLANNED').length,
+                    albumDropped: fallbackAlbums.filter (item => item.status === 'DROPPED').length,
+                    playlistsCrees: 0
+                });
         } finally {
                 setIsLoading(false);
         }
@@ -87,6 +116,49 @@ export default function LibraryPage() {
         setStats(prev => ({ ...prev, playlistsCrees: prev.playlistsCrees + 1 }));
     };
 
+    const hasAlbum = stats.albumsSauvegardes > 0;
+
+    const donutData = {
+        labels: ['Terminés', 'En cours', 'À écouter', 'Abandonnées'],
+        datasets: [{
+            data: [
+                stats.albumTermines,
+                stats.albumEnCours,
+                stats.albumPlanned,
+                stats.albumDropped
+            ],
+            backgroundColor: ['#f1a2a2', '#c4a5b5', '#8e8e93', '#48484a'],
+            borderColor: ['#35313A'],
+            borderWidth: 4,
+        }]
+    };
+
+    const donutOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'right',
+                labels: {
+                    color: '#f2f3fb',
+                    font: { family: 'Inter', size: 13 },
+                    padding: 16,
+                    usePointStyle: true,
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: (ctx) => {
+                        const total = stats.albumsSauvegardes;
+                        const val = ctx.parsed;
+                        const pct = total > 0 ? Math.round((val / total) * 100) : 0;
+                        return ` ${val} album${val > 1 ? 's' : ''} (${pct}%)`;
+                    }
+                }
+            }
+        }
+    };
+
     return (
         <div className="library-page-content">
 
@@ -94,24 +166,40 @@ export default function LibraryPage() {
             <div className="topbar-placeholder"></div>
 
             <div className="stats-container">
-                <h3 className="stats-title">Statistiques</h3>
-                <div className="stats-grid">
-                    <div className="stat-item">
-                        <span className="stat-number">{stats.albumsSauvegardes}</span>
-                        <span className="stat-label">albums sauvegardés</span>
+                <h3 className="stats-title">Statistiques de ma collection</h3>
+
+                <div className="stats-dashboard-layout">
+                     <div className="stats-grid">
+                        <div className="stat-item">
+                            <span className="stat-number">{stats.albumsSauvegardes}</span>
+                            <span className="stat-label">albums sauvegardés</span>
+                        </div>
+                        <div className="stat-item">
+                            <span className="stat-number">{stats.albumTermines}</span>
+                            <span className="stat-label">albums terminés</span>
+                        </div>
+                        <div className="stat-item">
+                            <span className="stat-number">{stats.albumEnCours}</span>
+                            <span className="stat-label">En cours d'écoute</span>
+                        </div>
+                        <div className="stat-item">
+                            <span className="stat-number">{stats.playlistsCrees}</span>
+                            <span className="stat-label">playlists créées</span>
+                        </div>
                     </div>
-                    <div className="stat-item">
-                        <span className="stat-number">{stats.albumTermines}</span>
-                        <span className="stat-label">albums terminés</span>
-                    </div>
-                    <div className="stat-item">
-                        <span className="stat-number">{stats.albumEnCours}</span>
-                        <span className="stat-label">En cours d'écoute</span>
-                    </div>
-                    <div className="stat-item">
-                        <span className="stat-number">{stats.playlistsCrees}</span>
-                        <span className="stat-label">playlists créées</span>
-                    </div>
+
+                    {hasAlbum ? (
+                        <div className="stats-donut-wrapper">
+                            <h4 className="stats-breakdown-title">Répartition par statut</h4>
+                            <div className="stats-donut-chart">
+                                <Doughnut data={donutData} options={donutOptions} />
+                            </div>
+                        </div>
+                    ) : (
+                        <div className='stats-donut-wrapper'>
+                            <p className="stats-empty">Ajoutez des albums à votre bibliothèque pour voir vos statistiques.</p>
+                        </div>
+                    )}
                 </div>
             </div>
 

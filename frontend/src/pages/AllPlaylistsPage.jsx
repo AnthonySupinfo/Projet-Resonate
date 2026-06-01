@@ -23,7 +23,7 @@ export default function AllPlaylistsPage() {
         const fetchPlaylist = async () => {
             try {
                 const data = await getMyPlaylist();
-                setPlaylists(data.length > 0 ? data : mockPlaylist);
+                setPlaylists(data.length > 0 ? data : []);
             } catch (error) {
                 console.error("Erreur API, utilisation des fausses données");
                 setPlaylists([]);
