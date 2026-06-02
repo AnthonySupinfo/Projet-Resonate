@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload
+from fastapi.responses import Response
+import httpx
 from uuid import UUID
 from app.core.dependencies import get_current_user, require_admin
 from app.services.lastfm import lastfm_service
@@ -45,11 +47,17 @@ async def get_album_detail(
     # 2 Enrichissement Last.fm si nécessaire
     lastfm_data = None
 
-    if not album.tracks or len(album.tracks) == 0:
+    if not album.tracks or len(album.tracks) == 0 or album.year is None:
         lastfm_data = await lastfm_service.get_album_detail(
             album.artist_name,
             album.name
         )
+
+        if lastfm_data:
+            if lastfm_data.get("year"):
+                album.year = lastfm_data["year"]
+                await db.commit()
+
 
     # 3 Moyenne des reviews
     avg_result = await db.execute(
@@ -108,6 +116,8 @@ async def get_album_detail(
         "average_rating": average_rating,
         "user_status": user_status,
 
+        "year": album.year,
+
         "source": "cache"  # ici c’est cache DB (normal)
     }
 
@@ -133,8 +143,8 @@ async def delete_review(review_id: str, admin=Depends(require_admin)):
 
 # 1) Recherche d'albums
 @router.get("/search", tags=["search"])
-async def search_albums(q: str = Query(..., description="Nom de l'album à rechercher")):
-    return await lastfm_service.search_albums(q)
+async def search_albums(q: str = Query(..., description="Nom de l'album à rechercher"), page: int = Query(1), limit: int = Query(30)):
+    return await lastfm_service.search_albums(q, page, limit)
 
 # 2) Détail d'un album
 @router.get("/detail/{artist}/{album}", tags=["albums"])
@@ -145,6 +155,40 @@ async def album_detail(artist: str, album: str):
 @router.get("/artist/{name}", tags=["artists"])
 async def artist_detail(name: str):
     return await lastfm_service.get_artist_detail(name)
+
+# 4) Pour récupérer l'image d'un album (proxy pour contourner les CORS, par le frontend ca ne passe pas donc passe par backend)
+@router.get("/image-proxy")
+async def image_proxy(url: str | None = None):
+    FALLBACK_URL = "http://localhost/fallback.jpg"  # ton image locale
+
+    try:
+        # URL invalide ou vide
+        if not url or url.strip() == "":
+            raise ValueError("Empty URL")
+
+        async with httpx.AsyncClient(timeout=5) as client:
+            resp = await client.get(url)
+
+            if resp.status_code == 200:
+                return Response(
+                    content=resp.content,
+                    media_type=resp.headers.get("content-type", "image/jpeg")
+                )
+            else:
+                raise ValueError("Invalid status")
+
+    except Exception as e:
+        print("IMAGE ERROR:", e)
+
+        # fallback LOCAL (ultra important)
+        async with httpx.AsyncClient() as client:
+            fallback = await client.get(FALLBACK_URL)
+
+            return Response(
+                content=fallback.content,
+                media_type="image/jpeg"
+            )
+
 
 # test temporaire pour vérifier que les routes sont bien intégrées
 print(""" \n\n\n\n\n\n\n!!!!!!!!!\n\n\n\n\n!!!!!!!!

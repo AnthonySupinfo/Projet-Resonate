@@ -1,5 +1,5 @@
 ﻿import './HeaderCard.css';
-// import SearchBar from "../../Shared/SearchBar/SearchBar.jsx";
+import SearchBar from "../../Shared/SearchBar/SearchBar.jsx";
 
 export default function HeaderCard() {
     return (
@@ -10,11 +10,8 @@ export default function HeaderCard() {
                 className="header-bg-image"
             />
 
-            {/*à remplacer par la vraie barre de recherche :*/}
-            <div className="search-placeholder">
-                <span className="search-icon">🔍</span>
-                Que voulez-vous écouter ?
-            </div>
+            {/* barre de recherche */}
+            <SearchBar />
 
             <div className="header-info">
                 <h2 className="header-title">Birds</h2>

@@ -9,6 +9,7 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import selectinload
 
 from app.db.session import AsyncSessionLocal
 from app.models.album import Album
@@ -52,7 +53,7 @@ class LastFMService:
         return data
 
 
-    async def search_albums(self, query: str): 
+    async def search_albums(self, query: str, page: int = 1, limit: int = 30): 
 
       async with AsyncSessionLocal() as session: 
         stmt = select(AlbumSearchCache).where( 
@@ -65,6 +66,8 @@ class LastFMService:
         if cache_entry and is_cache_valid(cache_entry.fetched_at): 
             return {
                 "query": query, # la requete de recherche d'album
+                "page": page,
+                "limit": limit,
                 "results": cache_entry.results, # les albums depuis le cache
                 "source": "cache" # indique que les résultats proviennent du cache
             }
@@ -74,12 +77,15 @@ class LastFMService:
             "method": "album.search", # méthode de l'API Last.fm pour rechercher
              # des albums
             "album": query, 
+            "page": page,
+            "limit": limit,
         }
         data = await self._request(params) 
 
         albums = data.get("results", {}).get("albummatches", {}).get("album", [])
         if not albums:
             raise HTTPException(404, "Aucun album trouvé.")
+
 
         # 4 UPSERT cache
         if cache_entry: 
@@ -106,7 +112,7 @@ class LastFMService:
 
         async with AsyncSessionLocal() as session: 
             
-            stmt = select(Album).where(
+            stmt = select(Album).options(selectinload(Album.tracks)).where(
                 Album.artist_name == artist,
                 Album.name == album
             )
@@ -116,7 +122,9 @@ class LastFMService:
 
             # 2 Cache valide → retour immédiat
             if db_album and is_cache_valid(db_album.fetched_at): 
-                return self._serialize_album(db_album)
+                serialized = self._serialize_album(db_album)
+                serialized["year"] = db_album.year
+                return serialized
 
             # 3 Cache absent ou périmé → appel Last.fm
             params = {
@@ -126,7 +134,39 @@ class LastFMService:
             }
             data = await self._request(params) 
 
+            # pour voir si on peut extraire une année de la date de sortie (souvent dans un format pas très propre)
+            print("LASTFM ALBUM DETAIL RAW:", data)
+
+            import re
+
+            release_date = (
+                data.get("album", {})
+                .get("releasedate", "")
+                .strip()
+            )
+
+            year = None
+
+            if release_date:
+                match = re.search(r"\d{4}", release_date)
+                if match:
+                    year = match.group(0)
+
+            print("DETAIL RELEASE:", release_date)
+            print("DETAIL YEAR:", year)
+
             album_info = data.get("album") 
+            images = album_info.get("image", [])
+            cover_image = None
+
+            for img in reversed(images):
+                if img.get("#text"):
+                    cover_image = img.get("#text")
+                    break
+            
+            if cover_image:
+                cover_image = cover_image.replace("http://", "https://")
+
             if not album_info:
                 raise HTTPException(404, "Album introuvable sur Last.fm.")
 
@@ -166,12 +206,16 @@ class LastFMService:
                 db_album.name = album_info.get("name")
                 db_album.artist_name = artist_name
                 db_album.fetched_at = datetime.now(timezone.utc)
+                db_album.image = cover_image
+                db_album.year = year
             else:
                 db_album = Album(
                     name=album_info.get("name"),
                     artist_name=artist_name,
                     lastfm_url=lastfm_album_url,
                     fetched_at=datetime.now(timezone.utc),
+                    image=cover_image,
+                    year=year,
                 )
                 session.add(db_album)
 
@@ -196,10 +240,21 @@ class LastFMService:
 
             await session.commit() # enregistre les modifications dans la base de 
             # données
-            await session.refresh(db_album) # rafraîchit l'instance de l'album pour 
+            
+            stmt = (
+                select(Album)
+                .options(selectinload(Album.tracks)) 
+                .where(Album.id == db_album.id)
+            )
+
+            result = await session.execute(stmt)
+            db_album = result.scalar_one()
+            # rafraîchit l'instance de l'album pour 
             # obtenir les données mises à jour
 
-            return self._serialize_album(db_album) 
+            serialized = self._serialize_album(db_album) 
+            serialized["year"] = db_album.year
+            return serialized
 
     async def get_artist_detail(self, name: str): # fonction async
         """
@@ -262,8 +317,16 @@ class LastFMService:
             "name": album.name,
             "artist": album.artist_name,
             "lastfm_url": album.lastfm_url,
+            "tracks": [
+                {
+                    "name": t.name,
+                    "position": t.position,
+                    "duration": t.duration,
+                }
+                for t in album.tracks
+            ],
+            "image": album.image,
             "fetched_at": album.fetched_at.isoformat() if album.fetched_at else None,
-            "source": "cache"
         }
     
     def _serialize_artist(self, artist: Artist) -> dict: # méthode privée pour 
@@ -276,6 +339,38 @@ class LastFMService:
             "source": "cache"
         }
     
+    '''
+    async def get_album_year(self, artist: str, album: str):
+        params = {
+            "method": "album.getinfo",
+            "artist": artist,
+            "album": album,
+        }
+
+        try:
+            data = await self._fetch(params)
+
+            release_date = (
+                data.get("album", {})
+                .get("releasedate", "")
+                .strip()
+            )
+
+            print("REALISE DATE:", release_date)
+
+            if release_date:
+                # prendre les 4 derniers chiffres valides
+                import re
+                match = re.search(r"\d{4}", release_date)
+                if match:
+                    print("YEAR PARSED", year)
+                    return year
+
+        except Exception as e:
+            print("YEAR ERROR:", e)
+
+        return None
+    '''
 
 
 def is_cache_valid(fetched_at: datetime | None) -> bool: 
