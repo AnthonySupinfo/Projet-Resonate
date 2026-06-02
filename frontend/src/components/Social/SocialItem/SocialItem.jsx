@@ -15,7 +15,7 @@ const CONTENT_COMPONENTS = {
     FOLLOW_PLAYLIST: PlaylistBox
 };
 
-export default function SocialItem({ activity }) {
+export default function SocialItem({ activity, hideComments = false }) {
     const [showComments, setShowComments] = useState(false);
     const [isReplying, setIsReplying] = useState(false);
 
@@ -82,49 +82,53 @@ export default function SocialItem({ activity }) {
 
                 {SpecificContent && <SpecificContent data={activity.data} />}
 
-                <div className="social-item-footer">
-                    <button
-                        className="social-item-action-link"
-                        onClick={toggleComments}
-                    >
-                        {showComments ? "Cacher les commentaires" : "Voir les commentaires"}
-                    </button>
-                    {!showComments && (
-                        <>
-                            <span className="social-item-dot">•</span>
+                {!hideComments && (
+                    <>
+                        <div className="social-item-footer">
                             <button
                                 className="social-item-action-link"
-                                onClick={handleReplyClick}
+                                onClick={toggleComments}
                             >
-                                Répondre
+                                {showComments ? "Cacher les commentaires" : "Voir les commentaires"}
                             </button>
-                        </>
-                    )}
-                </div>
+                            {!showComments && (
+                                <>
+                                    <span className="social-item-dot">•</span>
+                                    <button
+                                        className="social-item-action-link"
+                                        onClick={handleReplyClick}
+                                    >
+                                        Répondre
+                                    </button>
+                                </>
+                            )}
+                        </div>
 
-                {showComments && (
-                    <div className="comments-section">
-                        {isReplying ? (
-                            <NewCommItem
-                                isLast={false}
-                                onCancel={() => setIsReplying(false)}
-                            />
-                        ) : (
-                            <div className="comment-trigger-container" onClick={() => setIsReplying(true)}>
-                                <div className="comment-tree-line"></div>
-                                <img
-                                    src="https://placehold.co/32x32/555/FFF?text=Me"
-                                    alt="Mon avatar"
-                                    className="comment-avatar"
-                                />
-                                <div className="comment-trigger-input">
-                                    Ajouter un commentaire...
-                                </div>
+                        {showComments && (
+                            <div className="comments-section">
+                                {isReplying ? (
+                                    <NewCommItem
+                                        isLast={false}
+                                        onCancel={() => setIsReplying(false)}
+                                    />
+                                ) : (
+                                    <div className="comment-trigger-container" onClick={() => setIsReplying(true)}>
+                                        <div className="comment-tree-line"></div>
+                                        <img
+                                            src="https://placehold.co/32x32/555/FFF?text=Me"
+                                            alt="Mon avatar"
+                                            className="comment-avatar"
+                                        />
+                                        <div className="comment-trigger-input">
+                                            Ajouter un commentaire...
+                                        </div>
+                                    </div>
+                                )}
+                                <CommentItem isLast={false} />
+                                <CommentItem isLast={true} />
                             </div>
                         )}
-                        <CommentItem isLast={false} />
-                        <CommentItem isLast={true} />
-                    </div>
+                    </>
                 )}
             </div>
         </div>
