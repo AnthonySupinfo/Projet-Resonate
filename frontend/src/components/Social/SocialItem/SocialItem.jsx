@@ -6,6 +6,7 @@ import NewCommItem from "./NewCommItem/NewCommItem.jsx";
 import TrackBox from "./SocialItemVariations/TrackBox/TrackBox.jsx";
 import UserFollowBox from "./SocialItemVariations/UserFollowBox/UserFollowBox.jsx";
 import PlaylistBox from "./SocialItemVariations/PlaylistBox/PlaylistBox.jsx";
+import { Link } from 'react-router-dom';
 
 const CONTENT_COMPONENTS = {
     LIKE_TRACK: TrackBox,
@@ -19,6 +20,7 @@ export default function SocialItem({ activity, hideComments = false }) {
     const [showComments, setShowComments] = useState(false);
     const [isReplying, setIsReplying] = useState(false);
 
+    console.log("Mon activity CREATE_PLAYLIST :", activity);
     if (!activity) return null;
 
     const SpecificContent = CONTENT_COMPONENTS[activity.type];
@@ -38,19 +40,31 @@ export default function SocialItem({ activity, hideComments = false }) {
     };
 
     const renderActionText = () => {
+        const userLink = (
+            <Link to={`/user/${activity.user.id}`} className="social-item-user-link">
+                <strong>{activity.user.name}</strong>
+            </Link>
+        );
+
+        const playlistLink = (name, id) => (
+            <Link to={`/library/playlists/${id}`} className="social-item-user-link">
+                <strong>{name}</strong>
+            </Link>
+        );
+
         switch (activity.type) {
-            case 'LIKE_TRACK':
-                return <><strong>{activity.user.name}</strong> aime <strong>{activity.target.name}</strong> de <strong>{activity.target.artist}</strong></>;
-            case 'ADD_TRACK_PLAYLIST':
-                return <><strong>{activity.user.name}</strong> a ajouté <strong>{activity.target.name}</strong> à sa playlist <strong>{activity.target.playlistName}</strong></>;
             case 'FOLLOW_USER':
-                return <><strong>{activity.user.name}</strong> a commencé à suivre <strong>{activity.target.name}</strong></>;
+                return <>{userLink} a commencé à suivre <strong>{activity.target.name}</strong></>;
+            case 'LIKE_TRACK':
+                return <>{userLink} aime <strong>{activity.target.name}</strong> de <strong>{activity.target.artist}</strong></>;
+            case 'ADD_TRACK_PLAYLIST':
+                return <>{userLink} a ajouté <strong>{activity.target.name}</strong> à sa playlist <strong>{activity.target.playlistName}</strong></>;
             case 'CREATE_PLAYLIST':
-                return <><strong>{activity.user.name}</strong> a créé la playlist <strong>{activity.target.name}</strong></>;
+                return <>{userLink} a créé la playlist {playlistLink(activity.target.name, activity.target.id)}</>;
             case 'FOLLOW_PLAYLIST':
-                return <><strong>{activity.user.name}</strong> suit la playlist <strong>{activity.target.name}</strong></>;
+                return <>{userLink} suit la playlist {playlistLink(activity.target.name, activity.target.id)}</>;
             default:
-                return <><strong>{activity.user.name}</strong> a interagi avec <strong>{activity.target.name}</strong></>;
+                return <>{userLink} a interagi avec <strong>{activity.target.name}</strong></>;
         }
     };
 
@@ -80,7 +94,7 @@ export default function SocialItem({ activity, hideComments = false }) {
                     </button>
                 </div>
 
-                {SpecificContent && <SpecificContent data={activity.data} />}
+                {SpecificContent && <SpecificContent activity={activity} />}
 
                 {!hideComments && (
                     <>

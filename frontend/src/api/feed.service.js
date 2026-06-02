@@ -25,16 +25,15 @@ export const feedService = {
                 avatar: item.actor_avatar || item.actor_username?.charAt(0).toUpperCase() || '?'
             },
             target: {
+                id: item.playlist_id || item.target_user_id || item.album_id,
                 name: item.target_user_username || item.album_title || item.playlist_name || "Élément",
                 artist: "",
-                playlistName: item.playlist_name
-            },
-            data: {
-                name: item.target_user_username,
+                playlistName: item.playlist_name,
+                coverUrl: item.cover_url,
+                trackCount: item.track_count || item.tracks_count || 0,
                 username: item.target_user_username ? `@${item.target_user_username}` : "",
                 avatarUrl: item.target_user_avatar || item.target_user_username?.charAt(0).toUpperCase() || '?',
-                title: item.album_title,
-                coverUrl: item.cover_url
+                isFollowedByMe: item.target_user_is_followed_by_me || false
             }
         }));
     },

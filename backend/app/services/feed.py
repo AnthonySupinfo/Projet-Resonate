@@ -1,11 +1,11 @@
-﻿from sqlalchemy import select, desc
-
+﻿from sqlalchemy import select, desc, func
 from app.models import Album, Review
 from app.models.follow import Follow
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.user_activity_feed import UserActivityFeed, ActivityTypes
 from app.models.user import User
 from app.models.playlist import Playlist
+from app.models.user_playlist_item import UserPlaylistItem
 
 class FeedService:
     async def log_activity(self,
@@ -77,8 +77,12 @@ class FeedService:
                 playlist = await db.get(Playlist, activity.playlist_id)
                 item["playlist_id"] = activity.playlist_id
                 item["playlist_name"] = playlist.name if playlist else "Playlist supprimée"
-                if playlist and hasattr(playlist, 'cover_url'):
-                    item["cover_url"] = playlist.cover_url
+                if playlist:
+                    if hasattr(playlist, 'cover_url'):
+                        item["cover_url"] = playlist.cover_url
+
+                    stmt_count = select(func.count()).where(UserPlaylistItem.playlist_id == activity.playlist_id)
+                    item["track_count"] = await db.scalar(stmt_count) or 0
 
             # Albums
             elif activity.activity_type == ActivityTypes.LIKE_ALBUM and activity.album_id:
@@ -106,6 +110,14 @@ class FeedService:
                 target_user = await db.get(User, activity.target_user_id)
                 item["target_user_id"] = activity.target_user_id
                 item["target_user_username"] = target_user.username if target_user else "Utilisateur supprimé"
+                item["target_user_avatar"] = target_user.avatar_url if target_user else None
+
+                stmt_follow = select(Follow).where(
+                    Follow.follower_id == current_user_id,
+                    Follow.following_id == activity.target_user_id
+                )
+                result_follow = await db.execute(stmt_follow)
+                item["target_user_is_followed_by_me"] = result_follow.scalar_one_or_none() is not None
 
             # Interactions sur reviews
             elif activity.activity_type in (ActivityTypes.LIKE_REVIEW,

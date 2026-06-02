@@ -15,12 +15,16 @@ class FeedItemResponse(BaseModel):
 
     target_user_id: Optional[str] = None
     target_user_username: Optional[str] = None
+    target_user_avatar: Optional[str] = None
+    target_user_is_followed_by_me: bool = False
 
     playlist_id: Optional[int] = None
     playlist_name: Optional[str] = None
 
     album_id: Optional[int] = None
     album_title: Optional[str] = None
+
+    track_count: Optional[int] = 0
 
     # track_id: Optional[int] = None # TODO: à décommenter quand Krishna aura fait les tracks
     # track_title: Optional[str] = None TODO: à décommenter quand Krishna aura faire les tracks

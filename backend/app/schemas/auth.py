@@ -1,5 +1,5 @@
 import re
-from datetime import date
+from datetime import date,datetime
 from pydantic import BaseModel, EmailStr, field_validator
 from typing import Optional
 
@@ -69,6 +69,9 @@ class UserProfileResponse(BaseModel):
     website: Optional[str] = None
     theme: str = "dark"
     is_followed_by_me: bool = False
+    created_at: datetime
+    followers_count: int = 0
+    following_count: int = 0
 
     class Config:
         from_attributes = True

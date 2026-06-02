@@ -137,3 +137,14 @@
 .comment-trigger-container:hover .comment-trigger-input {
     border-bottom-color: rgba(255, 255, 255, 0.5);
 }
+
+.social-item-user-link {
+    color: inherit;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+}
+
+.social-item-user-link:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}

@@ -76,9 +76,11 @@ export default function HeaderCard() {
             if (isFollowing) {
                 await feedService.unfollowUser(id);
                 setIsFollowing(false);
+                setProfile(prev => ({...prev, followers_count: Math.max(0, (prev.followers_count || 0) - 1)}));
             } else {
                 await feedService.followUser(id);
                 setIsFollowing(true);
+                setProfile(prev => ({...prev, followers_count: (prev.followers_count || 0) + 1}));
             }
         } catch (error) {
             console.error("Erreur lors de l'action de follow", error);
@@ -112,9 +114,9 @@ export default function HeaderCard() {
                         <span className="header-username">@{currentUser.username}</span>
 
                         <div className="header-stats-row">
-                            <span className="header-stat">12 followers</span>
+                            <span className="header-stat">{currentUser.followers_count || 0} followers</span>
                             <span className="header-stat-separator">•</span>
-                            <span className="header-stat">18 following</span>
+                            <span className="header-stat">{currentUser.following_count || 0} following</span>
                         </div>
 
                         <span className="header-joined-date">Inscrit depuis le {joinedDate}</span>

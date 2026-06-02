@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useLanguage } from "../../../../../context/LanguageContext.jsx";
 import { useAuth } from "../../../../../context/AuthContext.jsx";
+import { useNavigate } from 'react-router-dom';
 import './NotifsItem.css';
 import iconDefault from '../../../../../../public/icons/notifsbar/default.png';
 import iconLike from '../../../../../../public/icons/notifsbar/like.png';
@@ -11,8 +12,8 @@ import iconMenu from '../../../../../../public/icons/notifsbar/menu.png';
 export default function NotifsItem({ notification, onRead, myAvatar }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuRef = useRef(null);
-    const { user } = useAuth();
     const { t } = useLanguage();
+    const navigate = useNavigate();
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -148,7 +149,9 @@ export default function NotifsItem({ notification, onRead, myAvatar }) {
                     if (!notification.is_read) {
                         onRead(notification.id);
                     }
-                    console.log("Navigation vers la page...");
+                    if (notification.type === 'FOLLOW' && notification.related_user_id) {
+                        navigate(`/user/${notification.related_user_id}`);
+                    }
                 }}
             >
                 <div className="notif-avatar-wrapper">
