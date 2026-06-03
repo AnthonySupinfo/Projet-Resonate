@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel
+from app.services.auth import verify_password
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from app.db.session import get_db
@@ -12,6 +14,7 @@ from app.schemas.feed import FeedItemResponse
 from app.services.feed import feed_service
 from app.schemas.stats import UserStatsResponse
 from app.services.stats_service import stats_service
+
 
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -54,6 +57,12 @@ async def update_profile(
     user = result.scalar_one_or_none()
 
     # Met à jour uniquement les champs envoyés
+    if data.first_name is not None:
+        user.first_name = data.first_name
+    if data.last_name is not None:
+        user.last_name = data.last_name
+    if data.birth_date is not None:
+        user.birth_date = data.birth_date
     if data.avatar_url is not None:
         user.avatar_url = data.avatar_url
     if data.bio is not None:
@@ -66,6 +75,32 @@ async def update_profile(
     await db.commit()
     await db.refresh(user)
     return user
+
+# DELETE /users/me - supprimer son compte (nécessite le mot de passe actuel)
+class DeleteAccountRequest(BaseModel):
+    password: str
+
+@router.delete("/me", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_my_account(
+    data: DeleteAccountRequest,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(select(User).where(User.id == current_user["user_id"]))
+    user = result.scalar_one_or_none()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="Utilisateur introuvable")
+
+    # Vérification du mot de passe avant suppression (sauf comptes OAuth sans password)
+    if user.hashed_password:
+        if not verify_password(data.password, user.hashed_password):
+            raise HTTPException(status_code=401, detail="Mot de passe incorrect")
+
+    # Suppression du compte (CASCADE sur les FK supprimera reviews, playlists, etc.)
+    await db.delete(user)
+    await db.commit()
+    return None
 
 # GET /users/me/export - télécharger ses données (RGPD)
 @router.get("/me/export")

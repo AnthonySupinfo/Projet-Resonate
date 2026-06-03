@@ -155,3 +155,89 @@ async def reset_password(request: Request, data: ResetPasswordRequest, db: Async
     await db.commit()
 
     return {"message": "Mot de passe modifié avec succès"}
+
+# POST /auth/change-password - changer son mot de passe (nécessite le mot de passe actuel)
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+@router.post("/change-password", status_code=status.HTTP_200_OK)
+async def change_password(
+    data: ChangePasswordRequest,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(select(User).where(User.id == current_user["user_id"]))
+    user = result.scalar_one_or_none()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="Utilisateur introuvable")
+
+    # Les comptes OAuth n'ont pas de mot de passe local
+    if not user.hashed_password:
+        raise HTTPException(
+            status_code=400,
+            detail="Ce compte utilise une connexion externe (Google/GitHub). Pas de mot de passe local."
+        )
+
+    # Vérification du mot de passe actuel
+    if not bcrypt.checkpw(data.current_password.encode("utf-8"), user.hashed_password.encode("utf-8")):
+        raise HTTPException(status_code=401, detail="Mot de passe actuel incorrect")
+
+    # Validation du nouveau mot de passe (mêmes règles que reset-password)
+    if len(data.new_password) < 6:
+        raise HTTPException(status_code=422, detail="Le mot de passe doit faire au moins 6 caractères")
+    if len(re.findall(r'\d', data.new_password)) < 2:
+        raise HTTPException(status_code=422, detail="Le mot de passe doit contenir au moins 2 chiffres")
+    if not re.search(r'[!@#$%^&*()\[\]{},.\-?":{}|<>_+=\\\/~`\';:]', data.new_password):
+        raise HTTPException(status_code=422, detail="Le mot de passe doit contenir au moins 1 caractère spécial")
+
+    # Mise à jour du mot de passe
+    new_hash = bcrypt.hashpw(data.new_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+    user.hashed_password = new_hash
+    await db.commit()
+
+    return {"message": "Mot de passe modifié avec succès"}
+
+
+# POST /auth/change-email - changer son email (nécessite le mot de passe actuel)
+class ChangeEmailRequest(BaseModel):
+    current_password: str
+    new_email: EmailStr
+
+@router.post("/change-email", status_code=status.HTTP_200_OK)
+async def change_email(
+    data: ChangeEmailRequest,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(select(User).where(User.id == current_user["user_id"]))
+    user = result.scalar_one_or_none()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="Utilisateur introuvable")
+
+    # Les comptes OAuth ne peuvent pas changer leur email manuellement
+    if not user.hashed_password:
+        raise HTTPException(
+            status_code=400,
+            detail="Ce compte utilise une connexion externe. L'email ne peut pas être modifié."
+        )
+
+    # Vérification du mot de passe
+    if not bcrypt.checkpw(data.current_password.encode("utf-8"), user.hashed_password.encode("utf-8")):
+        raise HTTPException(status_code=401, detail="Mot de passe incorrect")
+
+    # Vérification que le nouvel email n'est pas déjà utilisé
+    if data.new_email == user.email:
+        raise HTTPException(status_code=400, detail="C'est déjà votre email actuel")
+
+    result = await db.execute(select(User).where(User.email == data.new_email))
+    if result.scalar_one_or_none():
+        raise HTTPException(status_code=409, detail="Cet email est déjà utilisé")
+
+    # Mise à jour
+    user.email = data.new_email
+    await db.commit()
+
+    return {"message": "Email modifié avec succès", "new_email": data.new_email}
