@@ -1,47 +1,93 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useAuth } from "../../../context/AuthContext.jsx";
-import { getProfile } from "../../../api/auth.js";
+import { getProfile, getUserProfile } from "../../../api/auth.js";
+import { feedService } from "../../../api/feed.service.js";
 import modifyIcon from '../../../../public/icons/modify.png';
+import reportIcon from '../../../../public/icons/report.png';
 import './HeaderCard.css';
 
 export default function HeaderCard() {
+    const { id } = useParams();
     const { user } = useAuth();
     const [profile, setProfile] = useState(null);
+
+    const [isFollowing, setIsFollowing] = useState(false);
+    const [isFollowLoading, setIsFollowLoading] = useState(false);
     const token = localStorage.getItem("token");
+
+    const isMyProfile = !id || (user && id === String(user.id));
+    const currentUser = isMyProfile ? (profile || user) : profile;
 
     useEffect(() => {
         const loadProfile = async () => {
             if (token) {
                 try {
-                    const data = await getProfile(token);
-                    if (data) setProfile(data);
+                    if (isMyProfile) {
+                        const data = await getProfile(token);
+                        if (data) setProfile(data);
+                    } else {
+                        const data = await getUserProfile(id);
+                        if (data) {
+                            setProfile(data);
+                            setIsFollowing(data.is_followed_by_me || false);
+                        }
+                    }
                 } catch (err) {
-                    console.error("Erreur lors de la récupération du profil complet", err);
+                    console.error("Erreur lors de la récupération du profil", err);
                 }
             }
         };
         loadProfile();
-    }, [token]);
-
-    const currentUser = profile || user;
+    }, [token, id, isMyProfile]);
 
     if (!currentUser) {
         return <div className="header-card-container loading">Chargement du profil...</div>;
     }
 
     const myAvatar = currentUser.avatar_url;
-    const isImageUrl = myAvatar && (myAvatar.startsWith('http') || myAvatar.startsWith('/') || myAvatar.startsWith('data:image'));
-    const fullName = `${currentUser.first_name || ''} ${currentUser.last_name || ''}`.trim() || currentUser.username;
+    const isImageUrl = typeof myAvatar === 'string' && (myAvatar.startsWith('http') || myAvatar.startsWith('/') || myAvatar.startsWith('data:image'));
+    const fullName = `${currentUser.first_name || ''} ${currentUser.last_name || ''}`.trim() || currentUser.username || "Utilisateur";
 
-    const joinedDate = currentUser.created_at ? new Date(currentUser.created_at).toLocaleDateString('fr-FR') : "22/02/2026";
+    const getJoinedDate = (dateStr) => {
+        if (!dateStr) return "22/02/2026";
+        try {
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return "22/02/2026";
+            return d.toLocaleDateString('fr-FR');
+        } catch {
+            return "22/02/2026";
+        }
+    };
+    const joinedDate = getJoinedDate(currentUser.created_at);
 
     const formatWebsiteUrl = (url) => {
-        if (!url) return null;
+        if (!url || typeof url !== 'string') return null;
         return url.startsWith('http') ? url : `https://${url}`;
     };
 
     const websiteUrl = formatWebsiteUrl(currentUser.website);
+
+    const handleFollowToggle = async () => {
+        if (isFollowLoading) return;
+
+        setIsFollowLoading(true);
+        try {
+            if (isFollowing) {
+                await feedService.unfollowUser(id);
+                setIsFollowing(false);
+                setProfile(prev => ({...prev, followers_count: Math.max(0, (prev.followers_count || 0) - 1)}));
+            } else {
+                await feedService.followUser(id);
+                setIsFollowing(true);
+                setProfile(prev => ({...prev, followers_count: (prev.followers_count || 0) + 1}));
+            }
+        } catch (error) {
+            console.error("Erreur lors de l'action de follow", error);
+        } finally {
+            setIsFollowLoading(false);
+        }
+    };
 
     return (
         <div className="header-card-container">
@@ -68,23 +114,39 @@ export default function HeaderCard() {
                         <span className="header-username">@{currentUser.username}</span>
 
                         <div className="header-stats-row">
-                            <span className="header-stat">12 followers</span>
+                            <span className="header-stat">{currentUser.followers_count || 0} followers</span>
                             <span className="header-stat-separator">•</span>
-                            <span className="header-stat">18 following</span>
+                            <span className="header-stat">{currentUser.following_count || 0} following</span>
                         </div>
 
                         <span className="header-joined-date">Inscrit depuis le {joinedDate}</span>
                     </div>
                 </div>
 
-                <Link to="/settings" className="header-edit-btn">
-                    <img
-                        src={modifyIcon}
-                        alt="Modifier le profil"
-                        className="edit-icon-img"
-                    />
-                    Modifier
-                </Link>
+                {isMyProfile ? (
+                    <Link to="/settings" className="header-action-btn">
+                        <img
+                            src={modifyIcon}
+                            alt="Modifier le profil"
+                            className="action-icon-img"
+                        />
+                        Modifier
+                    </Link>
+                ) : (
+                    <div className="header-actions-group">
+                        <button
+                            className="header-action-btn follow-btn"
+                            onClick={handleFollowToggle}
+                            disabled={isFollowLoading}
+                            style={{ opacity: isFollowLoading ? 0.7 : 1, cursor: isFollowLoading ? 'wait' : 'pointer' }}
+                        >
+                            {isFollowLoading ? "..." : isFollowing ? "Suivi" : "Suivre"}
+                        </button>
+                        <button className="header-icon-btn">
+                            <img src={reportIcon} alt="Signaler" className="action-icon-img" />
+                        </button>
+                    </div>
+                )}
             </div>
 
             <div className="header-bottom-section">

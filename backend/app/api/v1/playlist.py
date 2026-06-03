@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 from uuid import UUID
 
 from app.db.session import get_db
@@ -111,6 +111,14 @@ async def get_my_playlist(
     stmt_my_playlists = select(Playlist).filter(
         Playlist.user_id == current_user["user_id"], Playlist.deleted_at == None).order_by(Playlist.created_at.desc())
     result = await db.execute(stmt_my_playlists)
+    playlists = result.scalars().all()
+
+    for p in playlists:
+        stmt_count = select(func.count()).where(
+            UserPlaylistItem.playlist_id == p.id)
+        count = await db.scalar(stmt_count)
+        setattr(p, "track_count", count or 0)
+
     return result.scalars().all()
 
 
@@ -131,6 +139,12 @@ async def get_playlist_id(
     if not existing.is_public and str(existing.user_id) != str(current_user["user_id"]):
         raise HTTPException(
             status_code=403, detail="Cette playlist est privée")
+
+    stmt_count = select(func.count()).where(
+        UserPlaylistItem.playlist_id == playlist_id)
+    track_count = await db.scalar(stmt_count)
+
+    setattr(existing, "track_count", track_count or 0)
 
     return existing
 

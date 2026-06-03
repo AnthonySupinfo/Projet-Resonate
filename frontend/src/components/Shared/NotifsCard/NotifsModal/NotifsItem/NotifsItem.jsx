@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useLanguage } from "../../../../../context/LanguageContext.jsx";
-import {useAuth} from "../../../../../context/AuthContext.jsx";
+import { useAuth } from "../../../../../context/AuthContext.jsx";
+import { useNavigate } from 'react-router-dom';
 import './NotifsItem.css';
 import iconDefault from '../../../../../../public/icons/notifsbar/default.png';
 import iconLike from '../../../../../../public/icons/notifsbar/like.png';
@@ -11,10 +12,8 @@ import iconMenu from '../../../../../../public/icons/notifsbar/menu.png';
 export default function NotifsItem({ notification, onRead, myAvatar }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuRef = useRef(null);
-    const { user } = useAuth();
     const { t } = useLanguage();
-
-    console.log("Données du user connecté :", user);
+    const navigate = useNavigate();
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -54,7 +53,6 @@ export default function NotifsItem({ notification, onRead, myAvatar }) {
             return t('layout.timeDaysAgo').replace('{time}', diffInDays);
         }
 
-        // Déduit la langue locale (fr-FR ou en-US) en fonction d'une clé traduite
         const locale = t('layout.navHome') === 'Home' ? 'en-US' : 'fr-FR';
 
         return new Intl.DateTimeFormat(locale, {
@@ -138,6 +136,9 @@ export default function NotifsItem({ notification, onRead, myAvatar }) {
         );
     };
 
+    const rawNotifAvatar = notification.related_user_avatar;
+    const isNotifAvatarUrl = rawNotifAvatar && (rawNotifAvatar.startsWith('http') || rawNotifAvatar.startsWith('/') || rawNotifAvatar.startsWith('data:image'));
+
     return (
         <div className={`notifs-item-wrapper ${isMenuOpen ? 'menu-is-open' : ''}`}>
             {!notification.is_read && <div className="notif-pink-dot"></div>}
@@ -148,15 +149,24 @@ export default function NotifsItem({ notification, onRead, myAvatar }) {
                     if (!notification.is_read) {
                         onRead(notification.id);
                     }
-                    console.log("Navigation vers la page..."); // ToDo: à remplacer quand la page sera prete
+                    if (notification.type === 'FOLLOW' && notification.related_user_id) {
+                        navigate(`/user/${notification.related_user_id}`);
+                    }
                 }}
             >
                 <div className="notif-avatar-wrapper">
-                    <img
-                        src={notification.related_user_avatar || "https://placehold.co/40x40/35313a/ffffff?text=U"}
-                        alt={t('layout.altAvatar')}
-                        className="notif-item-avatar"
-                    />
+                    {isNotifAvatarUrl ? (
+                        <img
+                            src={rawNotifAvatar}
+                            alt={t('layout.altAvatar')}
+                            className="notif-item-avatar-img"
+                            onError={e => e.target.style.display = "none"}
+                        />
+                    ) : rawNotifAvatar ? (
+                        <span className="notif-item-avatar-emoji">{rawNotifAvatar}</span>
+                    ) : (
+                        <span className="notif-item-avatar-placeholder">👤</span>
+                    )}
                     <div className="notif-type-overlay">{getOverlayIcon()}</div>
                 </div>
 

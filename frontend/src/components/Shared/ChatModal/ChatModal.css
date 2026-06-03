@@ -1,0 +1,36 @@
+.chat-modal-container {
+    position: fixed;
+    bottom: 0;
+    right: 50px;
+    width: 350px;
+    background-color: var(--bg-card);
+    background-image: radial-gradient(
+            circle at bottom right,
+            rgba(var(--grad-rose-rgb), 0.55) 0%,
+            rgba(var(--grad-gris-rgb), 0) 70%
+    );
+    border: 1px solid var(--divider-color);
+    border-bottom: none;
+    border-radius: 20px 20px 0 0;
+    display: flex;
+    flex-direction: column;
+    transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 -4px 12px rgba(var(--shadow-rgb), 0.25);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.chat-modal-container.closed {
+    height: 55px;
+}
+
+.chat-modal-container.open {
+    height: 400px;
+}
+
+.chat-modal-body {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}

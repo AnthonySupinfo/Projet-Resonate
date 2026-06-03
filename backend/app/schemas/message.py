@@ -11,6 +11,8 @@ class MessageResponse(BaseModel):
     status: MessageStatus
     is_read: bool
     created_at: datetime
+    updated_at: Optional[datetime] = None
+    is_updated: bool
 
     class Config:
         from_attributes = True

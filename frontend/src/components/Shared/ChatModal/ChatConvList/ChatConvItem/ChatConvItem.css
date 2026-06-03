@@ -1,0 +1,116 @@
+.chat-conv-item-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.chat-conv-item-container:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+.chat-conv-avatar-wrapper {
+    position: relative;
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+}
+
+.chat-conv-avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.chat-conv-avatar-emoji {
+    font-size: 24px;
+    line-height: 1;
+    user-select: none;
+}
+
+.chat-conv-avatar-placeholder {
+    font-size: 24px;
+    opacity: 0.5;
+    user-select: none;
+}
+
+.chat-conv-details {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    gap: 4px;
+}
+
+.chat-conv-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.chat-conv-name {
+    color: var(--text-primary);
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 400;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-conv-name.unread {
+    font-weight: 600;
+}
+
+.chat-conv-time {
+    color: var(--text-muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+    margin-left: 8px;
+}
+
+.chat-conv-time.unread {
+    color: var(--accent-primary);
+    font-weight: 500;
+}
+
+.chat-conv-message-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+.chat-conv-last-msg {
+    color: var(--text-muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-grow: 1;
+}
+
+.chat-conv-last-msg.unread {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.chat-conv-unread-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--accent-primary);
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 8px rgba(var(--grad-rose-rgb), 0.6);
+}

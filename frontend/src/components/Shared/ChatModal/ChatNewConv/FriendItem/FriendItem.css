@@ -1,0 +1,44 @@
+.friend-item-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-radius: 12px;
+}
+
+.friend-item-container:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.friend-item-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.friend-item-info {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.friend-item-name {
+    color: var(--text-primary);
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.friend-item-handle {
+    color: var(--text-muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 300;
+}
