@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
+from uuid import UUID
 
 from app.db.session import get_db
 from app.models.reviews import Review
@@ -39,7 +40,7 @@ async def check_review_exist_and_owner(
 
 @router.post("/albums/{album_id}/reviews", response_model=ReviewResponse, status_code=status.HTTP_201_CREATED)
 async def create_review(
-    album_id: int,
+    album_id: UUID,
     body: ReviewCreate,
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user)
@@ -118,7 +119,7 @@ async def delete_review(
 
 @router.get("/albums/{album_id}/reviews", response_model=list[ReviewResponse])
 async def get_album_reviews(
-    album_id: int,
+    album_id: UUID,
     page: int = 1,
     limit: int = 10,  # Nombre de reviews/pages
     db: AsyncSession = Depends(get_db),

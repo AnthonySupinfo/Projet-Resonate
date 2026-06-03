@@ -22,7 +22,11 @@ class Album(Base):
 
     lastfm_url = Column(String, unique=True, index=True)
 
+    image = Column(String, nullable=True)
+
     fetched_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     tracks = relationship("Track", back_populates="album")
+
+    year = Column(Integer, nullable=True)

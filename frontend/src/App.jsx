@@ -14,6 +14,8 @@ import AuthLayout from "./components/Layout/AuthLayout/AuthLayout.jsx";
 import Explore from "./pages/Explore/Explore.jsx";
 import Profile from "./pages/Profile/Profile.jsx";
 import Social from "./pages/Social/Social.jsx";
+import AlbumPage from "./pages/Album/AlbumPage";
+import SearchResults from "./pages/SearchResults/SearchResults";
 
 import LibraryPage from "./pages/LibraryPage";
 import AllPlaylistPage from "./pages/AllPlaylistsPage";
@@ -64,7 +66,12 @@ function AppRoutes() {
             {<Route path="/user/:id" element={<Profile />} />}
             {<Route path="/settings" element={<Settings/>}/>}
             {<Route path="/social" element={<Social/>}/>}
-            <Route path="/settings" element={<Settings />} />
+
+            {/* route pour les résultats de recherche */}
+            <Route path="/search" element={<SearchResults />} />
+
+            {/* route pour le détail d'un album */}
+            <Route path="/albums/:artist/:album" element={<AlbumPage />} />
 
             <Route path="library" element={<LibraryPage />} />
             <Route path="library/playlists" element={<AllPlaylistPage />} />
