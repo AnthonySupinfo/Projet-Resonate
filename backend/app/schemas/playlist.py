@@ -21,6 +21,7 @@ class PlaylistResponse(BaseModel):
     is_public: bool
     is_favorite: bool
     created_at: datetime
+    track_count: int = 0
 
     model_config = {"from_attributes": True, "use_enum_values": True}
 

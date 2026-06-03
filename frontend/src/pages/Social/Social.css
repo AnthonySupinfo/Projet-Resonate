@@ -1,0 +1,52 @@
+.social-container {
+    background-color: var(--bg-card);
+    background-image: radial-gradient(
+            circle at bottom right,
+            rgba(var(--grad-rose-rgb), 0.55) 0%,
+            rgba(var(--grad-gris-rgb), 0) 70%
+    );
+    border-radius: 35px;
+    box-shadow: 0 4px 12px rgba(var(--shadow-rgb), 0.25);
+    padding: 32px 32px 32px 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    height: 1042px;
+    box-sizing: border-box;
+}
+
+.social-title {
+    color: var(--text-primary);
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 500;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.social-feed-scroll-area {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-right: 16px;
+}
+
+.social-feed-scroll-area::-webkit-scrollbar {
+    width: 8px;
+}
+
+.social-feed-scroll-area::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.social-feed-scroll-area::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    transition: background-color 0.2s ease;
+}
+
+.social-feed-scroll-area::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+}

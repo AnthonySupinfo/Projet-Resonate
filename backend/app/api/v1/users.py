@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 from app.db.session import get_db
 from app.core.dependencies import get_current_user
 from app.models.user import User
+from app.models.follow import Follow
 from app.schemas.auth import UserProfileResponse, UpdateProfileRequest
 import json
 from typing import List
@@ -23,6 +24,23 @@ async def get_profile(
 ):
     result = await db.execute(select(User).where(User.id == current_user["user_id"]))
     user = result.scalar_one_or_none()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="Utilisateur introuvable.")
+
+    followers_query = await db.execute(
+        select(func.count()).where(Follow.following_id == user.id)
+    )
+    followers_count = followers_query.scalar() or 0
+
+    following_query = await db.execute(
+        select(func.count()).where(Follow.follower_id == user.id)
+    )
+    following_count = following_query.scalar() or 0
+
+    setattr(user, "followers_count", followers_count)
+    setattr(user, "following_count", following_count)
+
     return user
 
 # PATCH /users/me - modifier le profil
@@ -83,6 +101,46 @@ async def get_my_feed(
     """Récupère le fil d'actualités."""
 
     return await feed_service.get_user_feed(db, current_user["user_id"])
+
+
+@router.get("/{user_id}", response_model=UserProfileResponse)
+async def get_user_profile(
+        user_id: str,
+        db: AsyncSession = Depends(get_db),
+        current_user: dict = Depends(get_current_user)
+):
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="Utilisateur introuvable.")
+
+    is_followed = False
+    follow_query = await db.execute(
+        select(Follow).where(
+            Follow.follower_id == current_user["user_id"],
+            Follow.following_id == user_id
+        )
+    )
+
+    if follow_query.scalar_one_or_none() is not None:
+        is_followed = True
+
+    followers_query = await db.execute(
+        select(func.count()).where(Follow.following_id == user_id)
+    )
+    followers_count = followers_query.scalar() or 0
+
+    following_query = await db.execute(
+        select(func.count()).where(Follow.follower_id == user_id)
+    )
+    following_count = following_query.scalar() or 0
+
+    setattr(user, "is_followed_by_me", is_followed)
+    setattr(user, "followers_count", followers_count)
+    setattr(user, "following_count", following_count)
+
+    return user
 
 
 @router.get("/{user_id}/stats", response_model=UserStatsResponse)

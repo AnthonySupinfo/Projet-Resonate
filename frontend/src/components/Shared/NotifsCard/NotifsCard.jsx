@@ -10,6 +10,8 @@ import NotifsModal from "./NotifsModal/NotifsModal.jsx";
 import { getProfile } from "../../../api/auth.js";
 import {notificationService} from "../../../api/notification.service.js";
 import {useNotificationSocket} from "../../../hooks/useNotificationSocket.js";
+import {useChatContext} from "../../../context/ChatContext.jsx";
+import {chatService} from "../../../api/chat.service.js";
 
 export default function NotifsCard() {
     const { logout } = useAuth();
@@ -18,7 +20,6 @@ export default function NotifsCard() {
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
-
     const [myAvatar, setMyAvatar] = useState(null);
 
     const [lastSeenUnreadCount, setLastSeenUnreadCount] = useState(() => {
@@ -26,6 +27,13 @@ export default function NotifsCard() {
         return saved ? parseInt(saved, 10) : 0;
     });
 
+    const [unreadChatCount, setUnreadChatCount] = useState(0);
+    const [lastSeenUnreadChat, setLastSeenUnreadChat] = useState(() => {
+        const saved = localStorage.getItem('lastSeenUnreadChat');
+        return saved ? parseInt(saved, 10) : 0;
+    });
+
+    const { incomingChatEvent } = useChatContext();
     const token = localStorage.getItem("token");
 
     const handleNewWebSocketNotification = useCallback((data) => {
@@ -69,8 +77,38 @@ export default function NotifsCard() {
         };
 
         fetchNotificationsData();
-    }, [lastSeenUnreadCount]);
+    }, [lastSeenUnreadCount, myAvatar, token]);
 
+    const fetchChatUnreadCount = useCallback(async () => {
+        try {
+            const data = await chatService.getUnreadCount();
+            const count = data.unread_count;
+            setUnreadChatCount(count);
+
+            if (count < lastSeenUnreadChat) {
+                setLastSeenUnreadChat(count);
+                localStorage.setItem('lastSeenUnreadChat', count.toString());
+            }
+        } catch (err) {
+            console.error("Erreur de récupération au niveau des notifications de message", err);
+        }
+    }, [lastSeenUnreadChat]);
+
+    useEffect(() => {
+        const initializeChatCount = async () => {
+            await fetchChatUnreadCount();
+        };
+        initializeChatCount();
+    }, [fetchChatUnreadCount]);
+
+    useEffect(() => {
+        if (incomingChatEvent) {
+            const updateChatCount = async () => {
+                await fetchChatUnreadCount();
+            };
+            updateChatCount();
+        }
+    }, [incomingChatEvent, fetchChatUnreadCount]);
 
     const handleNotifButtonClick = () => {
         if (!isModalOpen) {
@@ -80,6 +118,12 @@ export default function NotifsCard() {
         } else {
             setIsModalOpen(false);
         }
+    };
+
+    const handleChatButtonClick = () => {
+        setLastSeenUnreadChat(unreadChatCount);
+        localStorage.setItem('lastSeenUnreadChat', unreadChatCount.toString());
+        window.dispatchEvent(new CustomEvent('toggleChatModal'));
     };
 
     const handleReadSingle = async (id) => {
@@ -117,8 +161,9 @@ export default function NotifsCard() {
     };
 
     const showNotifBadge = unreadCount > lastSeenUnreadCount;
-
     const newNotifsCount = unreadCount - lastSeenUnreadCount;
+    const showChatBadge = unreadChatCount > lastSeenUnreadChat;
+    const newChatsCount = unreadChatCount - lastSeenUnreadChat;
 
     return (
         <div className="notifs-card-container">
@@ -127,9 +172,9 @@ export default function NotifsCard() {
                 {showNotifBadge && <span className="notif-card-badge">{newNotifsCount}</span>}
             </button>
 
-            <button className="notif-card-btn chat-wrapper">
+            <button className="notif-card-btn chat-wrapper" onClick={handleChatButtonClick}>
                 <img src={iconConversation} alt="Messages" className="notif-card-icon" />
-                <span className="notif-card-badge">2</span>
+                {showChatBadge && <span className="notif-card-badge">{newChatsCount}</span>}
             </button>
 
             <button className="notif-card-btn" onClick={onLogoutClick}>

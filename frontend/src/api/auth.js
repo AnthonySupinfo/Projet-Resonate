@@ -158,6 +158,12 @@ export async function exportData() {
   return await response.json()
 }
 
+export async function getUserProfile(userId) {
+  const response = await authFetch(`${API_URL}/api/v1/users/${userId}`)
+  if (!response.ok) return null
+  return await response.json()
+}
+
 export async function getUserStats(userId) {
   const response = await authFetch(`${API_URL}/api/v1/users/${userId}/stats`)
   if (!response.ok) return null
