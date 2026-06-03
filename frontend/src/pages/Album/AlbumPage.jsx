@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AlbumPage.css";
+import AlbumActions from "../../components/AlbumActions/AlbumActions.jsx";
 
 export default function AlbumPage() {
   
@@ -73,6 +74,8 @@ export default function AlbumPage() {
             </div>
           </div>
         </div>
+
+        <AlbumActions albumId={data.id} />
 
         {/* TRACKS */}
         <div className="tracks-section">

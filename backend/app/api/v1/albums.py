@@ -16,6 +16,7 @@ from app.models.reviews import Review
 from app.models.user_album_status import UserAlbumStatus
 from app.services.lastfm import lastfm_service
 from app.core.dependencies import get_optional_user 
+from app.models.user import User
 
 
 
@@ -188,6 +189,26 @@ async def image_proxy(url: str | None = None):
                 content=fallback.content,
                 media_type="image/jpeg"
             )
+
+# 5) Recherche d'autre users (pour le social, ex: suivre un utilisateur)
+@router.get("/search/users")
+async def search_users(q: str):
+    async with AsyncSessionLocal() as db:
+        result = await db.execute(
+            select(User).where(User.username.ilike(f"%{q}%"))
+        )
+
+        users = result.scalars().all()
+
+        return {
+            "results": [
+                {
+                    "id": str(u.id),
+                    "username": u.username,
+                }
+                for u in users
+            ]
+        }
 
 
 # test temporaire pour vérifier que les routes sont bien intégrées

@@ -48,9 +48,6 @@ function AppRoutes() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
 
-      {/* route pour le détail d'un album */}
-        <Route path="/albums/:artist/:album" element={<AlbumPage />} />
-
       {/*  Guest routes  */}
         <Route element={<GuestLayout />}>
             {!user && <Route path="/" element={<Home />} />}
@@ -72,6 +69,9 @@ function AppRoutes() {
 
             {/* route pour les résultats de recherche */}
             <Route path="/search" element={<SearchResults />} />
+
+            {/* route pour le détail d'un album */}
+            <Route path="/albums/:artist/:album" element={<AlbumPage />} />
 
             <Route path="library" element={<LibraryPage />} />
             <Route path="library/playlists" element={<AllPlaylistPage />} />

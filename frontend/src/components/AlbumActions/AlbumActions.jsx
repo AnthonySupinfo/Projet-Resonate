@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { upsertAlbumStatus, getMyLibrary, getMyPlaylist, addTrackToPlaylist, removeTrackFromPlaylist } from '../../../api/api';
+import { upsertAlbumStatus, getMyLibrary, getMyPlaylist, addTrackToPlaylist, removeTrackFromPlaylist } from '../../api/api';
 import CreatePlaylistModal from '../library/modals/CreatePlaylistModal';
 import './AlbumActions.css';
 

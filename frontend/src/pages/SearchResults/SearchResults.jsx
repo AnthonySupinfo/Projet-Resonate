@@ -22,6 +22,8 @@ export default function SearchResults() {
 
   const [genre, setGenre] = useState("");
 
+  const [userResults, setUserResults] = useState([]);
+
   // FETCH FUNCTION
   const fetchResults = async (pageNumber) => {
     if (!query || loading || !hasMore) return;
@@ -93,6 +95,11 @@ export default function SearchResults() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [loading, hasMore]);
 
+  // FETCH USERS (onglet utilisateurs)
+  useEffect(() => {
+    fetchUsers();
+  }, [query]);
+
   // FILTER PAR ORDRE ALPHABETIQUE
   const sortedResults = [...results].sort((a, b) => {
     if (sortBy === "az") {
@@ -115,10 +122,23 @@ export default function SearchResults() {
       })
     : sortedResults;
 
-  // ✅ fallback si aucun résultat
+  // fallback si aucun résultat
   const finalResults =
     filteredByGenre.length > 0 ? filteredByGenre : sortedResults;
 
+  const fetchUsers = async () => {
+    if (!query) return;
+
+    try {
+      const res = await fetch(`/api/v1/search/users?q=${query}`);
+      const data = await res.json();
+
+      setUserResults(data.results || []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  
   return (
     <div className="search-page">
 
@@ -152,58 +172,64 @@ export default function SearchResults() {
 
       </div>
 
-      { /* SORTING = TRI */ }
-      <div className="search-sort">
-        <span>Trier par :</span>
+      
+      {activeTab === "albums" && (
+        <>
+          {/* SORTING */}
+          <div className="search-sort">
+            <span>Trier par :</span>
 
-        <button
-          className={sortBy === "az" ? "active" : ""}
-          onClick={() => setSortBy("az")}
-        >
-          A-Z
-        </button>
+            <button
+              className={sortBy === "az" ? "active" : ""}
+              onClick={() => setSortBy("az")}
+            >
+              A-Z
+            </button>
 
-        <button
-          className={sortBy === "za" ? "active" : ""}
-          onClick={() => setSortBy("za")}
-        >
-          Z-A
-        </button>
-      </div>
+            <button
+              className={sortBy === "za" ? "active" : ""}
+              onClick={() => setSortBy("za")}
+            >
+              Z-A
+            </button>
+          </div>
 
-      {/* TRI PAR ANNEE */}
-      <div className="search-filters">
-        <label>Année :</label>
+          {/* FILTERS */}
+          <div className="search-filters">
+            <label>Année :</label>
 
-        <input
-          type="number"
-          placeholder="Min"
-          value={yearMin || ""}
-          onChange={(e) => setYearMin(Number(e.target.value))}
-        />
+            <input
+              type="number"
+              placeholder="Min"
+              value={yearMin || ""}
+              onChange={(e) => setYearMin(Number(e.target.value))}
+            />
 
-        <input
-          type="number"
-          placeholder="Max"
-          value={yearMax || ""}
-          onChange={(e) => setYearMax(Number(e.target.value))}
-        />
-      </div>
+            <input
+              type="number"
+              placeholder="Max"
+              value={yearMax || ""}
+              onChange={(e) => setYearMax(Number(e.target.value))}
+            />
 
-      {/* TRI PAR GENRE */}
-      <label>Genre :</label>
-      <select
-        className="genre-select"
-        value={genre}
-        onChange={(e) => setGenre(e.target.value)}
-      >
-        <option value="">Tous les genres</option>
-        <option value="pop">Pop</option>
-        <option value="rock">Rock</option>
-        <option value="hip hop">Hip-Hop</option>
-        <option value="rap">Rap</option>
-        <option value="electronic">Electronic</option>
-      </select>
+            <label>Genre :</label>
+
+            <select
+              className="genre-select"
+              value={genre}
+              onChange={(e) => setGenre(e.target.value)}
+            >
+              <option value="">Tous les genres</option>
+              <option value="pop">Pop</option>
+              <option value="rock">Rock</option>
+              <option value="hip hop">Hip-Hop</option>
+              <option value="rap">Rap</option>
+              <option value="electronic">Electronic</option>
+            </select>
+          </div>
+        </>
+      )}
+
 
       { /* RESULTS = RÉSULTATS */ }
       {activeTab === "albums" && (
@@ -248,7 +274,17 @@ export default function SearchResults() {
       )}
 
       {activeTab === "users" && (
-        <p style={{ opacity: 0.6 }}>Aucun utilisateur pour le moment</p>
+        <div className="search-grid">
+          {userResults.length === 0 ? (
+            <p style={{ opacity: 0.6 }}>Aucun utilisateur</p>
+          ) : (
+            userResults.map((user) => (
+              <div key={user.id} className="search-card">
+                <p className="album-name">{user.username}</p>
+              </div>
+            ))
+          )}
+        </div>
       )}
 
       {activeTab === "lists" && (
