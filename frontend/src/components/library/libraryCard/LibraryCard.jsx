@@ -26,7 +26,11 @@ export default function LibraryCard() {
         return () => window.removeEventListener("playlistUpdated", load);
     }, []);
 
-    const handlePlaylistCreated = (newPlaylist) => setPlaylists([newPlaylist, ...playlists]);
+    const handlePlaylistCreated = (newPlaylist) => {
+        setPlaylists([newPlaylist, ...playlists]);
+        window.dispatchEvent(new Event("playlistUpdated"));
+    };
+
 
     return (
         <div className="library-card-container">

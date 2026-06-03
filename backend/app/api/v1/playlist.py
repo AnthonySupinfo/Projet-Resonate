@@ -6,7 +6,7 @@ from uuid import UUID
 from app.db.session import get_db
 from app.models.playlist import Playlist, PlaylistType
 from app.models.user_playlist_item import UserPlaylistItem
-# from app.models.track import Track
+from app.models.track import Track
 from app.schemas.playlist import PlaylistCreate, PlaylistResponse, PlaylistUpdate
 from app.core.dependencies import get_current_user
 from app.schemas.user_playlist_item import PlaylistItemAdd, PlaylistItemResponse
@@ -60,6 +60,7 @@ async def create_playlist(
         playlist_id=new_playlist.id
     )
 
+    await db.commit()
     await db.refresh(new_playlist)
     return new_playlist
 
@@ -119,7 +120,7 @@ async def get_my_playlist(
         count = await db.scalar(stmt_count)
         setattr(p, "track_count", count or 0)
 
-    return result.scalars().all()
+    return playlists
 
 
 @router.get("/{playlist_id}", response_model=PlaylistResponse)
@@ -158,13 +159,12 @@ async def add_track_playlist(
 ):
     existing = await check_playlist_exist_and_owner(playlist_id, current_user["user_id"], db)
 
-    # TODO : décommenter quand Krishna aura codé la table track
-    # stmt_track_existing = select(Track).filter(Track.id == body.track_id)
-    # result_track_existing = await db.execute(stmt_track_existing)
-    # track_existing = result_track_existing.scalars().first()
+    stmt_track_existing = select(Track).filter(Track.id == body.track_id)
+    result_track_existing = await db.execute(stmt_track_existing)
+    track_existing = result_track_existing.scalars().first()
 
-    # if not track_existing:
-    #    raise HTTPException(status_code=404, detail="Track introuvable")
+    if not track_existing:
+        raise HTTPException(status_code=404, detail="Track introuvable")
 
     stmt_track_playlist = select(UserPlaylistItem).filter(
         UserPlaylistItem.playlist_id == playlist_id, UserPlaylistItem.track_id == body.track_id)
@@ -188,6 +188,7 @@ async def add_track_playlist(
         track_id=body.track_id
     )
 
+    await db.commit()
     await db.refresh(new_item)
     return new_item
 

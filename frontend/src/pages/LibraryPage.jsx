@@ -11,31 +11,6 @@ import CreatePlaylistModal from '../components/library/modals/CreatePlaylistModa
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-// Données mockés pour tester visu 
-
-const fallbackAlbums = [
-    { id: 1, status: 'COMPLETED', album: { id: 101, name: "BULLY", artist_name: "Kanye West", image_url: "https://placehold.co/400x400/2a2a2c/ffffff?text=BULLY"} },
-    { id: 2, status: 'LISTENING', album: { id: 102, name: "BULLY", artist_name: "Kanye West", image_url: "https://placehold.co/400x400/2a2a2c/ffffff?text=BULLY"} },
-    { id: 3, status: 'PLANNED', album: { id: 103, name: "BULLY", artist_name: "Kanye West", image_url: "https://placehold.co/400x400/2a2a2c/ffffff?text=BULLY"} },
-    { id: 4, status: 'DROPPED', album: { id: 104, name: "BULLY", artist_name: "Kanye West", image_url: "https://placehold.co/400x400/2a2a2c/ffffff?text=BULLY"} },
-    { id: 5, status: 'COMPLETED', album: { id: 105, name: "BULLY", artist_name: "Kanye West", image_url: "https://placehold.co/400x400/2a2a2c/ffffff?text=BULLY"} }
-];
-/*
-    { id: 2, title:"Clair Obscur", artist: "Lomepal", year: "2023", coverUrl: "https://placehold.co/400x400/1e40af/ffffff?text=Clair+Obscure"},
-    { id: 3, title: "ARRANG", artist: "BTS", year: "2020", coverUrl: "https://placehold.co/400x400/1e40af/ffffff?text=ARRANG"},
-    { id: 4, title: "THIS MUSIC MAY...", artist: "ABBA", year: "2020", coverUrl: "https://placehold.co/400x400/b91c1c/ffffff?text=ABBA"},
-    { id: 5, title: "Fête foraine", artist: "Christophe Maé", year: "2025", coverUrl: "https://placehold.co/400x400/1a1a1a/ffffff?text=Fete"},
-];
-
-const fallbackPlaylists = [
-    { id: 101, name: "Musique à écouter", trackCount: 12, coverUrl: "https://placehold.co/400x400/ea586c/ffffff?text=A+Ecouter"},
-    { id: 102, name: "The fate of Ophelia", trackCount: 86, coverUrl: "https://placehold.co/400x400/166534/ffffff?text=Ophelia"},
-    { id: 103, name: "The fame", trackCount: 86, coverUrl: "https://placehold.co/400x400/1e40af/ffffff?text=Gaga"},
-    { id: 104, name: "The life of a Show...", trackCount: 46, coverUrl: "https://placehold.co/400x400/b91c1c/ffffff?text=Show"},
-    { id: 105, name: "The weeknd", trackCount: 29, coverUrl: "https://placehold.co/400x400/1a1a1a/ffffff?text=The+Weeknd"},
-    { id: 106, name: "Bestof Mickael Jackson", trackCount: 53, coverUrl: "https://placehold.co/400x400/d97706/ffffff?text=Michael+Jackson"},
-]; */
-
 export default function LibraryPage() {
     const [userPlaylists, setUserPlaylists] = useState([]);
     const [userAlbums, setUserAlbums] = useState([]);
@@ -60,36 +35,21 @@ export default function LibraryPage() {
             ]);
 
             setUserPlaylists(playlistData.length > 0 ? playlistData : []);
+            setUserAlbums(libraryData.length > 0 ? libraryData : []);
 
-            // A supprimer après test : 
-            const actualLibraryData = libraryData.length > 0 ? libraryData : fallbackAlbums;
-            setUserAlbums(actualLibraryData);
-
-            // à remettre après test : 
-            // setUserAlbums(libraryData.length > 0 ? libraryData : []);
-
-            setStats({ // modifier actuallibrary par juste libraryData
-                    albumsSauvegardes: actualLibraryData.length,
-                    albumTermines: actualLibraryData.filter (item => item.status === 'COMPLETED').length,
-                    albumEnCours: actualLibraryData.filter (item => item.status === 'LISTENING').length,
-                    albumPlanned: actualLibraryData.filter (item => item.status === 'PLANNED').length,
-                    albumDropped: actualLibraryData.filter (item => item.status === 'DROPPED').length,
+            setStats({ 
+                    albumsSauvegardes: libraryData.length,
+                    albumTermines: libraryData.filter (item => item.status === 'COMPLETED').length,
+                    albumEnCours: libraryData.filter (item => item.status === 'LISTENING').length,
+                    albumPlanned: libraryData.filter (item => item.status === 'PLANNED').length,
+                    albumDropped: libraryData.filter (item => item.status === 'DROPPED').length,
                     playlistsCrees: playlistData.length
                 });
         } catch (error) {
                 console.error("Erreur lors de la récupération des données", error);
                 setUserPlaylists([]);
-                setUserAlbums(fallbackAlbums); // modifier tableau vide après test
-                // à décommenter après tests 
-                // setStats({ albumsSauvegardes: 0, albumTermines: 0, albumEnCours: 0, albumPlanned: 0, albumDropped: 0, playlistsCrees: 0 });
-                setStats({  // a sup après tests
-                    albumsSauvegardes: fallbackAlbums.length, 
-                    albumTermines: fallbackAlbums.filter (item => item.status === 'COMPLETED').length,
-                    albumEnCours: fallbackAlbums.filter (item => item.status === 'LISTENING').length,
-                    albumPlanned: fallbackAlbums.filter (item => item.status === 'PLANNED').length,
-                    albumDropped: fallbackAlbums.filter (item => item.status === 'DROPPED').length,
-                    playlistsCrees: 0
-                });
+                setUserAlbums([]); 
+                setStats({ albumsSauvegardes: 0, albumTermines: 0, albumEnCours: 0, albumPlanned: 0, albumDropped: 0, playlistsCrees: 0 });
         } finally {
                 setIsLoading(false);
         }
@@ -114,6 +74,7 @@ export default function LibraryPage() {
     const handlePlaylistCreated = (newPlaylist) => {
         setUserPlaylists([newPlaylist, ...userPlaylists]);
         setStats(prev => ({ ...prev, playlistsCrees: prev.playlistsCrees + 1 }));
+        window.dispatchEvent(new Event("playlistUpdated"));
     };
 
     const hasAlbum = stats.albumsSauvegardes > 0;
