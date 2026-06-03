@@ -77,10 +77,27 @@ class UserProfileResponse(BaseModel):
         from_attributes = True
 
 class UpdateProfileRequest(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    birth_date: Optional[date] = None
     avatar_url: Optional[str] = None
     bio: Optional[str] = None
     website: Optional[str] = None
     theme: Optional[str] = None
+
+    @field_validator("theme")
+    @classmethod
+    def validate_theme(cls, value: str) -> str:
+        if value and value not in ["dark", "light"]:
+            raise ValueError("Le thème doit être 'dark' ou 'light'")
+        return value
+
+    @field_validator("website")
+    @classmethod
+    def validate_website(cls, value: str) -> str:
+        if value and not value.startswith(("http://", "https://")):
+            raise ValueError("Le site web doit commencer par http:// ou https://")
+        return value
 
     @field_validator("theme")
     @classmethod
