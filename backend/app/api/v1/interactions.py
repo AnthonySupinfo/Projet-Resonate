@@ -52,8 +52,9 @@ async def like_review(
             status_code=409, detail="Vous avez déjà liké cette review")
 
     new_like = ReviewLike(user_id=current_user["user_id"], review_id=review_id)
-
     db.add(new_like)
+
+    await db.flush()
 
     await feed_service.log_activity(
         db=db,
@@ -62,6 +63,15 @@ async def like_review(
         review_id=review_id
     )
 
+    await notification_service.create_notification(
+        db=db,
+        user_id=review.user_id,
+        notification_type=NotificationType.LIKE,
+        related_user_id=current_user["user_id"],
+        related_review_id=review.id
+    )
+
+    await db.commit()
     await db.refresh(new_like)
     return new_like
 
