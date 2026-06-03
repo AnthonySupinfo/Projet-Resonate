@@ -35,6 +35,7 @@ from app.models.refresh_token import RefreshToken
 # IMPORT DES ROUTERS
 from app.api.v1 import auth, oauth, users, albums
 from app.api.v1 import library, playlist, reviews, interactions
+from app.api.v1 import search
 
 
 @asynccontextmanager
@@ -103,6 +104,7 @@ app.include_router(albums.router, prefix="/api/v1")
 
 # LES AUTRES ROUTES (PLAYLISTS, REVIEWS, INTERACTIONS)
 app.include_router(library.router, prefix="/api/v1")
+app.include_router(search.router, prefix="/api/v1")
 app.include_router(library.library_router, prefix="/api/v1")
 app.include_router(playlist.router, prefix="/api/v1")
 app.include_router(reviews.router, prefix="/api/v1")

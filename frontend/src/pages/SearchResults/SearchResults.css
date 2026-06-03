@@ -1,0 +1,181 @@
+.search-page {
+  padding: 30px;
+}
+
+.search-title {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: white;
+}
+
+/* TABS */
+.search-tabs {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.search-tabs button {
+  background: transparent;
+  border: none;
+  padding: 10px 18px;
+
+  border-radius: 12px;
+  cursor: pointer;
+
+  color: rgba(255,255,255,0.6);
+  font-size: 14px;
+
+  transition: all 0.2s ease;
+}
+
+
+.search-tabs button:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+.search-tabs button.active {
+  background: rgba(255,255,255,0.15);
+  color: white;
+}
+
+/* SORT YEAR */
+.search-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  margin: 15px 0 25px;
+}
+
+.search-filters label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+}
+
+.search-filters input {
+  width: 90px;
+
+  padding: 6px 10px;
+
+  border-radius: 8px;
+  border: none;
+
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+
+  outline: none;
+
+  font-size: 13px;
+
+  transition: 0.2s;
+}
+
+.search-filters input:focus {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.search-filters input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* SORT */
+.search-sort {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.search-sort button {
+  background: transparent;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
+
+  transition: all 0.2s;
+}
+
+.search-sort button.active {
+  background: rgba(255,255,255,0.15);
+  color: white;
+}
+
+.genre-select {
+  padding: 6px 10px;
+
+  border-radius: 10px;
+  border: none;
+
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+
+  font-size: 13px;
+
+  outline: none;
+  cursor: pointer;
+}
+
+.genre-select option {
+  background: #111;
+}
+
+/* GRID */
+.search-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+/* CARD */
+.search-card {
+  cursor: pointer;
+
+  border-radius: 16px;
+  padding: 12px;
+
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(10px);
+
+  transition: 0.2s;
+}
+
+.search-card:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* IMAGE */
+.search-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+
+  border-radius: 12px;
+}
+
+/* TEXT */
+.album-name {
+  margin-top: 10px;
+  font-weight: 600;
+  color: white;
+}
+
+.album-artist {
+  font-size: 14px;
+  color: rgba(255,255,255,0.6);
+}
+
+.album-year {
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+}
+
+.album-rating {
+  font-size: 14px;
+  margin-top: 4px;
+  color: rgba(255,255,255,0.8);
+}
