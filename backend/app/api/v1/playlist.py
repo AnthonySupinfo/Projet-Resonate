@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from uuid import UUID
-
 from app.db.session import get_db
 from app.models.playlist import Playlist, PlaylistType
 from app.models.user_playlist_item import UserPlaylistItem

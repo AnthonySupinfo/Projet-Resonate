@@ -50,7 +50,7 @@ const DownloadIcon = () => (
 )
 
 export default function Settings() {
-  const { user, logout } = useAuth()
+  const { user, logout, setUser } = useAuth()
   const { t, lang, toggleLanguage } = useLanguage()
   const navigate = useNavigate()
 
@@ -135,15 +135,17 @@ export default function Settings() {
     e.preventDefault()
     setSaving(true)
     try {
-      await updateProfile({
+      const updatedProfile = await updateProfile({
         first_name: firstName || null,
         last_name: lastName || null,
         birth_date: birthDate || null,
         avatar_url: avatarUrl || null,
         bio: bio || null,
         website: website || null,
-        theme
+        theme: theme
       })
+
+      setUser(updatedProfile)
       showSuccess(t("settings.successMessage"))
     } catch (err) {
       showError(err.message)

@@ -40,7 +40,7 @@ body {
 /*Thème sombre :*/
 :root {
   /* Couleurs de fond */
-  --bg-main: #161515;
+  --bg-main-start: #161515;
   --bg-main-end: #473838;
 
   --bg-card: #35313A;
@@ -78,7 +78,7 @@ body {
   --input-bg-subtle: rgba(255, 255, 255, 0.07);
 }
 
-/* --- THEME CLAIR (Préparation) --- */
+/* --- THEME CLAIR --- */
 [data-theme="light"] {
   --bg-main-start: #f0f2f5;
   --bg-main-end: #e4e5eb;
