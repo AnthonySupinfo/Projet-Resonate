@@ -1,10 +1,10 @@
 .fav-playlist-card {
-    background-color: #35313A;
-    background-image: radial-gradient(circle at bottom right, rgba(196, 165, 181, 0.55) 0%, rgba(153, 153, 153, 0) 70%);
+    background-color: var(--bg-card);
+    background-image: radial-gradient(circle at bottom right, rgba(var(--grad-rose-rgb), 0.55) 0%, rgba(var(--grad-gris-rgb), 0) 70%);
     border-radius: 35px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
     padding: 24px 22px;
-    color: white;
+    color: var(--text-primary);
     font-family: 'Inter', sans-serif;
     display: flex;
     flex-direction: column;
@@ -17,7 +17,7 @@
     font-size: 1.25rem;
     font-weight: 500;
     margin: 0 0 20px 0;
-    color: #ffffff;
+    color: var(--text-primary);
 }
 
 .fav-tracks-list {
@@ -67,7 +67,7 @@
 .fav-track-name {
     font-size: 0.9rem;
     font-weight: 500;
-    color: white;
+    color: var(--text-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -75,7 +75,7 @@
 
 .fav-track-artist {
     font-size: 0.75rem;
-    color: #c5c7d6;
+    color: var(--text-muted);
     white-space: hidden;
     text-overflow: ellipsis;
 }
@@ -93,6 +93,6 @@
 }
 
 .empty-msg {
-    color: #c5c7d6;
+    color: var(--text-muted);
     font-size: 0.85rem;
 }

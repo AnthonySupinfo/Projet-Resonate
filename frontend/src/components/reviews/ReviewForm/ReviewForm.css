@@ -1,6 +1,6 @@
 .review-form-container {
-    background-color: #35313A;
-    background-image: radial-gradient(circle at bottom right, rgba(196, 165, 181, 0.55) 0%, rgba(153, 153, 153, 0) 70%);
+    background-color: var(--bg-card);
+    background-image: radial-gradient(circle at bottom right, rgba(var(--grad-rose-rgb), 0.55) 0%, rgba(var(--grad-gris-rgb), 0) 70%);
     border-radius: 20px;
     padding: 24px;
     border: 1px solid rgba(255, 255, 255, 0.05);
@@ -11,7 +11,7 @@
     margin: 0 0 16px 0;
     font-size: 1.1rem;
     font-weight: 500;
-    color: white;
+    color: var(--text-primary);
     font-family: 'Poppins', sans-serif;
 }
 
@@ -39,17 +39,17 @@
 
 .rating-label {
     font-size: 0.95rem;
-    color: #c5c7d6;
+    color: var(--text-soft);
     font-family: 'Inter', sans-serif;
 }
 
 .review-textarea {
     width: 100%;
     background-color: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--input-border);
     border-radius: 12px;
     padding: 16px;
-    color: white;
+    color: var(--text-primary);
     font-family: 'Inter', sans-serif;
     font-size: 0.95rem;
     resize: vertical;
@@ -59,11 +59,11 @@
 }
 
 .review-textarea:focus {
-    border-color: #f1a2a2;
+    border-color: var(--accent-primary);
 }
 
 .review-textarea::placeholder {
-    color: #8e8e93;
+    color: var(--text-muted);
 }
 
 .review-form-actions {
@@ -73,9 +73,9 @@
 
 .btn-submit-review {
     background-image: radial-gradient(ellipse at center, rgba(196, 165, 181, 0.55) 0%, rgba(153, 153, 153, 0) 70%);
-    background-color: #48484a;
-    border: 1px solid #f1a2a2;
-    color: white;
+    background-color: var(--divider-color);
+    border: 1px solid var(--accent-primary);
+    color: var(--text-primary);
     padding: 10px 24px;
     border-radius: 20px;
     font-size: 0.95rem;
@@ -85,12 +85,12 @@
 }
 
 .btn-submit-review:hover:not(:disabled) {
-    background-color: #f1a2a2;
-    color: #111114;
+    background-color: var(--accent-primary);
+    color: var(--bg-card);
 }
 
 .btn-submit-review:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    border-color: #48484a;
+    border-color: var(--divider-color);
 }

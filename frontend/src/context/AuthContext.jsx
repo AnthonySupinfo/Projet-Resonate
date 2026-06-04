@@ -38,6 +38,14 @@ export function AuthProvider({ children }) {
         .finally(() => setLoading(false))
   }, [])
 
+  useEffect(() => {
+    if (user?.theme === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light')
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark')
+    }
+  }, [user?.theme])
+
   // Stocke les deux tokens et les infos utilisateur après login
   async function handleLogin(accessToken, refreshToken) {
     localStorage.setItem("token", accessToken)
@@ -65,7 +73,7 @@ export function AuthProvider({ children }) {
   }
 
   const value = useMemo(
-      () => ({ user, token, loading, handleLogin, logout }),
+      () => ({ user, setUser, token, loading, handleLogin, logout }),
       [user, token, loading]
   )
 

@@ -6,7 +6,7 @@
     overflow-x: hidden;
     margin: 0 auto;
     padding-bottom: 60px;
-    color: white;
+    color: var(--text-primary);
     font-family: sans-serif;
     box-sizing: border-box;
 }
@@ -18,8 +18,8 @@
 
 /*--Stats--*/
 .stats-container {
-    background: #35313A;
-    background-image: radial-gradient(circle at bottom right, rgba(196, 165, 181, 0.55) 0%, rgba(153, 153, 153, 0) 70%);
+    background: var(--bg-card);
+    background-image: radial-gradient(circle at bottom right, rgba(var(--grad-rose-rgb), 0.55) 0%, rgba(var(--grad-gris-rgb), 0) 70%);
     border-radius: 35px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
     padding: 24px 32px;
@@ -30,7 +30,7 @@
     margin: 0 0 24px 0;
     font-size: 1.1rem;
     font-weight: 500;
-    color: white;
+    color: var(--text-primary);
 }
 
 .stats-grid {
@@ -50,21 +50,21 @@
 .stat-number {
     font-size: 2.5rem;
     font-weight: 300;
-    color: #f1a2a2;
+    color: var(--accent-primary);
     line-height: 1;
 }
 
 .stat-label {
     font-size: 0.85rem;
-    color: #8e8e93;
+    color: var(--text-muted);
     max-width: 80px;
     line-height: 1.2;
 }
 
 .carousel-section {
     margin-bottom: 24px;
-    background: #35313A;
-    background-image: radial-gradient(circle at bottom right, rgba(196, 165, 181, 0.55) 0%, rgba(153, 153, 153, 0) 70%);
+    background: var(--bg-card);
+    background-image: radial-gradient(circle at bottom right, rgba(var(--grad-rose-rgb), 0.55) 0%, rgba(var(--grad-gris-rgb), 0) 70%);
     border-radius: 35px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
     padding: 24px 22px;
@@ -89,7 +89,7 @@
 
 .stats-breakdown-title {
     font-size: 0.9rem;
-    color: #8e8e93;
+    color: var(--text-muted);
     font-family: 'Inter', sans-serif;
     font-weight: 400;
     margin: 0 0 16px 0;
@@ -103,7 +103,7 @@
 
 .stats-empty {
     margin-top: 16px;
-    color: #8e8e93;
+    color: var(--text-muted);
     font-family: 'Inter', sans-serif;
     font-size: 0.85rem;
     font-style: italic;

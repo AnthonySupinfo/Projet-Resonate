@@ -21,7 +21,7 @@
 .carousel-title {
     font-size: 1.1rem;
     font-weight: 500;
-    color: #ffffff;
+    color: var(--text-primary);
     font-family: 'Poppins', sans-serif;
 }
 
@@ -31,9 +31,9 @@
     top: 50%;
     transform: translateY(-50%);
     z-index: 10;
-    background-color: rgba(35,33,36,0.6);
-    border: 1px solid #f1a2a2;
-    color: #f1a2a2;
+    background-color: rgba(var(--shadow-rgb), 0.4);
+    border: 1px solid var(--accent-primary);
+    color: var(--accent-primary);
     width: 40px;
     height: 40px;
     border-radius: 8px;
@@ -46,9 +46,9 @@
 }
 
 .carousel-arrow:hover {
-    background-color: #f1a2a2;
-    color: white;
-    border-color: #f1a2a2;
+    background-color: var(--accent-primary);
+    color: var(--bg-card);
+    border-color: var(--accent-primary);
 }
 
 .carousel-arrow.left {
@@ -83,7 +83,7 @@
 .see-all-btn {
     background: transparent;
     border: none;
-    color: #f1a2a2;
+    color: var(--accent-primary);
     font-size: 0.85rem;
     cursor: pointer;
     font-family: 'Inter', sans-serif;
