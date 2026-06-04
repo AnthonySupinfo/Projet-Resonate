@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
-from app.services.auth import verify_password
+from app.services.auth import verify_password, revoke_all_refresh_tokens
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from app.db.session import get_db
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, require_admin
 from app.models.user import User
 from app.models.follow import Follow
 from app.schemas.auth import UserProfileResponse, UpdateProfileRequest
@@ -192,3 +192,49 @@ async def get_user_statistics(
     stats = await stats_service.get_user_stats(db, user_id)
 
     return stats
+
+# PATCH /users/{user_id}/ban - bannir un utilisateur (admin uniquement)
+@router.patch("/{user_id}/ban", status_code=status.HTTP_200_OK)
+async def ban_user(
+    user_id: str,
+    admin: dict = Depends(require_admin),
+    db: AsyncSession = Depends(get_db)
+):
+    # Un admin ne peut pas se bannir lui-même (anti-lockout)
+    if user_id == admin["user_id"]:
+        raise HTTPException(status_code=400, detail="Vous ne pouvez pas vous bannir vous-même")
+
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="Utilisateur introuvable")
+
+    # On ne bannit pas un autre admin
+    if user.role == "admin":
+        raise HTTPException(status_code=403, detail="Impossible de bannir un administrateur")
+
+    user.is_active = False
+    await db.commit()
+
+    # Révoque toutes ses sessions d'authentification, il ne pourra plus rafraîchir son token
+    await revoke_all_refresh_tokens(user_id, db)
+
+    return {"message": "Utilisateur banni", "user_id": user_id}
+
+
+# PATCH /users/{user_id}/unban - réactiver un utilisateur (admin uniquement)
+@router.patch("/{user_id}/unban", status_code=status.HTTP_200_OK)
+async def unban_user(
+    user_id: str,
+    admin: dict = Depends(require_admin),
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="Utilisateur introuvable")
+
+    user.is_active = True
+    await db.commit()
+
+    return {"message": "Utilisateur réactivé", "user_id": user_id}
