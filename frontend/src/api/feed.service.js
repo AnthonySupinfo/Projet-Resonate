@@ -72,5 +72,21 @@ export const feedService = {
         });
         if (!response.ok) throw new Error('Erreur réseau');
         return true;
+    },
+
+    async getFollowers(userId) {
+        const response = await fetch(`${BASE_URL}/users/${userId}/followers`, {
+            headers: authHeaders()
+        });
+        if (!response.ok) throw new Error('Erreur réseau');
+        return response.json();
+    },
+
+    async getFollowing(userId) {
+        const response = await fetch(`${BASE_URL}/users/${userId}/following`, {
+            headers: authHeaders()
+        });
+        if (!response.ok) throw new Error('Erreur réseau');
+        return response.json();
     }
 };

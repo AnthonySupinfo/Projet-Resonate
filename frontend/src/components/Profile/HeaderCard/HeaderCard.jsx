@@ -5,6 +5,7 @@ import { getProfile, getUserProfile } from "../../../api/auth.js";
 import { feedService } from "../../../api/feed.service.js";
 import modifyIcon from '../../../../public/icons/modify.png';
 import reportIcon from '../../../../public/icons/report.png';
+import FollowUsersListModal from './FollowUsersListModal/FollowUsersListModal.jsx';
 import './HeaderCard.css';
 
 export default function HeaderCard() {
@@ -14,6 +15,7 @@ export default function HeaderCard() {
 
     const [isFollowing, setIsFollowing] = useState(false);
     const [isFollowLoading, setIsFollowLoading] = useState(false);
+    const [modalConfig, setModalConfig] = useState({ isOpen: false, type: 'followers' });
     const token = localStorage.getItem("token");
 
     const isMyProfile = !id || (user && id === String(user.id));
@@ -90,84 +92,102 @@ export default function HeaderCard() {
     };
 
     return (
-        <div className="header-card-container">
-            <div className="header-top-section">
-                <div className="header-user-info-wrapper">
+        <>
+            <div className="header-card-container">
+                <div className="header-top-section">
+                    <div className="header-user-info-wrapper">
 
-                    <div className="header-avatar-viewport">
-                        {isImageUrl ? (
-                            <img
-                                src={myAvatar}
-                                alt={`Avatar de ${fullName}`}
-                                className="header-avatar-image"
-                                onError={e => e.target.style.display = "none"}
-                            />
-                        ) : myAvatar ? (
-                            <span className="header-avatar-emoji">{myAvatar}</span>
-                        ) : (
-                            <span className="header-avatar-placeholder">👤</span>
-                        )}
-                    </div>
-
-                    <div className="header-user-details">
-                        <h1 className="header-fullname">{fullName}</h1>
-                        <span className="header-username">@{currentUser.username}</span>
-
-                        <div className="header-stats-row">
-                            <span className="header-stat">{currentUser.followers_count || 0} followers</span>
-                            <span className="header-stat-separator">•</span>
-                            <span className="header-stat">{currentUser.following_count || 0} following</span>
+                        <div className="header-avatar-viewport">
+                            {isImageUrl ? (
+                                <img
+                                    src={myAvatar}
+                                    alt={`Avatar de ${fullName}`}
+                                    className="header-avatar-image"
+                                    onError={e => e.target.style.display = "none"}
+                                />
+                            ) : myAvatar ? (
+                                <span className="header-avatar-emoji">{myAvatar}</span>
+                            ) : (
+                                <span className="header-avatar-placeholder">👤</span>
+                            )}
                         </div>
 
-                        <span className="header-joined-date">Inscrit depuis le {joinedDate}</span>
+                        <div className="header-user-details">
+                            <h1 className="header-fullname">{fullName}</h1>
+                            <span className="header-username">@{currentUser.username}</span>
+
+                            <div className="header-stats-row">
+                                <span
+                                    className="header-stat clickable"
+                                    onClick={() => setModalConfig({ isOpen: true, type: 'followers' })}
+                                >
+                                        {currentUser.followers_count || 0} followers
+                                    </span>
+                                <span className="header-stat-separator">•</span>
+                                <span
+                                    className="header-stat clickable"
+                                    onClick={() => setModalConfig({ isOpen: true, type: 'following' })}
+                                >
+                                        {currentUser.following_count || 0} following
+                                    </span>
+                            </div>
+
+                            <span className="header-joined-date">Inscrit depuis le {joinedDate}</span>
+                        </div>
                     </div>
-                </div>
 
-                {isMyProfile ? (
-                    <Link to="/settings" className="header-action-btn">
-                        <img
-                            src={modifyIcon}
-                            alt="Modifier le profil"
-                            className="action-icon-img"
-                        />
-                        Modifier
-                    </Link>
-                ) : (
-                    <div className="header-actions-group">
-                        <button
-                            className="header-action-btn follow-btn"
-                            onClick={handleFollowToggle}
-                            disabled={isFollowLoading}
-                            style={{ opacity: isFollowLoading ? 0.7 : 1, cursor: isFollowLoading ? 'wait' : 'pointer' }}
-                        >
-                            {isFollowLoading ? "..." : isFollowing ? "Suivi" : "Suivre"}
-                        </button>
-                        <button className="header-icon-btn">
-                            <img src={reportIcon} alt="Signaler" className="action-icon-img" />
-                        </button>
-                    </div>
-                )}
-            </div>
-
-            <div className="header-bottom-section">
-                <div className="info-row">
-                    <span className="info-label">A propos :</span>
-                    <p className="info-value">
-                        {currentUser.bio || "Je suis un super utilisateur de Resonate, qui n'a pas encore de bio..."}
-                    </p>
-                </div>
-
-                <div className="info-row">
-                    <span className="info-label">Site web :</span>
-                    {websiteUrl ? (
-                        <a href={websiteUrl} target="_blank" rel="noopener noreferrer" className="info-value link">
-                            {currentUser.website.replace(/^https?:\/\//, '')}
-                        </a>
+                    {isMyProfile ? (
+                        <Link to="/settings" className="header-action-btn">
+                            <img
+                                src={modifyIcon}
+                                alt="Modifier le profil"
+                                className="action-icon-img"
+                            />
+                            Modifier
+                        </Link>
                     ) : (
-                        <span className="info-value empty">Non renseigné</span>
+                        <div className="header-actions-group">
+                            <button
+                                className="header-action-btn follow-btn"
+                                onClick={handleFollowToggle}
+                                disabled={isFollowLoading}
+                                style={{ opacity: isFollowLoading ? 0.7 : 1, cursor: isFollowLoading ? 'wait' : 'pointer' }}
+                            >
+                                {isFollowLoading ? "..." : isFollowing ? "Suivi" : "Suivre"}
+                            </button>
+                            <button className="header-icon-btn">
+                                <img src={reportIcon} alt="Signaler" className="action-icon-img" />
+                            </button>
+                        </div>
                     )}
                 </div>
+
+                <div className="header-bottom-section">
+                    <div className="info-row">
+                        <span className="info-label">A propos :</span>
+                        <p className="info-value">
+                            {currentUser.bio || "Je suis un super utilisateur de Resonate, qui n'a pas encore de bio..."}
+                        </p>
+                    </div>
+
+                    <div className="info-row">
+                        <span className="info-label">Site web :</span>
+                        {websiteUrl ? (
+                            <a href={websiteUrl} target="_blank" rel="noopener noreferrer" className="info-value link">
+                                {currentUser.website.replace(/^https?:\/\//, '')}
+                            </a>
+                        ) : (
+                            <span className="info-value empty">Non renseigné</span>
+                        )}
+                    </div>
+                </div>
             </div>
-        </div>
+            <FollowUsersListModal
+                isOpen={modalConfig.isOpen}
+                onClose={() => setModalConfig({ ...modalConfig, isOpen: false })}
+                type={modalConfig.type}
+                userId={currentUser.id}
+            />
+        </>
     );
 }
