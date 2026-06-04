@@ -20,7 +20,6 @@ export default function SocialItem({ activity, hideComments = false }) {
     const [showComments, setShowComments] = useState(false);
     const [isReplying, setIsReplying] = useState(false);
 
-    console.log("Mon activity CREATE_PLAYLIST :", activity);
     if (!activity) return null;
 
     const SpecificContent = CONTENT_COMPONENTS[activity.type];

@@ -213,3 +213,13 @@
     font-style: italic;
     opacity: 0.6;
 }
+
+.header-stat.clickable {
+    cursor: pointer;
+    transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.header-stat.clickable:hover {
+    color: var(--text-primary);
+    opacity: 0.8;
+}
