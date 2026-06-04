@@ -4,15 +4,6 @@ import CreatePlaylistModal from '../components/library/modals/CreatePlaylistModa
 import { getMyPlaylist } from '../api/api';
 import './AllPlaylistsPage.css';
 
-/* Données mockés pour tester visu 
-const mockPlaylist = [
-    { id: 1, name: "Musique à écouter", trackCount: 12, coverUrl: "https://placehold.co/400x400/ea586c/ffffff?text=A+Ecouter"},
-    { id: 2, name: "The fate of Ophelia", trackCount: 86, coverUrl: "https://placehold.co/400x400/166534/ffffff?text=Ophelia"},
-    { id: 3, name: "The fame", trackCount: 86, coverUrl: "https://placehold.co/400x400/1e40af/ffffff?text=Gaga"},
-    { id: 4, name: "The life of a Show...", trackCount: 46, coverUrl: "https://placehold.co/400x400/b91c1c/ffffff?text=Show"},
-    { id: 5, name: "The weeknd", trackCount: 29, coverUrl: "https://placehold.co/400x400/1a1a1a/ffffff?text=The+Weeknd"},
-    { id: 6, name: "Bestof Mickael Jackson", trackCount: 53, coverUrl: "https://placehold.co/400x400/d97706/ffffff?text=Michael+Jackson"},
-]; */
 
 export default function AllPlaylistsPage() {
     const [playlists, setPlaylists] = useState([]);

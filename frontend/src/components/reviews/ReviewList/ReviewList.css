@@ -10,16 +10,16 @@
     font-family: 'Poppins', sans-serif;
     font-size: 1.25rem;
     font-weight: 600;
-    color: white;
+    color: var(--text-primary);
     margin: 0 0 8px 0;
 }
 
 .no-review-form {
-    background-color: rgba(255, 255, 255, 0.03);
+    background-color: var(--input-bg-subtle);
     border: rgba(255, 255, 255, 0.05);
     border-radius: 20px;
     padding: 24px;
-    color: #8e8e93;
+    color: var(--text-muted);
     text-align: center;
     font-family: 'Inter', sans-serif;
     font-style: italic;
@@ -33,7 +33,7 @@
 
 .review-loading,
 .no-review {
-    color: #8e8e93;
+    color: var(--text-muted);
     font-family: 'Inter', sans-serif;
     font-style: italic;
     text-align: center;

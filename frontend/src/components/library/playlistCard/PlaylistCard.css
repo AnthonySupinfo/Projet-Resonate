@@ -27,7 +27,7 @@
 }
 
 .playlist-title {
-    color: white;
+    color: var(--text-primary);
     margin: 0 0 4px 0;
     font-size: 0.9rem !important;
     font-weight: 600;
@@ -38,7 +38,7 @@
 }
 
 .playlist-meta {
-    color: #8e8e93;
+    color: var(--text-muted);
     margin: 0;
     font-size: 0.75rem !important;
     white-space: nowrap;
@@ -74,10 +74,10 @@
     position: absolute;
     top: 8px;
     left: 8px;
-    background: rgba(35, 33, 36, 0.7);
+    background: rgba(var(--shadow-rgb), 0.4);
     backdrop-filter: blur(4px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.6);
+    border: 1px solid var(--divider-color);
+    color: var(--text-muted);
     font-size: 1.1rem;
     width: 32px;
     height: 32px;
@@ -94,13 +94,13 @@
 
 .playlist-fav-btn:hover {
     transform: scale(1.1);
-    background: rgba(35, 33, 36, 0.9);
-    color: #f1a2a2;
+    background: rgba(var(--shadow-rgb), 0.6);
+    color: var(--accent-primary);
 }
 
 .playlist-fav-btn.is-fav {
-    color: #f1a2a2;
-    border-color: #f1a2a2;
-    background: rgba(35, 33, 36, 0.85);
+    color: var(--accent-primary);
+    border-color: var(--accent-primary);
+    background: rgba(var(--shadow-rgb), 0.5);
     text-shadow: 0 0 4px rgba(241, 162, 162, 0.4);
 }

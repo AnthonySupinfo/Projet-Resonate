@@ -26,7 +26,7 @@
 }
 
 .tab {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: var(--input-bg-subtle);
     border: 1px solid transparent;
     color: var(--text-muted);
     padding: 8px 20px;
@@ -72,6 +72,10 @@
     transition: opacity 0.2s;
 }
 
+.library-item:hover .library-icon img {
+    transform: scale(1.05);
+}
+
 .library-item:hover {
     opacity: 0.8;
 }
@@ -79,13 +83,14 @@
 .library-icon {
     width: 48px;
     height: 48px;
+    aspect-ratio: 1 / 1;
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     flex-shrink: 0;
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: var(--input-bg-subtle);
 }
 
 .library-icon img {
@@ -145,7 +150,7 @@
 }
 
 .create-icon {
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: var(--input-bg-subtle);
     width: 48px;
     height: 48px;
     border-radius: 12px;

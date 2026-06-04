@@ -20,12 +20,12 @@
 }
 
 .star-btn.on {
-    color: #f1a2a2;
-    text-shadow: 0 0 8px rgba(241, 162, 162, 0.4);
+    color: var(--accent-primary);
+    text-shadow: 0 0 8px rgba(var(--shadow-rgb), 0.2);
 }
 
 .star-btn.off {
-    color: #48484a;
+    color: var(--divider-color);
 }
 
 .star-btn.read-only {

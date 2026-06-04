@@ -1,6 +1,6 @@
 .review-card {
-    background-color: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255,255,255,0.05);
+    background-color: var(--input-bg-subtle);
+    border: 1px solid var(--divider-color);
     border-radius: 20px;
     padding: 20px 24px;
     transition: opacity 0.3s ease;
@@ -8,7 +8,7 @@
 }
 
 .review-card:hover {
-    background-color: rgba(255,255,255,0.05);
+    background-color: rgba(128,128,128,0.08);
 }
 
 .review-card.deleting {
@@ -44,19 +44,19 @@
 .review-username {
     font-size: 1rem;
     font-weight: 500;
-    color: white;
+    color: var(--text-primary);
     font-family: 'Poppins', sans-serif;
 }
 
 .review-date {
     font-size: 0.8rem;
-    color: #8e8e93;
+    color: var(--text-muted);
     font-family: 'Inter', sans-serif;
 }
 
 .review-content {
     font-size: 0.95rem;
-    color: #f2f3fb;
+    color: var(--text-soft);
     line-height: 1.5;
     margin: 0 0 20px 0;
     font-family: 'Inter', sans-serif;
@@ -80,7 +80,7 @@
 .interaction-btn, .action-btn {
     background: transparent;
     border: none; 
-    color: #8e8e93;
+    color: var(--text-muted);
     font-size: 0.85rem;
     cursor: pointer;
     display: flex;
@@ -93,8 +93,8 @@
 }
 
 .interaction-btn:hover, .action-btn:hover {
-    background-color: rgba(255, 255, 255, 0.08);
-    color: white;
+    background-color: rgba(128,128,128,0.12);
+    color: var(--text-primary);
 }
 
 .interaction-btn.like-btn.active {
@@ -139,7 +139,7 @@
 
 .no-comments {
     font-size: 0.85rem;
-    color: #8e8e93;
+    color: var(--text-muted);
     font-style: italic;
     margin: 0;
     text-align: center;
@@ -164,13 +164,13 @@
 .comment-author {
     font: 0.8rem;
     font-weight: 500;
-    color: #f1a2a2;
+    color: var(--accent-primary);
     font-family: 'Poppins', sans-serif;
 }
 
 .comment-text {
     font-size: 0.9rem;
-    color: #e5e5ea;
+    color: var(--text-soft);
     font-family: 'Inter', sans-serif;
     line-height: 1.4;
 }
@@ -199,10 +199,10 @@
 .comment-input {
     flex: 1;
     background-color: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--input-border);
     border-radius: 20px;
     padding: 10px 16px;
-    color: white;
+    color: var(--text-primary);
     font-size: 0.9rem;
     outline: none;
     transition: border-color 0.2s;
@@ -210,17 +210,17 @@
 }
 
 .comment-input:focus {
-    border-color: #f1a2a2;
+    border-color: var(--accent-primary);
 }
 
 .comment-input::placeholder {
-    color: #8e8e93;
+    color: var(--text-muted);
 }
 
 .comment-submit-btn {
-    background-color: #48484a;
+    background-color: var(--divider-color);
     border: none;
-    color: white;
+    color: var(--text-primary);
     padding: 0 20px;
     border-radius: 20px;
     font-size: 0.85rem;
@@ -231,8 +231,8 @@
 }
 
 .comment-submit-btn:hover:not(:disabled) {
-    background-color: #f1a2a2;
-    color: #111114;
+    background-color: var(--accent-primary);
+    color: var(--bg-card);
 }
 
 .comment-submit-btn:disabled {

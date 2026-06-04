@@ -6,8 +6,8 @@
 /*-- FILTRES--*/
 
 .filters-container {
-    background: #35313A;
-    background-image: radial-gradient(circle at bottom right, rgba(196, 165, 181, 0.55) 0%, rgba(153, 153, 153, 0) 70%);
+    background: var(--bg-card);
+    background-image: radial-gradient(circle at bottom right, rgba(var(--grad-rose-rgb), 0.55) 0%, rgba(var(--grad-gris-rgb), 0) 70%);
     border-radius: 35px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.25);
     padding: 32px;
@@ -28,27 +28,27 @@
     left: 16px;
     top: 50%;
     transform: translateY(-50%);
-    color: #8e8e93;
+    color: var(--text-muted);
 }
 
 .playlist-search-input {
     width: 100%;
-    background-color: #2c2c2e;
-    border: none;
+    background-color: var(--input-bg-subtle);
+    border: 1px solid var(--input-border);
     border-radius: 20px;
     padding: 12px 16px 12px 40px;
-    color: white;
+    color: var(--text-primary);
     box-sizing: border-box;
     font-size: 0.95rem;
     outline: none;
 }
 
 .playlist-search-input::placeholder {
-    color: #8e8e93;
+    color: var(--text-muted);
 }
 
 .playlist-search-input:focus {
-box-shadow: 0 0 0 1px #48484a;
+box-shadow: 0 0 0 1px var(--divider-color);
 }
 
 .sort-controls {
@@ -60,13 +60,13 @@ box-shadow: 0 0 0 1px #48484a;
 
 .sort-label {
     font-size: 0.85rem;
-    color:#8e8e93;
+    color: var(--text-muted);
 }
 
 .sort-select {
     background-color: transparent;
-    border: 1px solid #48484a;
-    color: white;
+    border: 1px solid var(--divider-color);
+    color: var(--text-primary);
     padding: 8px 16px;
     border-radius: 8px;
     font-size: 0.85rem;
@@ -75,12 +75,12 @@ box-shadow: 0 0 0 1px #48484a;
 }
 
 .sort-select:hover {
-    border-color: white;
+    border-color: var(--text-primary);
 }
 
 .sort-select option {
-    background-color: #1e1e1e;
-    color: white;
+    background-color: var(--bg-card);
+    color: var(--text-primary);
 }
 
 /*--Grille playlist--*/
@@ -119,17 +119,17 @@ box-shadow: 0 0 0 1px #48484a;
 }
 
 .create-cover {
-    background-color: #1e1e1e;
-    border: 1px solid #2c2c2e;
+    background-color: var(--input-bg-subtle);
+    border: 1px solid var(--divider-color);
 }
 
 .static-card:hover .create-cover {
-    background-color: #2c2c2e;
+    background-color: rgba(128,128,128,0.12);
 }
 
 .plus-icon {
     font-size: 4rem;
-    color: #8e8e93;
+    color: var(--text-muted);
     font-weight: 100;
 }
 
@@ -153,7 +153,7 @@ box-shadow: 0 0 0 1px #48484a;
 }
 
 .static-meta {
-    color: #8e8e93;
+    color: var(--text-muted);
     margin: 0;
     font-size: 0.75rem;
 }
