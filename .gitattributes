@@ -1,0 +1,2 @@
+# Force les scripts .sh en fins de ligne LF (sinon ils cassent sur Windows)
+*.sh text eol=lf
