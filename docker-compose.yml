@@ -14,7 +14,7 @@ services:
     networks:
       - backend_db
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U resonate_user -d resonate"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -34,7 +34,7 @@ services:
       - ./pgadmin-servers.json:/pgadmin4/servers.json
     networks:
       - backend_db
-      - frontend_backend
+      - edge
     depends_on:
       db:
         condition: service_healthy
@@ -84,6 +84,7 @@ services:
       - backend
     networks:
       - frontend_backend
+      - edge
 
 # Volumes
 volumes:
@@ -94,8 +95,11 @@ volumes:
 networks:
   frontend_backend:
     driver: bridge
+    internal: true
   backend_internet:
     driver: bridge
   backend_db:
     driver: bridge
     internal: true
+  edge:
+    driver: bridge
