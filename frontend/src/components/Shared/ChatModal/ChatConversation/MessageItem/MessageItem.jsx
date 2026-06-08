@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import './MessageItem.css';
 import modifyIcon from '../../../../../../public/icons/modify.png';
+import { useLanguage } from '../../../../../context/LanguageContext.jsx';
 
 export default function MessageItem({ message, isMine, friend, myAvatar, onEditMessage, isLast }) {
     const [isEditing, setIsEditing] = useState(false);
     const [editContent, setEditContent] = useState(message.content);
+    const { t, language } = useLanguage();
 
-    const senderName = isMine ? "Moi" : (friend?.name || friend?.username);
+    const senderName = isMine ? t('social.me') : (friend?.name || friend?.username);
 
     const rawAvatar = isMine ? myAvatar : friend?.avatarUrl;
     const isImageUrl = rawAvatar && (rawAvatar.startsWith('http') || rawAvatar.startsWith('/') || rawAvatar.startsWith('data:image'));
@@ -16,7 +18,7 @@ export default function MessageItem({ message, isMine, friend, myAvatar, onEditM
         try {
             const date = new Date(dateString);
             if (isNaN(date.getTime())) return "";
-            return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            return date.toLocaleTimeString(language === 'en' ? 'en-US' : 'fr-FR', { hour: '2-digit', minute: '2-digit' });
         } catch {
             return "";
         }
@@ -63,8 +65,8 @@ export default function MessageItem({ message, isMine, friend, myAvatar, onEditM
                 <div className="message-meta">
                     <span className="message-sender">{senderName}</span>
                     <span className="message-time">{formatTime(message.created_at)}</span>
-                    {message.is_updated && <span className="message-edited-tag">(modifié)</span>}
-                    {isMine && isLast && message.is_read && <span className="message-read-status">Lu</span>}
+                    {message.is_updated && <span className="message-edited-tag">{t('social.edited')}</span>}
+                    {isMine && isLast && message.is_read && <span className="message-read-status">{t('social.readStatus')}</span>}
                 </div>
 
                 <div className="message-bubble-container">
@@ -78,7 +80,7 @@ export default function MessageItem({ message, isMine, friend, myAvatar, onEditM
                                 onKeyDown={handleKeyDown}
                                 autoFocus
                             />
-                            <span className="message-edit-hint">Entrée pour valider, Échap pour annuler</span>
+                            <span className="message-edit-hint">{t('social.editHint')}</span>
                         </div>
                     ) : (
                         <div className="message-bubble">
@@ -88,7 +90,7 @@ export default function MessageItem({ message, isMine, friend, myAvatar, onEditM
 
                     {isMine && !isEditing && (
                         <button className="message-edit-btn" onClick={() => setIsEditing(true)}>
-                            <img src={modifyIcon} alt="Modifier" className="message-edit-icon" />
+                            <img src={modifyIcon} alt={t('social.editIcon')} className="message-edit-icon" />
                         </button>
                     )}
                 </div>

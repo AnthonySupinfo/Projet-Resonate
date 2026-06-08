@@ -1,5 +1,8 @@
 import {layout} from "./layout.js";
 import {home} from "./home.js";
+import {social} from "./social.js";
+import {userProfile} from "./userProfile.js";
+import {library} from "./library.js";
 
 export const translations = {
 
@@ -7,6 +10,9 @@ export const translations = {
   fr: {
     layout: layout.fr,
     home: home.fr,
+    social: social.fr,
+    userProfile: userProfile.fr,
+    library: library.fr,
     login: {
       title: "Bienvenue sur Resonate",
       subtitle: "Connectez-vous",
@@ -149,6 +155,9 @@ export const translations = {
   en: {
     layout: layout.en,
     home: home.en,
+    social: social.en,
+    userProfile: userProfile.en,
+    library: library.en,
     login: {
       title: "Welcome to Resonate",
       subtitle: "Sign in",

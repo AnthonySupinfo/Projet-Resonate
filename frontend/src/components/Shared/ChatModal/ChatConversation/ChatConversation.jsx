@@ -6,6 +6,7 @@ import FooterChatConv from './FooterChatConv/FooterChatConv.jsx';
 import { chatService } from '../../../../api/chat.service.js';
 import { useChatContext } from "../../../../context/ChatContext.jsx";
 import { getProfile } from '../../../../api/auth.js';
+import { useLanguage } from '../../../../context/LanguageContext.jsx';
 
 export default function ChatConversation({ conversationId, friend, onBack }) {
     const [messages, setMessages] = useState([]);
@@ -13,6 +14,7 @@ export default function ChatConversation({ conversationId, friend, onBack }) {
     const messagesEndRef = useRef(null);
     const { incomingChatEvent } = useChatContext();
     const [myAvatar, setMyAvatar] = useState(null);
+    const { t } = useLanguage();
 
     useEffect(() => {
         const loadMyProfile = async () => {
@@ -112,11 +114,11 @@ export default function ChatConversation({ conversationId, friend, onBack }) {
             <div className="chat-messages-area">
                 {isLoading ? (
                     <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>
-                        Chargement des messages...
+                        {t('social.loadingMessages')}
                     </div>
                 ) : messages.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>
-                        Dites bonjour à {friend?.name || friend?.username} !
+                        {t('social.sayHiTo')} {friend?.name || friend?.username} !
                     </div>
                 ) : (
                     messages.map((msg, index) => (

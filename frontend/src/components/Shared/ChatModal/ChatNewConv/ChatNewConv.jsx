@@ -3,6 +3,7 @@ import './ChatNewConv.css';
 import FriendItem from './FriendItem/FriendItem.jsx';
 import chevronDown from '../../../../../public/icons/chevronDown.png';
 import { chatService } from '../../../../api/chat.service.js';
+import { useLanguage } from '../../../../context/LanguageContext.jsx';
 
 export default function ChatNewConv({ onCancel, onOpenExisting, onSendNew, conversations }) {
     const [friends, setFriends] = useState([]);
@@ -11,6 +12,7 @@ export default function ChatNewConv({ onCancel, onOpenExisting, onSendNew, conve
     const [selectedFriend, setSelectedFriend] = useState(null);
     const [messageContent, setMessageContent] = useState("");
     const [isSending, setIsSending] = useState(false);
+    const { t } = useLanguage();
 
     useEffect(() => {
         const loadFriends = async () => {
@@ -57,24 +59,24 @@ export default function ChatNewConv({ onCancel, onOpenExisting, onSendNew, conve
     return (
         <div className="chat-new-conv-container">
             <div className="new-conv-header">
-                <span className="new-conv-label">À :</span>
+                <span className="new-conv-label">{t('social.toLabel')}</span>
                 <div className="new-conv-selector">
                     <div
                         className="selector-trigger"
                         onClick={() => !isLoading && setIsDropdownOpen(!isDropdownOpen)}
                     >
                         {isLoading ? (
-                            <span className="selector-value placeholder">Chargement...</span>
+                            <span className="selector-value placeholder">{t('social.loading')}</span>
                         ) : selectedFriend ? (
                             <span className="selector-value selected">
                                 {`${selectedFriend.first_name || ''} ${selectedFriend.last_name || ''}`.trim() || selectedFriend.username}
                             </span>
                         ) : (
-                            <span className="selector-value placeholder">Choisir un ami...</span>
+                            <span className="selector-value placeholder">{t('social.chooseFriend')}</span>
                         )}
                         <img
                             src={chevronDown}
-                            alt="Ouvrir"
+                            alt={t('social.openDropdown')}
                             className={`selector-icon ${isDropdownOpen ? 'open' : ''}`}
                         />
                     </div>
@@ -83,7 +85,7 @@ export default function ChatNewConv({ onCancel, onOpenExisting, onSendNew, conve
                         <div className="selector-dropdown">
                             {friends.length === 0 ? (
                                 <div style={{ padding: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                                    Aucun ami mutuel trouvé
+                                    {t('social.noMutualFriends')}
                                 </div>
                             ) : (
                                 friends.map(friend => (
@@ -104,7 +106,7 @@ export default function ChatNewConv({ onCancel, onOpenExisting, onSendNew, conve
                     <div className="new-conv-body">
                         <textarea
                             className="new-conv-input-main"
-                            placeholder="Écris ton premier message ici..."
+                            placeholder={t('social.writeFirstMessage')}
                             value={messageContent}
                             onChange={(e) => setMessageContent(e.target.value)}
                             disabled={isSending}
@@ -114,14 +116,14 @@ export default function ChatNewConv({ onCancel, onOpenExisting, onSendNew, conve
                     <div className="new-conv-footer-compact">
                         <div className="new-conv-actions">
                             <button className="new-conv-btn cancel" onClick={onCancel} disabled={isSending}>
-                                Annuler
+                                {t('social.cancel')}
                             </button>
                             <button
                                 className="new-conv-btn send"
                                 onClick={handleSendClick}
                                 disabled={!selectedFriend || messageContent.trim() === "" || isSending}
                             >
-                                {isSending ? "Envoi..." : "Envoyer"}
+                                {isSending ? t('social.sending') : t('social.submit')}
                             </button>
                         </div>
                     </div>

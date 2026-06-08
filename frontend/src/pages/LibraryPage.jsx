@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { Chart, Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Legend, Tooltip } from 'chart.js';
 import CreatePlaylistModal from '../components/library/modals/CreatePlaylistModal';
+import { useLanguage } from '../context/LanguageContext.jsx';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -17,6 +18,7 @@ export default function LibraryPage() {
     const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const { t } = useLanguage();
 
     const [stats, setStats] = useState({
         albumsSauvegardes: 0,
@@ -24,7 +26,8 @@ export default function LibraryPage() {
         albumEnCours: 0,
         albumPlanned: 0,
         albumDropped: 0,
-        playlistsCrees: 0
+        playlistsCrees: 0,
+        favoriteTracks: 0
     });
 
     const fetchUserData = useCallback(async () => {
@@ -37,21 +40,22 @@ export default function LibraryPage() {
             setUserPlaylists(playlistData.length > 0 ? playlistData : []);
             setUserAlbums(libraryData.length > 0 ? libraryData : []);
 
-            setStats({ 
-                    albumsSauvegardes: libraryData.length,
-                    albumTermines: libraryData.filter (item => item.status === 'COMPLETED').length,
-                    albumEnCours: libraryData.filter (item => item.status === 'LISTENING').length,
-                    albumPlanned: libraryData.filter (item => item.status === 'PLANNED').length,
-                    albumDropped: libraryData.filter (item => item.status === 'DROPPED').length,
-                    playlistsCrees: playlistData.length
-                });
+            setStats({
+                albumsSauvegardes: libraryData.length,
+                albumTermines: libraryData.filter (item => item.status === 'COMPLETED').length,
+                albumEnCours: libraryData.filter (item => item.status === 'LISTENING').length,
+                albumPlanned: libraryData.filter (item => item.status === 'PLANNED').length,
+                albumDropped: libraryData.filter (item => item.status === 'DROPPED').length,
+                playlistsCrees: playlistData.length,
+                favoriteTracks: 0
+            });
         } catch (error) {
-                console.error("Erreur lors de la récupération des données", error);
-                setUserPlaylists([]);
-                setUserAlbums([]); 
-                setStats({ albumsSauvegardes: 0, albumTermines: 0, albumEnCours: 0, albumPlanned: 0, albumDropped: 0, playlistsCrees: 0 });
+            console.error("Erreur lors de la récupération des données", error);
+            setUserPlaylists([]);
+            setUserAlbums([]);
+            setStats({ albumsSauvegardes: 0, albumTermines: 0, albumEnCours: 0, albumPlanned: 0, albumDropped: 0, playlistsCrees: 0, favoriteTracks: 0 });
         } finally {
-                setIsLoading(false);
+            setIsLoading(false);
         }
     }, []);
 
@@ -80,7 +84,12 @@ export default function LibraryPage() {
     const hasAlbum = stats.albumsSauvegardes > 0;
 
     const donutData = {
-        labels: ['Terminés', 'En cours', 'À écouter', 'Abandonnées'],
+        labels: [
+            t('library.statusCompleted'),
+            t('library.statusListening'),
+            t('library.statusPlanned'),
+            t('library.statusDropped')
+        ],
         datasets: [{
             data: [
                 stats.albumTermines,
@@ -113,7 +122,8 @@ export default function LibraryPage() {
                         const total = stats.albumsSauvegardes;
                         const val = ctx.parsed;
                         const pct = total > 0 ? Math.round((val / total) * 100) : 0;
-                        return ` ${val} album${val > 1 ? 's' : ''} (${pct}%)`;
+                        const tooltipText = val > 1 ? t('library.albumTooltipPlural') : t('library.albumTooltipSingular');
+                        return ` ${val} ${tooltipText} (${pct}%)`;
                     }
                 }
             }
@@ -127,44 +137,44 @@ export default function LibraryPage() {
             <div className="topbar-placeholder"></div>
 
             <div className="stats-container">
-                <h3 className="stats-title">Statistiques de ma collection</h3>
+                <h3 className="stats-title">{t('library.statsTitle')}</h3>
 
                 <div className="stats-dashboard-layout">
-                     <div className="stats-grid">
+                    <div className="stats-grid">
                         <div className="stat-item">
                             <span className="stat-number">{stats.albumsSauvegardes}</span>
-                            <span className="stat-label">albums sauvegardés</span>
+                            <span className="stat-label">{t('library.savedAlbums')}</span>
                         </div>
                         <div className="stat-item">
                             <span className="stat-number">{stats.albumTermines}</span>
-                            <span className="stat-label">albums terminés</span>
+                            <span className="stat-label">{t('library.completedAlbums')}</span>
                         </div>
                         <div className="stat-item">
                             <span className="stat-number">{stats.albumEnCours}</span>
-                            <span className="stat-label">En cours d'écoute</span>
+                            <span className="stat-label">{t('library.listeningAlbums')}</span>
                         </div>
                         <div className="stat-item">
                             <span className="stat-number">{stats.playlistsCrees}</span>
-                            <span className="stat-label">playlists créées</span>
+                            <span className="stat-label">{t('library.createdPlaylists')}</span>
                         </div>
                     </div>
 
                     {hasAlbum ? (
                         <div className="stats-donut-wrapper">
-                            <h4 className="stats-breakdown-title">Répartition par statut</h4>
+                            <h4 className="stats-breakdown-title">{t('library.statusBreakdown')}</h4>
                             <div className="stats-donut-chart">
                                 <Doughnut data={donutData} options={donutOptions} />
                             </div>
                         </div>
                     ) : (
                         <div className='stats-donut-wrapper'>
-                            <p className="stats-empty">Ajoutez des albums à votre bibliothèque pour voir vos statistiques.</p>
+                            <p className="stats-empty">{t('library.emptyStats')}</p>
                         </div>
                     )}
                 </div>
             </div>
 
-            <Carousel title="Ajouté récemment">
+            <Carousel title={t('library.recentlyAdded')}>
                 {userAlbums.slice(0, 10).map(album => (
                     <AlbumCard key={`recent-a-${album.id}`} album={album.album || album} />
                 ))}
@@ -173,14 +183,14 @@ export default function LibraryPage() {
                 ))}
             </Carousel>
 
-            <Carousel title="Albums préférés" onSeeAll={() => navigate('/library/albums')}>
+            <Carousel title={t('library.favoriteAlbums')} onSeeAll={() => navigate('/library/albums')}>
                 {userAlbums.map(item => {
                     const albumData = item.album || item;
                     return <AlbumCard key={`album-${albumData.id}`} album={albumData} />
                 })}
             </Carousel>
 
-            <Carousel title="Playlist préférées" onSeeAll={() => navigate('/library/playlists')}>
+            <Carousel title={t('library.favoritePlaylists')} onSeeAll={() => navigate('/library/playlists')}>
                 {userPlaylists
                     .filter(item => item.playlist ? item.playlist.is_favorite : item.is_favorite)
                     .map(item => {
@@ -190,23 +200,23 @@ export default function LibraryPage() {
                 }
             </Carousel>
 
-            <Carousel title="Playlist personnalisées" onSeeAll={() => navigate('/library/playlists')}>
+            <Carousel title={t('library.customPlaylists')} onSeeAll={() => navigate('/library/playlists')}>
                 <div className="static-card create-card carousel-static" onClick={() => setIsModalOpen(true)}>
                     <div className="static-cover create-cover">
                         <span className="plus-icon">+</span>
                     </div>
-                    <h4 className="static-title">Créer une nouvelle playlist</h4>
+                    <h4 className="static-title">{t('library.createNewPlaylist')}</h4>
                 </div>
 
                 <div className="static-card favorite-card carousel-static">
                     <div className="static-cover favorites-cover">
                         <span className="heart-icon">♥</span>
                     </div>
-                    <h4 className="static-title">Musique favorites</h4>
-                    <p className="static-meta">{stats.favoriteTracks} musiques</p>
+                    <h4 className="static-title">{t('library.favoriteTracks')}</h4>
+                    <p className="static-meta">{stats.favoriteTracks} {t('library.tracksCount')}</p>
                 </div>
 
-                {userPlaylists.map(playlist => ( 
+                {userPlaylists.map(playlist => (
                     <PlaylistCard key={`custom-${playlist.id}`} playlist={playlist} onPlaylistUpdated={handlePlaylistStatusChange}/>
                 ))}
             </Carousel>

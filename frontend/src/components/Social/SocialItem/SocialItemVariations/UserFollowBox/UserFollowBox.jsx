@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from "../../../../../context/AuthContext.jsx";
+import { useLanguage } from "../../../../../context/LanguageContext.jsx";
 import { feedService } from '../../../../../api/feed.service';
 import './UserFollowBox.css';
 import followUser from '../../../../../../public/icons/notifsbar/follow.png';
@@ -8,6 +9,7 @@ import followUser from '../../../../../../public/icons/notifsbar/follow.png';
 export default function UserFollowBox({ activity }) {
     const { target } = activity;
     const { user } = useAuth();
+    const { t } = useLanguage();
 
     const rawAvatar = target?.avatarUrl;
     const isImageUrl = rawAvatar && (rawAvatar.startsWith('http') || rawAvatar.startsWith('/') || rawAvatar.startsWith('data:image'));
@@ -42,7 +44,7 @@ export default function UserFollowBox({ activity }) {
                 {isImageUrl ? (
                     <img
                         src={rawAvatar}
-                        alt={target?.name || "Avatar"}
+                        alt={target?.name || t('social.userAvatar')}
                         className="social-user-avatar-image"
                         onError={(e) => (e.target.style.display = "none")}
                     />
@@ -75,9 +77,9 @@ export default function UserFollowBox({ activity }) {
                     {isLoading ? (
                         <span style={{ fontSize: '0.85rem' }}>...</span>
                     ) : isFollowing ? (
-                        <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>Suivi</span>
+                        <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>{t('social.followedStatus')}</span>
                     ) : (
-                        <img src={followUser} alt="Suivre" className="action-icon" />
+                        <img src={followUser} alt={t('social.followIcon')} className="action-icon" />
                     )}
                 </button>
             )}

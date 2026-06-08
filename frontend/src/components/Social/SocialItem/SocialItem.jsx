@@ -6,6 +6,7 @@ import NewCommItem from "./NewCommItem/NewCommItem.jsx";
 import TrackBox from "./SocialItemVariations/TrackBox/TrackBox.jsx";
 import UserFollowBox from "./SocialItemVariations/UserFollowBox/UserFollowBox.jsx";
 import PlaylistBox from "./SocialItemVariations/PlaylistBox/PlaylistBox.jsx";
+import { useLanguage } from "../../../context/LanguageContext.jsx";
 import { Link } from 'react-router-dom';
 
 const CONTENT_COMPONENTS = {
@@ -19,6 +20,7 @@ const CONTENT_COMPONENTS = {
 export default function SocialItem({ activity, hideComments = false }) {
     const [showComments, setShowComments] = useState(false);
     const [isReplying, setIsReplying] = useState(false);
+    const { t } = useLanguage();
 
     if (!activity) return null;
 
@@ -53,17 +55,17 @@ export default function SocialItem({ activity, hideComments = false }) {
 
         switch (activity.type) {
             case 'FOLLOW_USER':
-                return <>{userLink} a commencé à suivre <strong>{activity.target.name}</strong></>;
+                return <>{userLink} {t('social.startedFollowing')} <strong>{activity.target.name}</strong></>;
             case 'LIKE_TRACK':
-                return <>{userLink} aime <strong>{activity.target.name}</strong> de <strong>{activity.target.artist}</strong></>;
+                return <>{userLink} {t('social.likes')} <strong>{activity.target.name}</strong> {t('social.by')} <strong>{activity.target.artist}</strong></>;
             case 'ADD_TRACK_PLAYLIST':
-                return <>{userLink} a ajouté <strong>{activity.target.name}</strong> à sa playlist <strong>{activity.target.playlistName}</strong></>;
+                return <>{userLink} {t('social.added')} <strong>{activity.target.name}</strong> {t('social.toPlaylist')} <strong>{activity.target.playlistName}</strong></>;
             case 'CREATE_PLAYLIST':
-                return <>{userLink} a créé la playlist {playlistLink(activity.target.name, activity.target.id)}</>;
+                return <>{userLink} {t('social.createdPlaylist')} {playlistLink(activity.target.name, activity.target.id)}</>;
             case 'FOLLOW_PLAYLIST':
-                return <>{userLink} suit la playlist {playlistLink(activity.target.name, activity.target.id)}</>;
+                return <>{userLink} {t('social.followsPlaylist')} {playlistLink(activity.target.name, activity.target.id)}</>;
             default:
-                return <>{userLink} a interagi avec <strong>{activity.target.name}</strong></>;
+                return <>{userLink} {t('social.interactedWith')} <strong>{activity.target.name}</strong></>;
         }
     };
 
@@ -102,7 +104,7 @@ export default function SocialItem({ activity, hideComments = false }) {
                                 className="social-item-action-link"
                                 onClick={toggleComments}
                             >
-                                {showComments ? "Cacher les commentaires" : "Voir les commentaires"}
+                                {showComments ? t('social.hideComments') : t('social.viewComments')}
                             </button>
                             {!showComments && (
                                 <>
@@ -111,7 +113,7 @@ export default function SocialItem({ activity, hideComments = false }) {
                                         className="social-item-action-link"
                                         onClick={handleReplyClick}
                                     >
-                                        Répondre
+                                        {t('social.reply')}
                                     </button>
                                 </>
                             )}
@@ -133,7 +135,7 @@ export default function SocialItem({ activity, hideComments = false }) {
                                             className="comment-avatar"
                                         />
                                         <div className="comment-trigger-input">
-                                            Ajouter un commentaire...
+                                            {t('social.addComment')}
                                         </div>
                                     </div>
                                 )}

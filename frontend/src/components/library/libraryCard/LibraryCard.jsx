@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getMyPlaylist, getMyLibrary } from '../../../api/api';
 import CreatePlaylistModal from '../modals/CreatePlaylistModal';
+import { useLanguage } from '../../../context/LanguageContext.jsx';
 import './LibraryCard.css';
 
 export default function LibraryCard() {
@@ -10,6 +11,7 @@ export default function LibraryCard() {
     const [albums, setAlbums] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
+    const { t } = useLanguage();
 
     useEffect(() => {
         const load = async () => {
@@ -31,23 +33,22 @@ export default function LibraryCard() {
         window.dispatchEvent(new Event("playlistUpdated"));
     };
 
-
     return (
         <div className="library-card-container">
-            <h3 className="library-title" onClick={() => navigate('/library')} style={{ cursor: 'pointer' }}>Librarie</h3>
+            <h3 className="library-title" onClick={() => navigate('/library')} style={{ cursor: 'pointer' }}>{t('library.libraryTitle')}</h3>
 
             <div className="library-tabs">
                 <button
                     className={`tab ${activeTab === 'playlists' ? 'active' : ''}`}
                     onClick={() => setActiveTab('playlists')}
                 >
-                    Playlists
+                    {t('library.tabPlaylists')}
                 </button>
                 <button
                     className={`tab ${activeTab === 'albums' ? 'active' : ''}`}
                     onClick={() => setActiveTab('albums')}
                 >
-                    Albums
+                    {t('library.tabAlbums')}
                 </button>
             </div>
 
@@ -56,20 +57,20 @@ export default function LibraryCard() {
                     <li className='library-item'>
                         <div className="library-icon favorite">♥</div>
                         <div className="library-info">
-                            <span className="library-name">Musique favorites</span>
-                            <span className="library-meta">   Playlist</span>
+                            <span className="library-name">{t('library.favoriteTracks')}</span>
+                            <span className="library-meta">   {t('library.playlistMeta')}</span>
                         </div>
                     </li>
                     {playlists.map(playlist => (
-                    <li key={playlist.id} className="library-item" onClick={() => navigate (`/library/playlists/${playlist.id}`)}>
-                        <div className="library-icon cover-placeholder">
-                            <img src={playlist.cover_url || `https://placehold.co/40x40/1a1a1a/ffffff?text=${playlist.name[0]}`} alt={playlist.name}/>
-                        </div>
-                        <div className="library-info">
-                            <span className="library-name">{playlist.name}</span>
-                            <span className="library-meta">   Playlist • {playlist.is_public ? 'Publique'  : 'Privée'}</span>
-                        </div>
-                    </li>
+                        <li key={playlist.id} className="library-item" onClick={() => navigate (`/library/playlists/${playlist.id}`)}>
+                            <div className="library-icon cover-placeholder">
+                                <img src={playlist.cover_url || `https://placehold.co/40x40/1a1a1a/ffffff?text=${playlist.name[0]}`} alt={playlist.name}/>
+                            </div>
+                            <div className="library-info">
+                                <span className="library-name">{playlist.name}</span>
+                                <span className="library-meta">   {t('library.playlistMeta')} • {playlist.is_public ? t('library.publicStatus') : t('library.privateStatus')}</span>
+                            </div>
+                        </li>
                     ))}
                 </ul>
             )}
@@ -79,7 +80,7 @@ export default function LibraryCard() {
                     {albums.length === 0 ? (
                         <li className='library-item'>
                             <div className="library-info">
-                                <span className="library-name">Aucun album sauvegardé</span>
+                                <span className="library-name">{t('library.noSavedAlbums')}</span>
                             </div>
                         </li>
                     ) : albums.map(item => {
@@ -97,10 +98,10 @@ export default function LibraryCard() {
                         );
                     })}
                 </ul>
-             )}
+            )}
 
             <button className="create-btn" onClick={() => setIsModalOpen(true)}>
-                <span className="create-icon">+</span>Créer une playlist
+                <span className="create-icon">+</span>{t('library.createPlaylistBtn')}
             </button>
 
             <CreatePlaylistModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onPlaylistCreated={handlePlaylistCreated} />

@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { feedService } from '../../../../api/feed.service.js';
+import { useLanguage } from '../../../../context/LanguageContext.jsx';
 import './FollowUsersListModal.css';
 
 export default function FollowUsersListModal({ isOpen, onClose, type, userId }) {
     const [users, setUsers] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const { t } = useLanguage();
 
-    const title = type === 'followers' ? 'Abonnés' : 'Abonnements';
+    // Utilisation des traductions pour le titre
+    const title = type === 'followers' ? t('userProfile.followersListTitle') : t('userProfile.followingListTitle');
 
     useEffect(() => {
         if (!isOpen || !userId) return;
@@ -38,14 +41,20 @@ export default function FollowUsersListModal({ isOpen, onClose, type, userId }) 
             <div className="follow-modal-content" onClick={e => e.stopPropagation()}>
                 <div className="follow-modal-header">
                     <h2>{title}</h2>
-                    <button className="close-modal-btn" onClick={onClose}>✕</button>
+                    <button
+                        className="close-modal-btn"
+                        onClick={onClose}
+                        title={t('userProfile.closeModal')}
+                    >
+                        ✕
+                    </button>
                 </div>
 
                 <div className="follow-modal-body">
                     {isLoading ? (
-                        <p className="follow-modal-empty">Chargement...</p>
+                        <p className="follow-modal-empty">{t('userProfile.loadingUsers')}</p>
                     ) : users.length === 0 ? (
-                        <p className="follow-modal-empty">Aucun utilisateur trouvé.</p>
+                        <p className="follow-modal-empty">{t('userProfile.noUsersFound')}</p>
                     ) : (
                         <ul className="follow-modal-list">
                             {users.map(user => {
@@ -59,7 +68,7 @@ export default function FollowUsersListModal({ isOpen, onClose, type, userId }) 
                                                 {isImageUrl ? (
                                                     <img
                                                         src={rawAvatar}
-                                                        alt={user.username}
+                                                        alt={`${t('userProfile.avatarOf')} ${user.username}`}
                                                         onError={(e) => (e.target.style.display = "none")}
                                                     />
                                                 ) : rawAvatar ? (

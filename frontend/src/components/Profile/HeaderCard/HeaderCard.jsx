@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useAuth } from "../../../context/AuthContext.jsx";
+import { useLanguage } from "../../../context/LanguageContext.jsx";
 import { getProfile, getUserProfile } from "../../../api/auth.js";
 import { feedService } from "../../../api/feed.service.js";
 import modifyIcon from '../../../../public/icons/modify.png';
@@ -11,6 +12,7 @@ import './HeaderCard.css';
 export default function HeaderCard() {
     const { id } = useParams();
     const { user } = useAuth();
+    const { t, language } = useLanguage();
     const [profile, setProfile] = useState(null);
 
     const [isFollowing, setIsFollowing] = useState(false);
@@ -44,19 +46,19 @@ export default function HeaderCard() {
     }, [token, id, isMyProfile]);
 
     if (!currentUser) {
-        return <div className="header-card-container loading">Chargement du profil...</div>;
+        return <div className="header-card-container loading">{t('userProfile.loadingProfile')}</div>;
     }
 
     const myAvatar = currentUser.avatar_url;
     const isImageUrl = typeof myAvatar === 'string' && (myAvatar.startsWith('http') || myAvatar.startsWith('/') || myAvatar.startsWith('data:image'));
-    const fullName = `${currentUser.first_name || ''} ${currentUser.last_name || ''}`.trim() || currentUser.username || "Utilisateur";
+    const fullName = `${currentUser.first_name || ''} ${currentUser.last_name || ''}`.trim() || currentUser.username || t('userProfile.defaultUser');
 
     const getJoinedDate = (dateStr) => {
         if (!dateStr) return "22/02/2026";
         try {
             const d = new Date(dateStr);
             if (isNaN(d.getTime())) return "22/02/2026";
-            return d.toLocaleDateString('fr-FR');
+            return d.toLocaleDateString(language === 'en' ? 'en-US' : 'fr-FR');
         } catch {
             return "22/02/2026";
         }
@@ -101,7 +103,7 @@ export default function HeaderCard() {
                             {isImageUrl ? (
                                 <img
                                     src={myAvatar}
-                                    alt={`Avatar de ${fullName}`}
+                                    alt={`${t('userProfile.avatarOf')} ${fullName}`}
                                     className="header-avatar-image"
                                     onError={e => e.target.style.display = "none"}
                                 />
@@ -121,18 +123,18 @@ export default function HeaderCard() {
                                     className="header-stat clickable"
                                     onClick={() => setModalConfig({ isOpen: true, type: 'followers' })}
                                 >
-                                        {currentUser.followers_count || 0} followers
+                                        {currentUser.followers_count || 0} {t('userProfile.followers')}
                                     </span>
                                 <span className="header-stat-separator">•</span>
                                 <span
                                     className="header-stat clickable"
                                     onClick={() => setModalConfig({ isOpen: true, type: 'following' })}
                                 >
-                                        {currentUser.following_count || 0} following
+                                        {currentUser.following_count || 0} {t('userProfile.following')}
                                     </span>
                             </div>
 
-                            <span className="header-joined-date">Inscrit depuis le {joinedDate}</span>
+                            <span className="header-joined-date">{t('userProfile.joinedSince')} {joinedDate}</span>
                         </div>
                     </div>
 
@@ -140,10 +142,10 @@ export default function HeaderCard() {
                         <Link to="/settings" className="header-action-btn">
                             <img
                                 src={modifyIcon}
-                                alt="Modifier le profil"
+                                alt={t('userProfile.altModify')}
                                 className="action-icon-img"
                             />
-                            Modifier
+                            {t('userProfile.modifyBtn')}
                         </Link>
                     ) : (
                         <div className="header-actions-group">
@@ -153,10 +155,10 @@ export default function HeaderCard() {
                                 disabled={isFollowLoading}
                                 style={{ opacity: isFollowLoading ? 0.7 : 1, cursor: isFollowLoading ? 'wait' : 'pointer' }}
                             >
-                                {isFollowLoading ? "..." : isFollowing ? "Suivi" : "Suivre"}
+                                {isFollowLoading ? "..." : isFollowing ? t('userProfile.followed') : t('userProfile.follow')}
                             </button>
                             <button className="header-icon-btn">
-                                <img src={reportIcon} alt="Signaler" className="action-icon-img" />
+                                <img src={reportIcon} alt={t('userProfile.altReport')} className="action-icon-img" />
                             </button>
                         </div>
                     )}
@@ -164,20 +166,20 @@ export default function HeaderCard() {
 
                 <div className="header-bottom-section">
                     <div className="info-row">
-                        <span className="info-label">A propos :</span>
+                        <span className="info-label">{t('userProfile.aboutLabel')}</span>
                         <p className="info-value">
-                            {currentUser.bio || "Je suis un super utilisateur de Resonate, qui n'a pas encore de bio..."}
+                            {currentUser.bio || t('userProfile.defaultBio')}
                         </p>
                     </div>
 
                     <div className="info-row">
-                        <span className="info-label">Site web :</span>
+                        <span className="info-label">{t('userProfile.websiteLabel')}</span>
                         {websiteUrl ? (
                             <a href={websiteUrl} target="_blank" rel="noopener noreferrer" className="info-value link">
                                 {currentUser.website.replace(/^https?:\/\//, '')}
                             </a>
                         ) : (
-                            <span className="info-value empty">Non renseigné</span>
+                            <span className="info-value empty">{t('userProfile.notProvided')}</span>
                         )}
                     </div>
                 </div>

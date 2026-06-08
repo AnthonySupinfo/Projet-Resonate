@@ -1,6 +1,9 @@
 import './ChatConvItem.css';
+import { useLanguage } from '../../../../../context/LanguageContext.jsx';
 
 export default function ChatConvItem({ conversation, onSelect }) {
+    const { t, language } = useLanguage();
+
     const isUnread = conversation.last_message_is_read === false && conversation.last_message_sender_id === conversation.other_user_id;
     const rawAvatar = conversation.other_user_avatar;
     const displayName = conversation.other_user_username;
@@ -12,7 +15,7 @@ export default function ChatConvItem({ conversation, onSelect }) {
         try {
             const date = new Date(dateString);
             if (isNaN(date.getTime())) return "";
-            return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            return date.toLocaleTimeString(language === 'en' ? 'en-US' : 'fr-FR', { hour: '2-digit', minute: '2-digit' });
         } catch {
             return "";
         }
@@ -45,8 +48,8 @@ export default function ChatConvItem({ conversation, onSelect }) {
 
                 <div className="chat-conv-message-row">
                     <span className={`chat-conv-last-msg ${isUnread ? 'unread' : ''}`}>
-                        {conversation.last_message_sender_id !== conversation.other_user_id && conversation.last_message_content ? "Vous : " : ""}
-                        {conversation.last_message_content || "Nouvelle conversation"}
+                        {conversation.last_message_sender_id !== conversation.other_user_id && conversation.last_message_content ? t('social.youPrefix') : ""}
+                        {conversation.last_message_content || t('social.newConversation')}
                     </span>
                     {isUnread && <span className="chat-conv-unread-dot"></span>}
                 </div>
