@@ -2,16 +2,18 @@ import "./PlaylistCard.css";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { updatePlaylist } from "../../../api/api";
+import { useLanguage } from "../../../context/LanguageContext.jsx";
 
 export default function PlaylistCard({ playlist, onPlaylistUpdated }) {
     const navigate = useNavigate();
     const [isFavorite, setIsFavorite] = useState(playlist?.is_favorite || false);
     const [isLiking, setIsLiking] = useState(false);
+    const { t } = useLanguage();
 
     if (!playlist) return null;
 
     const coverUrl = playlist.cover_url || playlist.coverUrl || `https://placehold.co/400x400/2a2a2c/ffffff?text=${encodeURIComponent(playlist.name)}`;
-    const metaText = playlist.trackCount ? `${playlist.trackCount} musiques` : 'Playlist personnalisée';
+    const metaText = playlist.trackCount ? `${playlist.trackCount} ${t('library.tracksCount')}` : t('library.customPlaylistMeta');
 
     const handleFavoriteCLick = async (e) => {
         e.stopPropagation(); // empeche d'afficher page détail playlist
@@ -28,7 +30,7 @@ export default function PlaylistCard({ playlist, onPlaylistUpdated }) {
             }
             window.dispatchEvent(new Event("favoriteChanged")); // prévient toutes l'application que favori a changé
         } catch (error) {
-            console.error("Erreur lors du toggle favori", error);
+            console.error(error);
             setIsFavorite(!nextStatus); // annulation en cas échec
         } finally {
             setIsLiking(false);
@@ -52,7 +54,7 @@ export default function PlaylistCard({ playlist, onPlaylistUpdated }) {
 
                 {playlist.id && (
                     <span className={`playlist-badge ${playlist.is_public ? 'public' : 'private'}`}>
-                        {playlist.is_public ? 'Public' : 'Privé'}
+                        {playlist.is_public ? t('library.badgePublic') : t('library.badgePrivate')}
                     </span>
                 )}
             </div>

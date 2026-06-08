@@ -1,7 +1,9 @@
 import './ChatConvList.css';
 import ChatConvItem from './ChatConvItem/ChatConvItem.jsx';
+import { useLanguage } from '../../../../context/LanguageContext.jsx';
 
 export default function ChatConvList({ conversations, onSelectConversation }) {
+    const { t } = useLanguage();
 
     const handleSelect = (conv) => {
         const friendData = {
@@ -16,8 +18,8 @@ export default function ChatConvList({ conversations, onSelectConversation }) {
     if (!conversations || conversations.length === 0) {
         return (
             <div className="chat-conv-list-empty">
-                <p>Aucune conversation pour le moment.</p>
-                <span>Clique sur l'icône de message pour démarrer une discussion !</span>
+                <p>{t('social.noConversations')}</p>
+                <span>{t('social.clickToStartConv')}</span>
             </div>
         );
     }

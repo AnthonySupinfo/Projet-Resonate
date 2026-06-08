@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import './SocialCard.css';
 import SocialItem from '../../Social/SocialItem/SocialItem.jsx';
 import { feedService } from "../../../api/feed.service.js";
+import { useLanguage } from "../../../context/LanguageContext.jsx";
 import {Link} from "react-router-dom";
 
 export default function SocialCard() {
     const [feedData, setFeedData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const { t } = useLanguage();
 
     useEffect(() => {
         const fetchFeed = async () => {
@@ -32,9 +34,9 @@ export default function SocialCard() {
 
             <div className="social-card-scroll-area">
                 {isLoading ? (
-                    <p className="social-card-empty">Chargement des activités...</p>
+                    <p className="social-card-empty">{t('social.loading')}</p>
                 ) : feedData.length === 0 ? (
-                    <p className="social-card-empty">Aucune activité récente.</p>
+                    <p className="social-card-empty">{t('social.noActivity')}</p>
                 ) : (
                     feedData.map((activity) => (
                         <SocialItem key={activity.id}

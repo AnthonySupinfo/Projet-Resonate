@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import './FooterChatConv.css';
+import { useLanguage } from '../../../../../context/LanguageContext.jsx';
 
 export default function FooterChatConv({ onSend }) {
     const [text, setText] = useState("");
+    const { t } = useLanguage();
 
     const handleSend = () => {
         if (text.trim()) {
@@ -23,7 +25,7 @@ export default function FooterChatConv({ onSend }) {
             <div className="footer-input-wrapper">
                 <textarea
                     className="footer-textarea"
-                    placeholder="Votre message..."
+                    placeholder={t('social.yourMessagePlaceholder')}
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                     onKeyDown={handleKeyDown}
@@ -34,7 +36,7 @@ export default function FooterChatConv({ onSend }) {
                     <button
                         className="footer-clear-btn"
                         onClick={() => setText("")}
-                        title="Effacer"
+                        title={t('social.clearTooltip')}
                     >
                         ✕
                     </button>
@@ -46,7 +48,7 @@ export default function FooterChatConv({ onSend }) {
                 onClick={handleSend}
                 disabled={!text.trim()}
             >
-                Envoyer
+                {t('social.submit')}
             </button>
         </div>
     );

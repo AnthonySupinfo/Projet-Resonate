@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Carousel from '../../components/library/carousel/Carousel'
 import PlaylistCard from '../../components/library/playlistCard/PlaylistCard';
 import AlbumCard from '../../components/library/albumCard/AlbumCard';
+import { useLanguage } from '../../context/LanguageContext.jsx';
 import { getMyLibrary, getMyPlaylist, getUserLibrary, getUserPlaylists } from '../../api/api';
 import { useAuth } from '../../context/AuthContext.jsx';
 
@@ -13,7 +14,6 @@ import StatsCard from "../../components/Profile/StatsCard/StatsCard.jsx";
 export default function Profile() {
     const { id } = useParams();
     const { user } = useAuth();
-    const navigate = useNavigate();
 
     const isMyProfile = !id || (user && id === String(user.user_id || user.id));
 
@@ -22,6 +22,8 @@ export default function Profile() {
     const [customPlaylists, setCustomPlaylists] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
+    const navigate = useNavigate();
+    const { t } = useLanguage();
 
     const fetchProfileContent = useCallback(async () => {
         try {
@@ -45,7 +47,7 @@ export default function Profile() {
 
             setRecentAlbums(sortedAlbum.slice(0, 10));
 
-            setFavoritePlaylists(playlistRes.filter(item => 
+            setFavoritePlaylists(playlistRes.filter(item =>
                 item.playlist ? item.playlist.is_favorite : item.is_favorite
             ));
 
@@ -70,7 +72,7 @@ export default function Profile() {
                 window.removeEventListener("playlistUpdated", fetchProfileContent);
                 window.removeEventListener("favoriteChanged", fetchProfileContent);
                 window.removeEventListener("libraryUpdated", fetchProfileContent);
-            }; 
+            };
         }
 
     }, [fetchProfileContent, isMyProfile]);
@@ -87,7 +89,7 @@ export default function Profile() {
             <StatsCard />
 
             {!isLoading && recentAlbums.length > 0 && (
-                <Carousel title="Albums récents">
+                <Carousel title={t('userProfile.recentAlbums')}>
                     {recentAlbums.map(item => {
                         const albumData = item.album || item;
                         return <AlbumCard key={`prof-a-${albumData.id}`} album={albumData} />;
@@ -96,7 +98,7 @@ export default function Profile() {
             )}
 
             {!isLoading && favoritePlaylists.length > 0 && (
-                <Carousel title="Playlists préférées">
+                <Carousel title={t('userProfile.favoritePlaylists')}>
                     {favoritePlaylists.map(item => {
                         const playlistData = item.playlist || item;
                         return <PlaylistCard key={`prof-fav-p-${playlistData.id}`} playlist={playlistData} onPlaylistUpdated={handlePlaylistStatusChange} />
@@ -105,7 +107,7 @@ export default function Profile() {
             )}
 
             {!isLoading && customPlaylists.length > 0 && (
-                <Carousel title={isMyProfile ? "Playlists personnalisées" : "Playlists publiques"} onSeeAll={() => isMyProfile ? navigate('/library/playlists') : null}>
+                <Carousel title={isMyProfile ? t('userProfile.customPlaylists') : t('userProfile.customPublicPlaylists')} onSeeAll={() => isMyProfile ? navigate('/library/playlists') : null}>
                     {customPlaylists.map(item => {
                         const playlistData = item.playlist || item;
                         return <PlaylistCard key={`prof-custom-p-${playlistData.id}`} playlist={playlistData} onPlaylistUpdated={handlePlaylistStatusChange}/>

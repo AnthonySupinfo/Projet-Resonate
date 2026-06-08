@@ -29,7 +29,14 @@
         altDefault: "Notification",
         altAvatar: "Avatar",
         altCover: "Couverture",
-        altMenu: "Menu"
+        altMenu: "Menu",
+
+        statFollowers: "Followers",
+        statPlaylists: "Playlists",
+        statMinutes: "Minutes",
+        statListening: "d'écoute",
+        loadingProfile: "Chargement...",
+        altAvatarOf: "Avatar de"
     },
     en: {
         navHome: "Home",
@@ -61,6 +68,13 @@
         altDefault: "Notification",
         altAvatar: "Avatar",
         altCover: "Cover",
-        altMenu: "Menu"
+        altMenu: "Menu",
+
+        statFollowers: "Followers",
+        statPlaylists: "Playlists",
+        statMinutes: "Minutes",
+        statListening: "listened",
+        loadingProfile: "Loading...",
+        altAvatarOf: "Avatar of"
     }
 };

@@ -1,14 +1,17 @@
+import { useLanguage } from "../../../../context/LanguageContext.jsx";
 import './CommentItem.css';
 import likeNotLiked from '../../../../../public/icons/likeNotLiked.png';
 
 export default function CommentItem({ isLast }) {
+    const { t } = useLanguage();
+
     return (
         <div className="comment-item-container">
             <div className={`comment-tree-line ${isLast ? 'last' : ''}`}></div>
 
             <img
                 src="https://placehold.co/32x32/555/FFF?text=J"
-                alt="Avatar"
+                alt={t('social.userAvatar')}
                 className="comment-avatar"
             />
 
@@ -23,7 +26,7 @@ export default function CommentItem({ isLast }) {
 
             <div className="comment-actions">
                 <button className="comment-action-btn">
-                    <img src={likeNotLiked} alt="Like" className="comment-icon" />
+                    <img src={likeNotLiked} alt={t('social.likeIcon')} className="comment-icon" />
                     <span className="comment-like-count">2</span>
                 </button>
                 <button className="comment-action-btn menu-btn">

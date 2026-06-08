@@ -2,10 +2,12 @@
 import './UserCard.css';
 import { Link } from 'react-router-dom';
 import { useAuth } from "../../../context/AuthContext.jsx";
+import { useLanguage } from "../../../context/LanguageContext.jsx";
 import { getProfile, getUserStats } from "../../../api/auth.js";
 
 export default function UserCard() {
     const { user } = useAuth();
+    const { t } = useLanguage();
     const [fetchedUser, setFetchedUser] = useState(null);
     const [stats, setStats] = useState({ followers_count: 0, playlists_count: 0, reviews_count: 0 });
 
@@ -46,7 +48,7 @@ export default function UserCard() {
     const myAvatar = currentUser?.avatar_url;
     const isImageUrl = myAvatar && (myAvatar.startsWith('http') || myAvatar.startsWith('/') || myAvatar.startsWith('data:image'));
 
-    const fullName = currentUser ? `${currentUser.first_name || ''} ${currentUser.last_name || ''}`.trim() : 'Chargement...';
+    const fullName = currentUser ? `${currentUser.first_name || ''} ${currentUser.last_name || ''}`.trim() : t('layout.loadingProfile');
 
     return (
         <div className="user-card">
@@ -55,7 +57,7 @@ export default function UserCard() {
                     {isImageUrl ? (
                         <img
                             src={myAvatar}
-                            alt={`Avatar de ${fullName}`}
+                            alt={`${t('layout.altAvatarOf')} ${fullName}`}
                             className="avatar-image"
                             onError={e => e.target.style.display = "none"}
                         />
@@ -77,21 +79,21 @@ export default function UserCard() {
             <div className="user-stats">
                 <div className="stat-item">
                     <span className="stat-number">{stats.followers_count || 0}</span>
-                    <span className="stat-label">Followers</span>
+                    <span className="stat-label">{t('layout.statFollowers')}</span>
                 </div>
 
                 <div className="stat-divider"></div>
 
                 <div className="stat-item">
                     <span className="stat-number">{stats.playlists_count || 0}</span>
-                    <span className="stat-label">Playlists</span>
+                    <span className="stat-label">{t('layout.statPlaylists')}</span>
                 </div>
 
                 <div className="stat-divider"></div>
 
                 <div className="stat-item">
                     <span className="stat-number">{stats.listening_minutes || 0}</span>
-                    <span className="stat-label">Minutes<br/>d'écoute</span>
+                    <span className="stat-label">{t('layout.statMinutes')}<br/>{t('layout.statListening')}</span>
                 </div>
             </div>
         </div>

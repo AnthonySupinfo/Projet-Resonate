@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from "../../../../../context/AuthContext.jsx";
+import { useLanguage } from "../../../../../context/LanguageContext.jsx";
 import { feedService } from '../../../../../api/feed.service.js';
 import './PlaylistBox.css';
 import add from '../../../../../../public/icons/add.png';
@@ -8,6 +9,7 @@ import add from '../../../../../../public/icons/add.png';
 export default function PlaylistBox({ activity }) {
     const { user: activityUser, target } = activity;
     const { user: currentUser } = useAuth();
+    const { t } = useLanguage();
 
     const [isFollowing, setIsFollowing] = useState(target?.isFollowedByMe || false);
     const [isLoading, setIsLoading] = useState(false);
@@ -38,7 +40,7 @@ export default function PlaylistBox({ activity }) {
             <Link to={`/library/playlists/${target.id}`}>
                 <img
                     src={target.coverUrl || "https://placehold.co/64x64/222/FFF?text=P"}
-                    alt="Pochette playlist"
+                    alt={t('social.playlistCover')}
                     className="social-playlist-cover"
                 />
             </Link>
@@ -50,9 +52,9 @@ export default function PlaylistBox({ activity }) {
                     </Link>
                 </h4>
                 <p className="social-playlist-meta">
-                    par <Link to={`/user/${activityUser.id}`} className="social-playlist-user-link">
+                    {t('social.byAuthor')} <Link to={`/user/${activityUser.id}`} className="social-playlist-user-link">
                     {activityUser.name}
-                </Link> • {target.trackCount} titres
+                </Link> • {target.trackCount} {t('social.tracks')}
                 </p>
             </div>
 
@@ -69,9 +71,9 @@ export default function PlaylistBox({ activity }) {
                     {isLoading ? (
                         <span style={{ fontSize: '0.85rem' }}>...</span>
                     ) : isFollowing ? (
-                        <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>Ajouté</span>
+                        <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>{t('social.addedStatus')}</span>
                     ) : (
-                        <img src={add} alt="Ajouter" className="action-icon" />
+                        <img src={add} alt={t('social.addIcon')} className="action-icon" />
                     )}
                 </button>
             )}

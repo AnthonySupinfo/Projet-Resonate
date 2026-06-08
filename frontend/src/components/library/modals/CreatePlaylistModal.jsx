@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import './CreatePlaylistModal.css';
 import { createPlaylist } from '../../../api/api';
+import { useLanguage } from '../../../context/LanguageContext.jsx';
 
 export default function CreatePlaylistModal({ isOpen, onClose, onPlaylistCreated }) {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [isPublic, setIsPublic] = useState(false);
-
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+    const { t } = useLanguage();
 
     if(!isOpen) return null;
 
@@ -16,7 +17,7 @@ export default function CreatePlaylistModal({ isOpen, onClose, onPlaylistCreated
         e.preventDefault();
 
         if(!name.trim()) {
-            setError('Le nom de la playlist est obligatoire');
+            setError(t('library.nameRequired'));
             return;
         }
 
@@ -39,10 +40,10 @@ export default function CreatePlaylistModal({ isOpen, onClose, onPlaylistCreated
                 onPlaylistCreated(newPlaylist);
             }
 
-            //ferme la modale 
+            //ferme la modale
             onClose();
         } catch(err) {
-            setError("Erreur lors de la création de la playlist. Vérifiez que vous êtesconnecté");
+            setError(t('library.creationError'));
         } finally {
             setIsLoading(false);
         }
@@ -58,34 +59,34 @@ export default function CreatePlaylistModal({ isOpen, onClose, onPlaylistCreated
     return (
         <div className="modal-overlay" onClick={handleOverlayClick}>
             <div className="modal-content">
-                <h2 className="modal-title">Créer une nouvelle playlist</h2>
+                <h2 className="modal-title">{t('library.createNewPlaylist')}</h2>
                 {error && <div className="modal-error">{error}</div>}
 
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label htmlFor="playlist-name">Nom</label>
+                        <label htmlFor="playlist-name">{t('library.nameLabel')}</label>
                         <input
                             id="playlist-name"
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            placeholder="Ma playlist personnelle..."
+                            placeholder={t('library.namePlaceholder')}
                             disabled={isLoading}
                         />
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="playlist-desc">Description (optionnel)</label>
+                        <label htmlFor="playlist-desc">{t('library.descLabel')}</label>
                         <textarea
                             id="playlist-desc"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            placeholder="Ajouter une description..."
+                            placeholder={t('library.descPlaceholder')}
                             disabled={isLoading}
                         />
                     </div>
 
-                     <div className="form-group-checkbox">
+                    <div className="form-group-checkbox">
                         <input
                             id="playlist-public"
                             type="checkbox"
@@ -93,16 +94,15 @@ export default function CreatePlaylistModal({ isOpen, onClose, onPlaylistCreated
                             onChange={(e) => setIsPublic(e.target.checked)}
                             disabled={isLoading}
                         />
-                        <label htmlFor="playlist-public">Rendre cette playlist publique</label>
+                        <label htmlFor="playlist-public">{t('library.makePublicLabel')}</label>
                     </div>
 
                     <div className="modal-actions">
-                        <button type="button" className="btn-cancel" onClick={onClose} disabled={isLoading}>Annuler</button>
-                        <button type="submit" className="btn-submit" disabled={isLoading}>{isLoading ? 'Création...' : 'Créer'}</button>
+                        <button type="button" className="btn-cancel" onClick={onClose} disabled={isLoading}>{t('library.cancelBtn')}</button>
+                        <button type="submit" className="btn-submit" disabled={isLoading}>{isLoading ? t('library.creatingBtn') : t('library.createBtn')}</button>
                     </div>
                 </form>
             </div>
         </div>
     );
 }
-

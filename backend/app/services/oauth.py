@@ -16,7 +16,7 @@ async def get_google_access_token(code: str) -> str:
                 "code": code,
                 "client_id": settings.GOOGLE_CLIENT_ID,
                 "client_secret": settings.GOOGLE_CLIENT_SECRET,
-                "redirect_uri": "http://localhost:8000/api/v1/oauth/google/callback",
+                "redirect_uri": "https://localhost/api/v1/oauth/google/callback",
                 "grant_type": "authorization_code",
             }
         )
