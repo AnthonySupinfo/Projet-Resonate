@@ -268,8 +268,8 @@ export default function Register() {
                   </div>
                   {avatarDropdownOpen && (
                     <>
-                      <div className="avatar-overlay" onClick={() => setAvatarDropdownOpen(false)} />
-                      <div className="avatar-dropdown">
+                      <div className="avatar-overlay-register" onClick={() => setAvatarDropdownOpen(false)} />
+                      <div className="avatar-dropdown-register">
                         {AVATARS.map(a => (
                           <div
                             key={a.id}

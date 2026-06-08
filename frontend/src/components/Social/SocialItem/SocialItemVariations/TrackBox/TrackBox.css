@@ -1,7 +1,7 @@
 .social-item-track-box {
     display: flex;
     align-items: center;
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: color-mix(in srgb, var(--bg-main-start) 20%, transparent);
     border-radius: 12px;
     padding: 12px 16px;
     gap: 16px;

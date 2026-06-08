@@ -80,26 +80,35 @@ body {
 
 /* --- THEME CLAIR --- */
 [data-theme="light"] {
-  --bg-main-start: #f0f2f5;
-  --bg-main-end: #e4e5eb;
+  --bg-main-start: #f9f0f5;
+  --bg-main-end: rgba(185, 148, 218, 0.65);
 
-  --bg-card: #ffffff;
-  --bg-card-grad-start: rgba(255, 255, 255, 0.95);
-  --bg-card-grad-end: rgba(240, 240, 245, 0.92);
+  --bg-card: rgb(219 213 225);
+  --bg-card-grad-start: rgb(188 128 155 / 0.7);
+  --bg-card-grad-end: rgb(132 105 192 / 0.75);
 
-  --text-primary: #1a1a1a;
-  --text-soft: #333333;
-  --text-muted: #666666;
+  --text-primary: #160e22;
+  --text-soft: #2b1a35;
+  --text-muted: #5c4468;
 
-  --accent-primary: #e06c68;
-  --accent-secondary: #d65a5a;
-  --accent-focus: #3b82f6;
+  --accent-primary: #c23535;
+  --accent-secondary: #d45555;
+  --accent-focus: #3868b0;
 
-  --shadow-rgb: 0, 0, 0;
-  --grad-rose-rgb: 255, 220, 230;
-  --grad-gris-rgb: 240, 240, 240;
+  --success-icon: #047857;
+  --success-bg: rgba(4, 120, 87, 0.16);
+  --success-border: rgba(4, 120, 87, 0.32);
 
-  --divider-color: rgba(0, 0, 0, 0.1);
-  --input-border: rgba(0, 0, 0, 0.15);
-  --input-bg-subtle: rgba(0, 0, 0, 0.03);
+  --error-text: #991b1b;
+  --error-icon: #b91c1c;
+  --error-bg: rgba(185, 28, 28, 0.14);
+  --error-border: rgba(185, 28, 28, 0.30);
+
+  --shadow-rgb: 22, 14, 34;
+  --grad-rose-rgb: 218, 165, 188;
+  --grad-gris-rgb: 198, 182, 215;
+
+  --divider-color: rgba(22, 14, 34, 0.15);
+  --input-border: rgba(22, 14, 34, 0.24);
+  --input-bg-subtle: rgba(22, 14, 34, 0.06);
 }

@@ -241,15 +241,16 @@
   color: #a0a0b0;
 }
 
-.avatar-overlay {
+.avatar-overlay-register {
   position: fixed;
   inset: 0;
   z-index: 9;
+  background-color: transparent;
+  cursor: default;
 }
 
-.avatar-dropdown {
+.avatar-dropdown-register {
   position: absolute;
-  top: calc(100% + 6px);
   left: 0;
   z-index: 10;
   background: #2d2b3d;
@@ -260,7 +261,7 @@
   flex-direction: column;
   gap: 2px;
   min-width: 220px;
-  max-height: 280px;
+  max-height: 200px;
   overflow-y: auto;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
