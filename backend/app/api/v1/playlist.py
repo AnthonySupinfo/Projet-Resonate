@@ -213,3 +213,19 @@ async def remove_track_playlist(
 
     await db.delete(item_playlist)
     await db.commit()
+
+
+@router.get("/user/{target_user_id}", response_model=list[PlaylistResponse])
+async def get_target_user_playlist(
+        target_user_id: str,
+        db: AsyncSession = Depends(get_db)
+):
+    """Récupère uniquement les playlists publiques d'un utilisateur spécifique."""
+    stmt = select(Playlist).filter(
+        Playlist.user_id == target_user_id,
+        Playlist.is_public == True,
+        Playlist.deleted_at == None
+    ).order_by(Playlist.created_at.desc())
+
+    result = await db.execute(stmt)
+    return result.scalars().all()

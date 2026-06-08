@@ -36,6 +36,12 @@ export const deleteALbumStatus = async (albumId) => {
     if(!res.ok) throw new Error ("Erreur lors de la suppression du status")
 }
 
+export const getUserLibrary = async (userId) => {
+    const res = await fetch(`${BASE_URL}/users/${userId}/library`, { headers: authHeaders() })
+    if (!res.ok) throw new Error ("Erreur lors du chargement de la bibliothèque utilisateur")
+    return res.json()
+}
+
 // Playlist 
 
 export const getMyPlaylist = async () => {
@@ -98,6 +104,12 @@ export const addTrackToPlaylist = async (playlistId, trackId) => {
         body: JSON.stringify({ track_id: trackId })
     })
     if(!res.ok) throw new Error ("Erreur lors de l'ajout à la playlist")
+    return res.json()
+}
+
+export const getUserPlaylists = async (userId) => {
+    const res = await fetch(`${BASE_URL}/playlists/user/${userId}`, { headers: authHeaders() })
+    if (!res.ok) throw new Error ("Erreur lors du chargement des playlists utilisateur")
     return res.json()
 }
 
