@@ -228,15 +228,23 @@ class LastFMService:
 
             tracks = album_info.get("tracks", {}).get("track", []) 
 
-            for t in tracks: 
-                track = Track( # créer une nouvelle instance de Track avec les données 
-                    # de la track obtenue de Last.fm 
+            
+            # NORMALISATION
+            if isinstance(tracks_data, dict):
+                tracks_data = [tracks_data]
+
+            for t in tracks_data:
+                if not isinstance(t, dict):
+                    continue  # sécurité
+
+                track = Track(
                     album_id=db_album.id,
                     name=t.get("name"),
-                    position=int(t.get("@attr", {}).get("rank")) if t.get("@attr") else None, 
-                    duration=int(t.get("duration")) if t.get("duration") else None, 
+                    position=int(t.get("@attr", {}).get("rank")) if t.get("@attr") else None,
+                    duration=int(t.get("duration")) if t.get("duration") else None,
                 )
                 session.add(track)
+
 
             await session.commit() # enregistre les modifications dans la base de 
             # données

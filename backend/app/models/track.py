@@ -21,6 +21,8 @@ class Track(Base):
 
     name = Column(String, nullable=False) 
 
+    artist = Column(String, nullable=True)
+
     position = Column(Integer, nullable=True) 
 
     duration = Column(Integer, nullable=True) 

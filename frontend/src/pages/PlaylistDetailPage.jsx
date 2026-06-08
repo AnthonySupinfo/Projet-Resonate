@@ -123,7 +123,7 @@ export default function PlaylistDetailPage() {
                             <li key={track.id} className="track-item">
                                 <span className="track-number">{index + 1}</span>
                                 <div className="track-details">
-                                    <span className="track-name">{track.title || "Titre inconnu"}</span>
+                                    <span className="track-name">{track.name || "Titre inconnu"}</span>
                                     <span className="track-artist">{track.artist || "Artiste inconnu"}</span>
                                 </div>
                                 {isOwner && ( 

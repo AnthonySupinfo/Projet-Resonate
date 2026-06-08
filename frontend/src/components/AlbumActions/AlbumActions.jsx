@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { upsertAlbumStatus, getMyLibrary, getMyPlaylist, addTrackToPlaylist, removeTrackFromPlaylist } from '../../api/api';
 import CreatePlaylistModal from '../library/modals/CreatePlaylistModal';
+import { useNavigate } from "react-router-dom";
 import './AlbumActions.css';
 
 export default function AlbumActions({ albumId }) {
@@ -9,6 +10,7 @@ export default function AlbumActions({ albumId }) {
     const [playlists, setPlaylists] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -34,6 +36,10 @@ export default function AlbumActions({ albumId }) {
         try {
             await upsertAlbumStatus(albumId, newStatus);
             setCurrentStatus(newStatus);
+            
+            setTimeout(() => {
+                        navigate("/library/albums");
+                    }, 200); // petit délai pour laisser le temps à la mise à jour de se faire avant de rediriger
         } catch (error) {
             console.error ("Erreur mise à jour du statut", error);
         } finally {
@@ -82,6 +88,7 @@ export default function AlbumActions({ albumId }) {
             </div>
         
 
+            {/* 
             <div className="playlist-dropdown-wrapper">
                 <button 
                     className="add-to-playlist-btn"
@@ -113,6 +120,7 @@ export default function AlbumActions({ albumId }) {
                 )}
 
             </div>
+            */}
 
             <CreatePlaylistModal 
                 isOpen={isCreateModalOpen} 

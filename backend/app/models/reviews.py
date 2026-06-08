@@ -2,12 +2,27 @@ from sqlalchemy.sql import func
 from sqlalchemy import Column, Text, Integer, ForeignKey, Boolean, CheckConstraint, DateTime, UniqueConstraint, String
 from sqlalchemy.dialects.postgresql import UUID
 from app.db.session import Base
+from sqlalchemy.orm import relationship
 
 
 class Review(Base):
     __tablename__ = "reviews"
 
+    
     id = Column(Integer, primary_key=True, index=True)
+
+    parent_id = Column(
+        Integer,
+        ForeignKey("reviews.id", ondelete="CASCADE"),
+        nullable=True
+    )
+
+    replies = relationship(
+        "Review",
+        backref="parent",
+        remote_side=[id],
+        cascade="all, delete"
+    )
 
     user_id = Column(String, ForeignKey(
         "users.id", ondelete="CASCADE"), nullable=False)
@@ -15,8 +30,11 @@ class Review(Base):
     album_id = Column(UUID(as_uuid=True), ForeignKey(
         "albums.id", ondelete="CASCADE"), nullable=False)
 
-    rating = Column(Integer, CheckConstraint(
-        'rating >= 0 and rating <= 5'), nullable=False)
+    rating = Column(
+        Integer,
+        CheckConstraint('rating >= 0 AND rating <= 5'),
+        nullable=True  # IMPORTANT
+    )
 
     content = Column(Text, nullable=True)
 

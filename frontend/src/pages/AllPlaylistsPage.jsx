@@ -8,13 +8,13 @@ import './AllPlaylistsPage.css';
 export default function AllPlaylistsPage() {
     const [playlists, setPlaylists] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-
     // Chargement playlist depuis backend 
     useEffect(() => {
         const fetchPlaylist = async () => {
             try {
                 const data = await getMyPlaylist();
                 setPlaylists(data.length > 0 ? data : []);
+                console.log("PLAYLISTS:", data);
             } catch (error) {
                 console.error("Erreur API, utilisation des fausses données");
                 setPlaylists([]);
@@ -72,6 +72,7 @@ export default function AllPlaylistsPage() {
                         <h4 className="static-title">Créer une nouvelle playlist</h4>
                     </div>
 
+                    {/*
                     <div className="static-card favorites-card">
                         <div className="static-cover favorites-cover">
                             <span className="heart-icon">♥</span>
@@ -80,6 +81,7 @@ export default function AllPlaylistsPage() {
                         <h4 className="static-title">Musique favorites</h4>
                         <p className="static-meta">102 musiques</p>
                     </div>
+                    */}
 
                     {/* Boucle d'affichage */}
                     {playlists.map(playlist => (

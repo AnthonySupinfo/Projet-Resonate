@@ -4,6 +4,8 @@ from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload
 from fastapi.responses import Response
 import httpx
+from pydantic import BaseModel
+from typing import Literal
 from uuid import UUID
 from app.core.dependencies import get_current_user, require_admin
 from app.services.lastfm import lastfm_service
@@ -210,6 +212,39 @@ async def search_users(q: str):
             ]
         }
 
+# status d'un album pour l'utilisateur connecté (ex: "want_to_listen", "listening", "listened")
+class StatusUpdate(BaseModel):
+    status: Literal["PLANNED", "LISTENING", "COMPLETED", "DROPPED"]
+
+@router.put("/albums/{album_id}/status")
+async def update_album_status(
+    album_id: UUID,
+    data: StatusUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    result = await db.execute(
+        select(UserAlbumStatus).where(
+            UserAlbumStatus.user_id == current_user["user_id"],
+            UserAlbumStatus.album_id == album_id
+        )
+    )
+
+    existing = result.scalar_one_or_none()
+
+    if existing:
+        existing.status = data.status
+    else:
+        new_status = UserAlbumStatus(
+            user_id=current_user["user_id"],
+            album_id=album_id,
+            status=data.status
+        )
+        db.add(new_status)
+
+    await db.commit()
+
+    return {"status": data.status}
 
 # test temporaire pour vérifier que les routes sont bien intégrées
 print(""" \n\n\n\n\n\n\n!!!!!!!!!\n\n\n\n\n!!!!!!!!

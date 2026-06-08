@@ -97,13 +97,18 @@ export const removeTrackFromPlaylist = async (playlistId, trackId) => {
     if(!res.ok) throw new Error ("Erreur lors de la suppression de la track de la playlist")
 }
 
-export const addTrackToPlaylist = async (playlistId, trackId) => {
+export const addTrackToPlaylist = async (playlistId, trackData) => {
+    console.log("DATA SENT:", trackData);
     const res = await fetch(`${BASE_URL}/playlists/${playlistId}/tracks`, {
         method: "POST",
         headers: authHeaders(),
-        body: JSON.stringify({ track_id: trackId })
+        body: JSON.stringify( trackData )
     })
-    if(!res.ok) throw new Error ("Erreur lors de l'ajout à la playlist")
+    if(!res.ok) {
+        const err = await res.text();
+        console.error("Détail de l'erreur d'ajout à la playlist :", err);
+        throw new Error ("Erreur lors de l'ajout à la playlist")
+    } 
     return res.json()
 }
 
@@ -171,13 +176,33 @@ export const unlikeReview = async (reviewId) => {
 }
 
 export const createCommentReview = async (reviewId, content) => {
-    const res = await fetch(`${BASE_URL}/reviews/${reviewId}/comment`, {
+
+    const token = localStorage.getItem("token");
+
+    console.log(" TOKEN:", token);
+
+    const res = await fetch(`/api/v1/reviews/${reviewId}/comment`, {
         method: "POST",
-        headers: authHeaders(),
-        body: JSON.stringify({content})
-    })
-    if(!res.ok) throw new Error ("Erreur lors de la création du commentaire")
-    return res.json()
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ content })
+    });
+
+    console.log(" COMMENT STATUS:", res.status);
+
+    if (!res.ok) {
+        const text = await res.text();
+        console.error(" COMMENT API ERROR:", text);
+        throw new Error("Erreur commentaire");
+    }
+
+    const data = await res.json();
+    console.log(" COMMENT DATA:", data);
+
+    return data;
+
 }
 
 export const deleteCommentReview = async (commentId) => {
@@ -198,3 +223,31 @@ export const reportReview = async (reviewId, reason) => {
     if(!res.ok) throw new Error ("Erreur lors du signalement de la review")
     return res.json()
 }
+
+// Favoris
+export const toggleFavorite = async (trackData) => {
+    console.log("SEND TO BACKEND:", trackData);
+    const res = await fetch(`${BASE_URL}/playlists/favorites/toggle`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify(trackData)
+    });
+    console.log(" RESPONSE STATUS:", res.status);
+
+
+    const data = await res.json();
+    console.log("RESPONSE BODY:", data);
+
+
+    if (!res.ok) throw new Error(`Erreur favoris: ${JSON.stringify(data)}`);
+    return data;
+};
+
+// pour que le coeur des tracks favoris reste rose même après rafraîchissement de la page, on a besoin de récupérer la playlist favorite et son contenu
+export const getPlaylistById = async (id) => {
+  const res = await fetch(`${BASE_URL}/playlists/${id}`, {
+    headers: authHeaders()
+  });
+
+  return res.json();
+};
