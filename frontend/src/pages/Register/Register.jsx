@@ -34,7 +34,6 @@ const EyeIcon = () => (
   </svg>
 )
 
-// 10 avatars humeurs — emojis natifs dans des cercles colorés
 const AVATARS = [
   { id: 1,  name: "Heureux",     emoji: "😄", bg: "#ffdfbf" },
   { id: 2,  name: "Motivé",      emoji: "🔥", bg: "#ffd5dc" },
@@ -49,33 +48,33 @@ const AVATARS = [
 ]
 
 export default function Register() {
-  const [step, setStep]                   = useState(1)
-  const [username, setUsername]           = useState("")
-  const [email, setEmail]                 = useState("")
-  const [password, setPassword]           = useState("")
-  const [confirm, setConfirm]             = useState("")
-  const [showPassword, setShowPassword]   = useState(false)
-  const [showConfirm, setShowConfirm]     = useState(false)
-  const [firstName, setFirstName]         = useState("")
-  const [lastName, setLastName]           = useState("")
+  const [step, setStep]                     = useState(1)
+  const [username, setUsername]             = useState("")
+  const [email, setEmail]                   = useState("")
+  const [password, setPassword]             = useState("")
+  const [confirm, setConfirm]               = useState("")
+  const [showPassword, setShowPassword]     = useState(false)
+  const [showConfirm, setShowConfirm]       = useState(false)
+  const [firstName, setFirstName]           = useState("")
+  const [lastName, setLastName]             = useState("")
   const [birthDay, setBirthDay]             = useState("")
   const [birthMonth, setBirthMonth]         = useState("")
   const [birthYear, setBirthYear]           = useState("")
   const [selectedAvatar, setSelectedAvatar] = useState(null)
   const [avatarDropdownOpen, setAvatarDropdownOpen] = useState(false)
-  const [error, setError]                 = useState("")
-  const [fieldError, setFieldError]       = useState(null)
-  const [loading, setLoading]             = useState(false)
+  const [error, setError]                   = useState("")
+  const [fieldError, setFieldError]         = useState(null)
+  const [loading, setLoading]               = useState(false)
 
-  const { handleLogin }  = useAuth()
-  const { t, lang }      = useLanguage()
-  const navigate         = useNavigate()
+  const { handleLogin } = useAuth()
+  const { t, lang }     = useLanguage()
+  const navigate        = useNavigate()
 
   const months = Array.from({ length: 12 }, (_, i) =>
     new Intl.DateTimeFormat(lang === "fr" ? "fr-FR" : "en-US", { month: "long" }).format(new Date(2000, i, 1))
   )
   const currentYear = new Date().getFullYear()
-  const years = Array.from({ length: currentYear - 1919 }, (_, i) => currentYear - 13 - i)
+  const years = Array.from({ length: 100 - 13 + 1 }, (_, i) => currentYear - 13 - i)
 
   const has6chars  = password.length >= 6
   const has2digits = (password.match(/\d/g) || []).length >= 2
@@ -127,12 +126,10 @@ export default function Register() {
     <div className="register-wrapper">
       <LanguageSwitch />
 
-      {/* Logo cliquable - retour à l'accueil */}
       <img src={logoResonate} alt="Logo Resonate" className="register-logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }} />
 
       <div className="register-card">
 
-        {/* Étape 1 — identifiants */}
         {step === 1 && (
           <>
             <div className="register-header">
@@ -147,14 +144,7 @@ export default function Register() {
               <div className="form-group">
                 <label className={`form-label${fieldError === "username" ? " form-label--error" : ""}`}>{t("register.username")}</label>
                 <div className="input-wrapper">
-                  <input
-                    type="text"
-                    className={`form-input${fieldError === "username" ? " form-input--error" : ""}`}
-                    placeholder={t("register.usernamePlaceholder")}
-                    value={username}
-                    onChange={e => { setUsername(e.target.value); if (fieldError === "username") { setFieldError(null); setError("") } }}
-                    required
-                  />
+                  <input type="text" className={`form-input${fieldError === "username" ? " form-input--error" : ""}`} placeholder={t("register.usernamePlaceholder")} value={username} onChange={e => { setUsername(e.target.value); if (fieldError === "username") { setFieldError(null); setError("") } }} required />
                   {username.length > 0 && fieldError !== "username" && <span className="input-icon"><ValidIcon /></span>}
                   {fieldError === "username" && <span className="input-icon"><ErrorIcon /></span>}
                 </div>
@@ -163,14 +153,7 @@ export default function Register() {
               <div className="form-group">
                 <label className={`form-label${fieldError === "email" ? " form-label--error" : ""}`}>{t("register.email")}</label>
                 <div className="input-wrapper">
-                  <input
-                    type="email"
-                    className={`form-input${fieldError === "email" ? " form-input--error" : ""}`}
-                    placeholder={t("register.emailPlaceholder")}
-                    value={email}
-                    onChange={e => { setEmail(e.target.value); if (fieldError === "email") { setFieldError(null); setError("") } }}
-                    required
-                  />
+                  <input type="email" className={`form-input${fieldError === "email" ? " form-input--error" : ""}`} placeholder={t("register.emailPlaceholder")} value={email} onChange={e => { setEmail(e.target.value); if (fieldError === "email") { setFieldError(null); setError("") } }} required />
                   {email.length > 0 && fieldError !== "email" && <span className="input-icon"><ValidIcon /></span>}
                   {fieldError === "email" && <span className="input-icon"><ErrorIcon /></span>}
                 </div>
@@ -180,7 +163,7 @@ export default function Register() {
                 <label className="form-label">{t("register.password")}</label>
                 <div className="input-wrapper">
                   <input type={showPassword ? "text" : "password"} className="form-input" placeholder={t("register.passwordPlaceholder")} value={password} onChange={e => setPassword(e.target.value)} required />
-                  {password.length > 0 && passwordMeetsRequirements && <span className="input-icon input-icon--with-eye"><ValidIcon /></span>}
+                  {password.length > 0 && passwordMeetsRequirements  && <span className="input-icon input-icon--with-eye"><ValidIcon /></span>}
                   {password.length > 0 && !passwordMeetsRequirements && <span className="input-icon input-icon--with-eye"><ErrorIcon /></span>}
                   <button className="eye-toggle" type="button" tabIndex={-1} onClick={() => setShowPassword(!showPassword)}>
                     {showPassword ? <EyeIcon /> : <EyeOffIcon />}
@@ -226,7 +209,6 @@ export default function Register() {
           </>
         )}
 
-        {/* Étape 2 — infos personnelles */}
         {step === 2 && (
           <>
             <div className="register-header">
@@ -271,8 +253,7 @@ export default function Register() {
                 </div>
               </div>
 
-              {/* Sélecteur d'avatar — dropdown emoji */}
-              <div className="form-group">
+              <div className="form-group avatar-form-group">
                 <label className="form-label">{t("register.avatar")}</label>
                 <div className="avatar-picker">
                   <div className="avatar-trigger" onClick={() => setAvatarDropdownOpen(o => !o)}>
@@ -280,7 +261,8 @@ export default function Register() {
                       <span className="avatar-trigger__emoji">{selectedAvatar ? selectedAvatar.emoji : "👤"}</span>
                     </div>
                     <span className="avatar-trigger__name">{selectedAvatar ? selectedAvatar.name : "Choisir un avatar"}</span>
-                    <svg className="avatar-trigger__chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: avatarDropdownOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>
+                    <svg className="avatar-trigger__chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                      style={{ transform: avatarDropdownOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>
                       <polyline points="6 9 12 15 18 9" />
                     </svg>
                   </div>

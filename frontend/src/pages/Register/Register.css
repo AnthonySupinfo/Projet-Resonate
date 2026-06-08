@@ -25,7 +25,6 @@
 .register-card {
   width: min(100%, 580px);
   position: relative;
-  z-index: 2;
   border-radius: 40px;
   border: 1px solid rgba(248, 250, 255, 0.12);
   padding: 30px 100px;
@@ -34,7 +33,7 @@
     0 18px 38px rgba(0, 0, 0, 0.45),
     0 1px 0 rgba(255, 255, 255, 0.14) inset,
     0 -1px 0 rgba(0, 0, 0, 0.22) inset;
-}
+  }
 
 .register-header {
   text-align: center;
@@ -155,15 +154,10 @@
   transition: color 0.2s;
 }
 
-.pwd-req--ok {
-  color: #6ee7b7;
-}
+.pwd-req--ok   { color: #6ee7b7; }
+.pwd-req--fail { color: #f1a2a2; }
 
-.pwd-req--fail {
-  color: #f1a2a2;
-}
-
-/* ── Date de naissance ── */
+/*  Date de naissance  */
 .birth-row {
   display: flex;
   gap: 8px;
@@ -196,7 +190,12 @@
   color: #f2f3fb;
 }
 
-/* ── Avatar picker dropdown ── */
+/*  Avatar picker  */
+.avatar-form-group {
+  position: relative;
+  z-index: 10;
+}
+
 .avatar-picker {
   position: relative;
 }
@@ -302,7 +301,7 @@
   line-height: 1;
 }
 
-/* ── Navigation dots ── */
+/*  Navigation dots  */
 .step-dots {
   display: flex;
   justify-content: center;
@@ -322,7 +321,7 @@
   background: rgba(255, 255, 255, 0.85);
 }
 
-/* ── Bouton principal ── */
+/*  Bouton principal  */
 .register-form .btn-connect {
   width: auto;
   min-width: 200px;
@@ -340,14 +339,8 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.register-form .btn-connect:hover {
-  filter: brightness(1.04);
-}
-
-.register-form .btn-connect:disabled {
-  opacity: 0.72;
-  cursor: not-allowed;
-}
+.register-form .btn-connect:hover    { filter: brightness(1.04); }
+.register-form .btn-connect:disabled { opacity: 0.72; cursor: not-allowed; }
 
 .register-step2-actions {
   display: flex;
@@ -355,7 +348,7 @@
   margin-top: 8px;
 }
 
-/* ── Lien connexion ── */
+/*  Lien connexion  */
 .register-login-text {
   text-align: center;
   font-size: 10px;

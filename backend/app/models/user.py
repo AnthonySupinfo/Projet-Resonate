@@ -47,6 +47,7 @@ class User(Base):
     bio: Mapped[str] = mapped_column(Text, nullable=True, default=None)
     website: Mapped[str] = mapped_column(String, nullable=True, default=None)
     theme: Mapped[str] = mapped_column(String, default="dark", nullable=False)
+    language: Mapped[str] = mapped_column(String, default="fr", nullable=False)
 
     # Following
     following: Mapped[list["User"]] = relationship(

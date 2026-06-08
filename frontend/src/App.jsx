@@ -85,15 +85,22 @@ function AppRoutes() {
   )
 }
 
+function AppWithAuth() {
+  const { user } = useAuth()
+  return (
+    <LanguageProvider user={user}>
+      {/*<LanguageSwitch />*/}
+      <AppRoutes />
+    </LanguageProvider>
+  )
+}
+
 export default function App() {
   return (
     <BrowserRouter>
-      <LanguageProvider>
-        <AuthProvider>
-          {/*<LanguageSwitch />*/}
-          <AppRoutes />
-        </AuthProvider>
-      </LanguageProvider>
+      <AuthProvider>
+        <AppWithAuth />
+      </AuthProvider>
     </BrowserRouter>
   )
 }
