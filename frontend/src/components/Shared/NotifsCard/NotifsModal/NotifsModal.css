@@ -4,8 +4,12 @@
     right: 0;
     width: 360px;
     max-height: 480px;
-    background-color: #68606B;
-    background-image: radial-gradient(circle at 40% 36%, rgba(131, 121, 139, 0.11) 0%, rgba(0, 0, 0, 0.09) 100%);
+    background-color: var(--bg-card);
+    background-image: radial-gradient(
+            circle at 40% 36%,
+            rgba(var(--grad-gris-rgb), 0) 0%,
+            rgba(var(--grad-rose-rgb), 0.40) 80%
+    );
     border-radius: 26px;
     box-shadow: 0 3px 8px rgba(var(--shadow-rgb), 0.24);
     display: flex;
