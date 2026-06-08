@@ -7,6 +7,11 @@ from app.db.session import get_db
 from app.core.dependencies import get_current_user, require_admin
 from app.models.user import User
 from app.models.follow import Follow
+from app.models.reviews import Review
+from app.models.review_comments import ReviewComment
+from app.models.playlist import Playlist
+from app.models.user_playlist_item import UserPlaylistItem
+from app.models.user_album_status import UserAlbumStatus
 from app.schemas.auth import UserProfileResponse, UpdateProfileRequest
 import json
 from typing import List
@@ -71,6 +76,8 @@ async def update_profile(
         user.website = data.website
     if data.theme is not None:
         user.theme = data.theme
+    if data.language is not None:
+        user.language = data.language
 
     await db.commit()
     await db.refresh(user)
@@ -108,22 +115,126 @@ async def export_data(
     current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    result = await db.execute(select(User).where(User.id == current_user["user_id"]))
+    user_id = current_user["user_id"]
+
+    result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalar_one_or_none()
 
-    # Génère un JSON avec toutes les données de l'utilisateur
+    if not user:
+        raise HTTPException(status_code=404, detail="Utilisateur introuvable.")
+
+    # Profil de base
     export = {
-        "id": user.id,
-        "email": user.email,
-        "username": user.username,
-        "role": user.role,
-        "avatar_url": user.avatar_url,
-        "bio": user.bio,
-        "website": user.website,
-        "theme": user.theme,
-        "is_active": user.is_active,
-        "created_at": str(user.created_at)
+        "profil": {
+            "id": user.id,
+            "email": user.email,
+            "username": user.username,
+            "role": user.role,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "birth_date": str(user.birth_date) if user.birth_date else None,
+            "avatar_url": user.avatar_url,
+            "bio": user.bio,
+            "website": user.website,
+            "theme": user.theme,
+            "is_active": user.is_active,
+            "created_at": str(user.created_at),
+        }
     }
+
+    # Critiques 
+    reviews_result = await db.execute(
+        select(Review).where(Review.user_id == user_id)
+    )
+    reviews = reviews_result.scalars().all()
+    export["critiques"] = [
+        {
+            "id": r.id,
+            "album_id": str(r.album_id),
+            "rating": r.rating,
+            "content": r.content,
+            "posted_at": str(r.posted_at),
+            "updated_at": str(r.updated_at),
+            "has_been_modified": r.has_been_modified,
+        }
+        for r in reviews
+    ]
+
+    # Commentaires sur des critiques 
+    comments_result = await db.execute(
+        select(ReviewComment).where(ReviewComment.user_id == user_id)
+    )
+    comments = comments_result.scalars().all()
+    export["commentaires"] = [
+        {
+            "id": c.id,
+            "review_id": c.review_id,
+            "content": c.content,
+            "created_at": str(c.created_at),
+            "has_been_modified": c.has_been_modified,
+        }
+        for c in comments
+    ]
+
+    # Playlists
+    playlists_result = await db.execute(
+        select(Playlist).where(
+            Playlist.user_id == user_id,
+            Playlist.deleted_at == None  # noqa: E711
+        )
+    )
+    playlists = playlists_result.scalars().all()
+
+    playlists_export = []
+    for pl in playlists:
+        # Récupère les tracks de la playlist
+        items_result = await db.execute(
+            select(UserPlaylistItem).where(UserPlaylistItem.playlist_id == pl.id)
+        )
+        items = items_result.scalars().all()
+        playlists_export.append({
+            "id": pl.id,
+            "name": pl.name,
+            "type": pl.type.value,
+            "is_public": pl.is_public,
+            "description": pl.description,
+            "created_at": str(pl.created_at),
+            "tracks": [
+                {
+                    "track_id": str(item.track_id),
+                    "added_at": str(item.added_at),
+                }
+                for item in items
+            ],
+        })
+    export["playlists"] = playlists_export
+
+    # Statuts d'albums (bibliothèque)
+    statuts_result = await db.execute(
+        select(UserAlbumStatus).where(UserAlbumStatus.user_id == user_id)
+    )
+    statuts = statuts_result.scalars().all()
+    export["bibliotheque_albums"] = [
+        {
+            "album_id": str(s.album_id),
+            "status": s.status.value,
+            "updated_at": str(s.updated_at),
+        }
+        for s in statuts
+    ]
+
+    # Abonnements 
+    following_result = await db.execute(
+        select(Follow).where(Follow.follower_id == user_id)
+    )
+    following = following_result.scalars().all()
+    export["abonnements"] = [f.following_id for f in following]
+
+    followers_result = await db.execute(
+        select(Follow).where(Follow.following_id == user_id)
+    )
+    followers = followers_result.scalars().all()
+    export["abonnes"] = [f.follower_id for f in followers]
 
     return export
 

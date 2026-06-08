@@ -83,13 +83,14 @@ class ResetPasswordRequest(BaseModel):
     token: str
     new_password: str
 
-# POST /auth/check-availability
+# POST /auth/check-availability (10 vérifications max par minute par IP)
 class CheckAvailabilityRequest(BaseModel):
     email: EmailStr
     username: str
 
 @router.post("/check-availability", status_code=status.HTTP_200_OK)
-async def check_availability(data: CheckAvailabilityRequest, db: AsyncSession = Depends(get_db)):
+@limiter.limit("10/minute")
+async def check_availability(request: Request, data: CheckAvailabilityRequest, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(User.email == data.email))
     if result.scalar_one_or_none():
         raise HTTPException(status_code=409, detail="Cet email est déjà utilisé.")
