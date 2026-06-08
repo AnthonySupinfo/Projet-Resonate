@@ -94,3 +94,23 @@ async def get_my_library(
 
     result = await db.execute(query)
     return result.scalars().all()
+
+
+@library_router.get("/{target_user_id}/library", response_model=list[UserAlbumStatusWithAlbumResponse])
+async def get_target_user_library(
+    target_user_id: str,
+    status: MediaStatus | None = None,
+    db: AsyncSession = Depends(get_db)
+):
+    """Récupère la bibliothèque d'un utilisateur spécifique."""
+    query = (
+        select(UserAlbumStatus)
+        .options(joinedload(UserAlbumStatus.album))
+        .filter(UserAlbumStatus.user_id == target_user_id)
+    )
+
+    if status:
+        query = query.filter(UserAlbumStatus.status == status)
+
+    result = await db.execute(query)
+    return result.scalars().all()
