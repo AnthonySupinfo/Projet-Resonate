@@ -3,6 +3,7 @@ export const userProfile = {
         recentAlbums: "Albums récents",
         favoritePlaylists: "Playlists préférées",
         customPlaylists: "Playlists personnalisées",
+        customPublicPlaylists: "Playlists publiques",
 
         loadingProfile: "Chargement du profil...",
         defaultUser: "Utilisateur",
@@ -40,6 +41,7 @@ export const userProfile = {
         recentAlbums: "Recent albums",
         favoritePlaylists: "Favorite playlists",
         customPlaylists: "Custom playlists",
+        customPublicPlaylists: "Public playlists",
 
         loadingProfile: "Loading profile...",
         defaultUser: "User",

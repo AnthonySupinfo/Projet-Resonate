@@ -14,7 +14,6 @@ import StatsCard from "../../components/Profile/StatsCard/StatsCard.jsx";
 export default function Profile() {
     const { id } = useParams();
     const { user } = useAuth();
-    const navigate = useNavigate();
 
     const isMyProfile = !id || (user && id === String(user.user_id || user.id));
 
@@ -108,7 +107,7 @@ export default function Profile() {
             )}
 
             {!isLoading && customPlaylists.length > 0 && (
-                <Carousel title={isMyProfile ? "Playlists personnalisées" : "Playlists publiques"} onSeeAll={() => isMyProfile ? navigate('/library/playlists') : null}>
+                <Carousel title={isMyProfile ? t('userProfile.customPlaylists') : t('userProfile.customPublicPlaylists')} onSeeAll={() => isMyProfile ? navigate('/library/playlists') : null}>
                     {customPlaylists.map(item => {
                         const playlistData = item.playlist || item;
                         return <PlaylistCard key={`prof-custom-p-${playlistData.id}`} playlist={playlistData} onPlaylistUpdated={handlePlaylistStatusChange}/>
