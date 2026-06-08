@@ -15,6 +15,11 @@ export function AuthProvider({ children }) {
 
   // Charge le token et les infos utilisateur au montage du composant
   useEffect(() => {
+    // Applique immédiatement le thème sauvegardé en localStorage
+    // avant même que getMe() réponde — évite le flash sombre au refresh
+    const savedTheme = localStorage.getItem("theme") || "dark"
+    document.documentElement.setAttribute("data-theme", savedTheme)
+
     const savedToken = localStorage.getItem("token")
 
     if (!savedToken) {
@@ -38,12 +43,12 @@ export function AuthProvider({ children }) {
         .finally(() => setLoading(false))
   }, [])
 
+  // Synchronise le thème BDD → DOM + localStorage à chaque changement
   useEffect(() => {
-    if (user?.theme === 'light') {
-      document.documentElement.setAttribute('data-theme', 'light')
-    } else {
-      document.documentElement.setAttribute('data-theme', 'dark')
-    }
+    if (!user?.theme) return
+    const theme = user.theme
+    document.documentElement.setAttribute("data-theme", theme)
+    localStorage.setItem("theme", theme)
   }, [user?.theme])
 
   // Stocke les deux tokens et les infos utilisateur après login
@@ -68,6 +73,7 @@ export function AuthProvider({ children }) {
     await logoutServer()
     localStorage.removeItem("token")
     localStorage.removeItem("refresh_token")
+    localStorage.removeItem("theme")
     setUser(null)
     setToken(null)
   }
