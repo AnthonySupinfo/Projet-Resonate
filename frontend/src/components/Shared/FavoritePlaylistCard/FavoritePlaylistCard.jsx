@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getMyPlaylist, getPlaylist } from '../../../api/api';
 import { useLanguage } from '../../../context/LanguageContext.jsx';
+import { useNavigate } from 'react-router-dom';
 import './FavoritePlaylistCard.css';
 
 export default function FavoritePlaylistCard({ playlistId }) {
@@ -55,17 +56,28 @@ export default function FavoritePlaylistCard({ playlistId }) {
                 {tracks.length === 0 ? (
                     <p className="empty-msg">{t('library.emptyPlaylist')}</p>
                 ): (
-                    tracks.map((track, index) => (
-                        <div key={track.id || index} className="fav-track-item">
-                            <img src={track.cover_url || `https://placehold.co/40x40/2a2a2c/ffffff?text=${track.title?.[0] || 'M'}`} alt={track.title} className="fav-track-cover"/>
+                    tracks.map((track, index) => {
+                        const rawUrl = track.cover_url || track.image || track.album?.image || track.album?.image_url;
 
-                            <div className="fav-track-info">
-                                <span className="fav-track-name">{track.name || t('library.unknownTitle')}</span>
-                                <span className="fav-track-artist">{track.artist || t('library.unknownArtist')}</span>
+                        const coverUrl = rawUrl
+                            ? `/api/v1/image-proxy?url=${encodeURIComponent(rawUrl)}`
+                            : `https://placehold.co/40x40/2a2a2c/ffffff?text=${encodeURIComponent(track.name?.[0] || 'M')}&background=2a2a2c&color=fff&size=40`;
+                        
+                        
+                        return (
+                            <div key={track.id || index} className="fav-track-item" onClick={() => navigate (`/albums/${encodeURIComponent(track.artist)}/${encodeURIComponent(track.name)}`)}>
+                                <img src={coverUrl} alt={track.title} className="fav-track-cover" onError={(e) => e.target.src = "https://placehold.co/40x40/2a2a2c/ffffff?text=!"}/>
+
+                                <div className="fav-track-info">
+                                    <span className="fav-track-name">{track.name || t('library.unknownTitle')}</span>
+                                    <span className="fav-track-artist">{track.artist || t('library.unknownArtist')}</span>
+                                </div>
                             </div>
-                        </div>
-                    ))
+                        );
+                    }) 
+
                 )}
+                
             </div>
         </div>
     );

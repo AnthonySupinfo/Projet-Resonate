@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AlbumPage.css";
 import AlbumActions from "../../components/AlbumActions/AlbumActions.jsx";
-import { addTrackToPlaylist, getMyPlaylist, getPlaylistById, toggleFavorite } from "../../api/api";
+import { addTrackToPlaylist, getMyPlaylist, getPlaylistById } from "../../api/api";
 import ReviewList from "../../components/reviews/ReviewList/ReviewList.jsx";
 
 
@@ -14,63 +14,47 @@ export default function AlbumPage() {
 
   const [data, setData] = useState(null);
 
-  const [favoriteTracks, setFavoriteTracks] = useState([]);
   const [playlists, setPlaylists] = useState([]);
 
   const [openDropdownTrack, setOpenDropdownTrack] = useState(null);
-  const [toast, setToast] = useState(null);
 
-
-  useEffect(() => {
-    if (!artist || !album || album === "null") return;
-    const fetchAlbum = async () => {
-      const res = await fetch(`/api/v1/detail/${artist}/${album}`);
-      const json = await res.json();
-
-
-      console.log("ALBUM DATA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!:", json, ""); 
-      console.log("IMAGE:", json.image, "");
-
-      console.log("TRACKS:", json.tracks);
-
-
-      setData(json);
-    };
-
-    fetchAlbum();
-  }, [artist, album]);
-
-
-  useEffect(() => {
-    const fetchFavorites = async () => {
+    const refreshAlbum = async (idToFetch) => {
       try {
-        const playlistsData = await getMyPlaylist();
+        const timestamp = new Date().getTime();
 
-        const favoritePlaylist = playlistsData.find(p => p.is_favorite);
-
-        if (!favoritePlaylist) return;
-
-        const favDetails = await getPlaylistById(favoritePlaylist.id);
-
-        // noms des tracks favoris
-        const favTrackNames = favDetails.tracks.map(t => t.name);
-
-        // comparer avec les tracks de l'album
-        const favPositions = data.tracks
-          .filter(track => favTrackNames.includes(track.name))
-          .map(track => track.position);
-
-        setFavoriteTracks(favPositions);
-
+        const res = await fetch(`/api/v1/albums/${idToFetch}?t=${timestamp}`, {
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          }
+        });
+        const json = await res.json();
+        setData(json);
+        
       } catch (err) {
-        console.error(err);
-      }
+        console.error("Erreur lors de la récupération de l'album:", err);
+      } 
     };
 
-    if (data && favoriteTracks.length === 0) {
-      fetchFavorites();
-    }
-  }, [data]);
+    useEffect(() => {
+      const fetchAlbumInit = async () => {
+        if (!artist || !album || album == "null") return;
+        try {
+          const resLastFm = await fetch(`/api/v1/detail/${artist}/${album}`);
+          const jsonLastFm = await resLastFm.json();
+
+          if (jsonLastFm && jsonLastFm.id) {
+            await refreshAlbum(jsonLastFm.id);
+          } else {
+            setData(jsonLastFm);
+          }
+        } catch (err) {
+          console.error("Erreur lors de l'initialisationd de l'album:", err);
+        }
+      };
+      fetchAlbumInit();
+    }, [artist, album]);
+
 
 
   useEffect(() => {
@@ -97,48 +81,6 @@ export default function AlbumPage() {
     }
   };
 
-  const toggleFavoriteUI = (trackId) => {
-    setFavoriteTracks((prev) =>
-      prev.includes(trackId)
-        ? prev.filter((id) => id !== trackId)
-        : [...prev, trackId]
-    );
-  };
-
-
-  const handleFavorite = async (track) => {
-    try {
-      const res = await toggleFavorite({
-        track_name: track.name,
-        artist: data.artist
-      });
-
-      // update UI selon réponse backend
-      setFavoriteTracks((prev) => {
-        if (res.status === "added") {
-          if (prev.includes(track.position)) return prev; // évite doublon
-          return [...prev, track.position];
-        } else {
-          return prev.filter((id) => id !== track.position);
-        }
-      });
-
-
-      // afficher message
-      if (res.status === "added") {
-        setToast(`"${track.name}" ajoutée aux favoris`);
-      } else {
-        setToast(`"${track.name}" retirée des favoris`);
-      }
-
-      // disparition automatique
-      setTimeout(() => setToast(null), 2000);
-
-
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
 
   useEffect(() => {
@@ -226,16 +168,6 @@ export default function AlbumPage() {
                   </span>
 
                   <div className="track-actions">
-                    
-                    <button
-                      className={`track-heart ${
-                        favoriteTracks.includes(track.position) ? "active" : ""
-                      }`}
-                      onClick={() => handleFavorite(track)}
-                    >
-                      {favoriteTracks.includes(track.position) ? "❤️" : "🤍"}
-                    </button>
-
                     <div className="track-dropdown-wrapper">
                       <button
                         className="track-add"
@@ -281,14 +213,9 @@ export default function AlbumPage() {
         </div>
         
         {/* SECTION REVIEWS */}
-        <ReviewList albumId={data.id} />
+        <ReviewList albumId={data.id} onReviewUpdated={() => refreshAlbum(data.id)}/>
 
       </div>
-      {toast && (
-        <div className="toast">
-          {toast}
-        </div>
-      )}
     </div>
   );
 }

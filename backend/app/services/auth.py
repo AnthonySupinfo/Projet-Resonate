@@ -11,12 +11,16 @@ from app.models.refresh_token import RefreshToken
 from app.schemas.auth import RegisterRequest
 
 # hash_password
+
+
 def hash_password(password: str) -> str:
     pwd_bytes = password.encode("utf-8")
     salt = bcrypt.gensalt()
     return bcrypt.hashpw(pwd_bytes, salt).decode("utf-8")
 
 # verify_password
+
+
 def verify_password(plain: str, hashed: str) -> bool:
     return bcrypt.checkpw(
         plain.encode("utf-8"),
@@ -24,6 +28,8 @@ def verify_password(plain: str, hashed: str) -> bool:
     )
 
 # create_access_token
+
+
 def create_access_token(user_id: str, role: str) -> str:
     expire = datetime.now(timezone.utc) + timedelta(
         minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES
@@ -36,6 +42,8 @@ def create_access_token(user_id: str, role: str) -> str:
     return jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
 # create_refresh_token (génère un token opaque stocké en BDD)
+
+
 async def create_refresh_token(user_id: str, db: AsyncSession) -> str:
     token = secrets.token_hex(64)
     expires_at = datetime.now(timezone.utc) + timedelta(
@@ -51,6 +59,8 @@ async def create_refresh_token(user_id: str, db: AsyncSession) -> str:
     return token
 
 # rotate_refresh_token (vérifie l'ancien, le révoque, en crée un nouveau)
+
+
 async def rotate_refresh_token(old_token: str, db: AsyncSession) -> dict:
     result = await db.execute(
         select(RefreshToken).where(RefreshToken.token == old_token)
@@ -97,6 +107,8 @@ async def rotate_refresh_token(old_token: str, db: AsyncSession) -> dict:
     }
 
 # revoke_all_refresh_tokens(déconnexion complète)
+
+
 async def revoke_all_refresh_tokens(user_id: str, db: AsyncSession):
     result = await db.execute(
         select(RefreshToken).where(
@@ -110,6 +122,8 @@ async def revoke_all_refresh_tokens(user_id: str, db: AsyncSession):
     await db.commit()
 
 # register_user
+
+
 async def register_user(data: RegisterRequest, db: AsyncSession) -> User:
     result = await db.execute(select(User).where(User.email == data.email))
     if result.scalar_one_or_none():
@@ -143,8 +157,8 @@ async def register_user(data: RegisterRequest, db: AsyncSession) -> User:
 
     favorite_playlist = Playlist(
         user_id=user.id,
-        name="Musique favorites",
-        type=PlaylistType.CUSTOM,
+        name="Musiques favorites",
+        type=PlaylistType.DEFAULT,
         is_public=False,
         is_favorite=True
     )
@@ -157,6 +171,8 @@ async def register_user(data: RegisterRequest, db: AsyncSession) -> User:
     return user
 
 # login_user
+
+
 async def login_user(email: str, password: str, db: AsyncSession) -> dict:
     credentials_error = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,

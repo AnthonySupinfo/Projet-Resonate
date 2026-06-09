@@ -17,16 +17,13 @@ from app.models.track import Track
 from app.models.reviews import Review
 from app.models.user_album_status import UserAlbumStatus
 from app.services.lastfm import lastfm_service
-from app.core.dependencies import get_optional_user 
+from app.core.dependencies import get_optional_user
 from app.models.user import User
-
-
 
 
 router = APIRouter(tags=["albums"])
 
 # Route publique - pas besoin d'être connecté
-
 
 
 @router.get("/albums/{album_id}")
@@ -61,11 +58,11 @@ async def get_album_detail(
                 album.year = lastfm_data["year"]
                 await db.commit()
 
-
     # 3 Moyenne des reviews
     avg_result = await db.execute(
         select(func.avg(Review.rating)).where(
-            Review.album_id == album.id
+            Review.album_id == album.id,
+            Review.deleted_at == None
         )
     )
 
@@ -101,10 +98,15 @@ async def get_album_detail(
         tracks_data = lastfm_data.get("tracks", [])
 
     # 6 Genres (uniquement via Last.fm)
-    genres = lastfm_data.get("tags", []) if lastfm_data else [] 
+    genres = lastfm_data.get("tags", []) if lastfm_data else []
     '''
     Lastfm ne renvoie pas de genres, sur le API le genre est vide 
     '''
+
+    final_image = getattr(album, "image", None)
+
+    if not final_image and lastfm_data:
+        final_image = lastfm_data.get("image")
 
     # 7 Réponse finale
     return {
@@ -121,7 +123,9 @@ async def get_album_detail(
 
         "year": album.year,
 
-        "source": "cache"  # ici c’est cache DB (normal)
+        "image": final_image,
+
+        "source": "cache"
     }
 
 
@@ -150,16 +154,22 @@ async def search_albums(q: str = Query(..., description="Nom de l'album à reche
     return await lastfm_service.search_albums(q, page, limit)
 
 # 2) Détail d'un album
+
+
 @router.get("/detail/{artist}/{album}", tags=["albums"])
 async def album_detail(artist: str, album: str):
     return await lastfm_service.get_album_detail(artist, album)
 
 # 3) Détail d'un artiste
+
+
 @router.get("/artist/{name}", tags=["artists"])
 async def artist_detail(name: str):
     return await lastfm_service.get_artist_detail(name)
 
 # 4) Pour récupérer l'image d'un album (proxy pour contourner les CORS, par le frontend ca ne passe pas donc passe par backend)
+
+
 @router.get("/image-proxy")
 async def image_proxy(url: str | None = None):
     FALLBACK_URL = "http://localhost/fallback.jpg"  # ton image locale
@@ -193,6 +203,8 @@ async def image_proxy(url: str | None = None):
             )
 
 # 5) Recherche d'autre users (pour le social, ex: suivre un utilisateur)
+
+
 @router.get("/search/users")
 async def search_users(q: str):
     async with AsyncSessionLocal() as db:
@@ -213,8 +225,11 @@ async def search_users(q: str):
         }
 
 # status d'un album pour l'utilisateur connecté (ex: "want_to_listen", "listening", "listened")
+
+
 class StatusUpdate(BaseModel):
     status: Literal["PLANNED", "LISTENING", "COMPLETED", "DROPPED"]
+
 
 @router.put("/albums/{album_id}/status")
 async def update_album_status(
