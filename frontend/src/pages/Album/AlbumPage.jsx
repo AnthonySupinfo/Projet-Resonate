@@ -79,13 +79,30 @@ export default function AlbumPage() {
   }, []);
 
   const handleAddToPlaylist = async (track, playlistId) => {
+    const targetPlaylist = playlists.find(p => p.id === playlistId);
+
+    const isAlreadyAdded = targetPlaylist?.tracks?.some(t => t.name === track.name);
+    if (isAlreadyAdded) return;
+
     try {
       await addTrackToPlaylist(playlistId, { track_id: track.name, artist: data.artist });
-      alert("Ajouté à la playlist !");
-      setOpenDropdownTrack(null);
+
+      setPlaylists(prevPlaylists =>
+          prevPlaylists.map(p => {
+            if (p.id === playlistId) {
+              const updatedTracks = [...(p.tracks || []), { name: track.name }];
+              return { ...p, tracks: updatedTracks };
+            }
+            return p;
+          })
+      );
+
+      setToast(`Ajouté à "${targetPlaylist.name}"`);
+      setTimeout(() => setToast(null), 2000);
     } catch (err) {
       console.error(err);
-      alert("Erreur ou déjà ajouté");
+      setToast("Erreur lors de l'ajout");
+      setTimeout(() => setToast(null), 2000);
     }
   };
 
@@ -97,7 +114,7 @@ export default function AlbumPage() {
     );
   };
 
-  
+
 
 
   const handleFavorite = async (track) => {
@@ -244,25 +261,34 @@ export default function AlbumPage() {
                       </button>
 
                       {openDropdownTrack === track.name && (
-                        <div className="dropdown-menu" onClick={(e) => e.stopPropagation()}>
-                          {playlists.length === 0 ? (
-                            <div className="dropdown-item empty">
-                              Aucune playlist — crée-en une
-                            </div>
-                          ) : (
-                            playlists.map((playlist) => (
-                              <div
-                                key={playlist.id}
-                                className="dropdown-item"
-                                onClick={() =>
-                                  handleAddToPlaylist(track, playlist.id)
-                                }
-                              >
-                                {playlist.name}
-                              </div>
-                            ))
-                          )}
-                        </div>
+                          <div className="dropdown-menu" onClick={(e) => e.stopPropagation()}>
+                            {playlists.length === 0 ? (
+                                <div className="dropdown-item empty">
+                                  Aucune playlist — crée-en une
+                                </div>
+                            ) : (
+                                playlists.map((playlist) => {
+                                  const isAdded = playlist.tracks?.some(t => t.name === track.name);
+
+                                  return (
+                                      <div
+                                          key={playlist.id}
+                                          className={`dropdown-item ${isAdded ? 'added' : ''}`}
+                                          onClick={() => handleAddToPlaylist(track, playlist.id)}
+                                          style={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            cursor: isAdded ? 'default' : 'pointer',
+                                            opacity: isAdded ? 0.7 : 1
+                                          }}
+                                      >
+                                        <span>{playlist.name}</span>
+                                        {isAdded && <span style={{ color: 'var(--success-icon, #6ee7b7)', fontWeight: 'bold' }}>✓</span>}
+                                      </div>
+                                  );
+                                })
+                            )}
+                          </div>
                       )}
                     </div>
                   </div>

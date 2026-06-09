@@ -84,7 +84,6 @@ export default function PlaylistDetailPage() {
     const currentUserId = user?.user_id || user?.id;
     const isOwner = String(currentUserId) === String(playlist.user_id);
 
-    console.log(playlist.tracks)
     return (
         <div className="playlist-detail-page">
             <button className="back-btn" onClick={() => navigate(-1)}>← Retour</button>
