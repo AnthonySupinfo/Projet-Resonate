@@ -25,7 +25,11 @@ export default function LibraryCard() {
         };
         load();
         window.addEventListener("playlistUpdated", load);
-        return () => window.removeEventListener("playlistUpdated", load);
+        window.addEventListener("libraryUpdated", load);
+        return () => {
+            window.removeEventListener("playlistUpdated", load);
+            window.removeEventListener("libraryUpdated", load);
+        };
     }, []);
 
     const handlePlaylistCreated = (newPlaylist) => {
@@ -109,7 +113,11 @@ export default function LibraryCard() {
                         const artist = a.artist_name || a.artist || "Artiste inconnu";
                         const title = a.name || a.title || "Titre inconnu";
                         return (
-                            <li key={item.id} className="library-item" onClick={() => navigate(`/albums/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`)}>
+                            <li
+                                key={item.id}
+                                className="library-item"
+                                onClick={() => navigate(`/albums/${encodeURIComponent(a.artist_name)}/${encodeURIComponent(a.name)}`)}
+                            >
                                 <div className="library-icon cover-placeholder">
                                     <img src={getCoverUrl(a.image, a.name)} alt={a.name} />
                                 </div>

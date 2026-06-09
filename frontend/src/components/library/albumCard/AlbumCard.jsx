@@ -1,8 +1,7 @@
 import "./AlbumCard.css";
-import { useNavigate } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 
 export default function AlbumCard({ album }) {
-
     const navigate = useNavigate();
 
     if (!album) return null;
@@ -14,7 +13,7 @@ export default function AlbumCard({ album }) {
     const coverUrl = data.image || data.image_url || `https://placehold.co/400x400/2a2a2c/ffffff?text=${encodeURIComponent(title[0])}`;
 
     return (
-        <div className="album-card-a" onClick={() => navigate (`/albums/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`)}>
+        <div className="album-card-a" onClick={() => navigate(`/albums/${encodeURIComponent(album.artist_name)}/${encodeURIComponent(album.name)}`)}>
             <div className="album-cover-wrapper-a">
                 <img
                     src={coverUrl}
@@ -23,7 +22,7 @@ export default function AlbumCard({ album }) {
                 />
             </div>
             <h4 className="album-title-a">{title}</h4>
-            <p className="album-meta-a">{artist} • {album.year}</p>
+            <p className="album-meta-a">{artist}</p>
         </div>
     );
 }

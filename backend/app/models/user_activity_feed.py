@@ -31,8 +31,7 @@ class UserActivityFeed(Base):
     review_id = Column(Integer, ForeignKey("reviews.id", ondelete="CASCADE"), nullable=True)
     playlist_id = Column(Integer, ForeignKey("playlists.id", ondelete="CASCADE"), nullable=True)
     album_id = Column(UUID(as_uuid=True), ForeignKey("albums.id", ondelete="CASCADE"), nullable=True)
-    # TODO: Décommenter quand Krishna aura fait la table Track
-    # track_id = Column(Integer, ForeignKey("tracks.id", ondelete="CASCADE"), nullable=True)
+    track_id = Column(UUID(as_uuid=True), ForeignKey("tracks.id", ondelete="CASCADE"), nullable=True)
 
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())

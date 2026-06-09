@@ -9,13 +9,11 @@ from app.db.session import Base
 class Track(Base):
     __tablename__ = "tracks"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4) # id 
-    # UUID unique de la track, clé primaire, généré automatiquement si non fourni
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
     album_id = Column( 
         UUID(as_uuid=True),
-        ForeignKey("albums.id", ondelete="CASCADE"), # ondelete="CASCADE" pour 
-        # supprimer les tracks associées si l'album est supprimé
+        ForeignKey("albums.id", ondelete="CASCADE"),
         nullable=False
     )
 
@@ -30,3 +28,7 @@ class Track(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now()) 
 
     album = relationship("Album", back_populates="tracks")
+
+    @property
+    def album_name(self):
+        return self.album.name if self.album else None

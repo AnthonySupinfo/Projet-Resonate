@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import {Link, useLocation, useNavigate} from "react-router-dom";
 import { useEffect, useState } from "react";
 import "./SearchResults.css";
 import SearchBar from "../../components/Shared/SearchBar/SearchBar";
@@ -272,17 +272,22 @@ export default function SearchResults() {
       )}
 
       {activeTab === "users" && (
-        <div className="search-grid">
-          {userResults.length === 0 ? (
-            <p style={{ opacity: 0.6 }}>Aucun utilisateur</p>
-          ) : (
-            userResults.map((user) => (
-              <div key={user.id} className="search-card">
-                <p className="album-name">{user.username}</p>
-              </div>
-            ))
-          )}
-        </div>
+          <div className="search-grid">
+            {userResults.length === 0 ? (
+                <p style={{ opacity: 0.6 }}>Aucun utilisateur</p>
+            ) : (
+                userResults.map((user) => (
+                    <Link
+                        key={user.id}
+                        to={`/user/${user.id}`}
+                        className="search-card"
+                        style={{ textDecoration: 'none' }}
+                    >
+                      <p className="album-name">{user.username}</p>
+                    </Link>
+                ))
+            )}
+          </div>
       )}
 
       {activeTab === "lists" && (

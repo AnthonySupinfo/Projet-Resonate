@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 from sqlalchemy import select, func
 from uuid import uuid4
 from uuid import UUID
@@ -154,7 +155,7 @@ async def get_playlist_id(
         UserPlaylistItem.track_id == Track.id
     ).where(
         UserPlaylistItem.playlist_id == playlist_id
-    )
+    ).options(joinedload(Track.album))
 
     result_tracks = await db.execute(stmt_tracks)
     tracks = result_tracks.scalars().all()
