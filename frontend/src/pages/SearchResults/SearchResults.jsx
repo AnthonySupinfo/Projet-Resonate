@@ -265,8 +265,6 @@ export default function SearchResults() {
                 {album.year && (
                   <p className="album-year">{album.year}</p>
                 )}
-
-                <p className="album-rating">⭐ {album.rating || "--"}</p>
               </div>
             );
           })}

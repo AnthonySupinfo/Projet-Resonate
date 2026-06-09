@@ -104,3 +104,14 @@
     background: rgba(var(--shadow-rgb), 0.5);
     text-shadow: 0 0 4px rgba(241, 162, 162, 0.4);
 }
+
+.favorite-default-style {
+    background-color: #f1a2a2 !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 60px;
+    width: 100%;
+    height: 100%;
+}

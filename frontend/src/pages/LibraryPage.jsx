@@ -18,9 +18,6 @@ export default function LibraryPage() {
     const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const favorites = userPlaylists.find(p =>
-        p.playlist ? p.playlist.is_favorite : p.is_favorite
-    );
     const { t } = useLanguage();
 
     const [stats, setStats] = useState({
@@ -43,13 +40,15 @@ export default function LibraryPage() {
             setUserPlaylists(playlistData.length > 0 ? playlistData : []);
             setUserAlbums(libraryData.length > 0 ? libraryData : []);
 
+            const customPlaylistsOnly = playlistData.filter(p => p.type !== 'DEFAULT' && p.name !== 'Musiques favorites');
+
             setStats({
                 albumsSauvegardes: libraryData.length,
                 albumTermines: libraryData.filter (item => item.status === 'COMPLETED').length,
                 albumEnCours: libraryData.filter (item => item.status === 'LISTENING').length,
                 albumPlanned: libraryData.filter (item => item.status === 'PLANNED').length,
                 albumDropped: libraryData.filter (item => item.status === 'DROPPED').length,
-                playlistsCrees: playlistData.length,
+                playlistsCrees: customPlaylistsOnly.length,
                 favoriteTracks: 0
             });
         } catch (error) {
@@ -80,7 +79,10 @@ export default function LibraryPage() {
 
     const handlePlaylistCreated = (newPlaylist) => {
         setUserPlaylists([newPlaylist, ...userPlaylists]);
-        setStats(prev => ({ ...prev, playlistsCrees: prev.playlistsCrees + 1 }));
+
+        if(newPlaylist.type !== 'DEFAULT' && newPlaylist.name !== 'Musiques favorites') {
+            setStats(prev => ({ ...prev, playlistsCrees: prev.playlistsCrees + 1 }));
+        }
         window.dispatchEvent(new Event("playlistUpdated"));
     };
 
@@ -211,21 +213,7 @@ export default function LibraryPage() {
                     <h4 className="static-title">{t('library.createNewPlaylist')}</h4>
                 </div>
 
-                {/*
-                <div className="static-card favorite-card carousel-static">
-                    <div className="static-cover favorites-cover">
-                        <span className="heart-icon">♥</span>
-                    </div>
-                    <h4 className="static-title">{t('library.favoriteTracks')}</h4>
-                    <p className="static-meta">{stats.favoriteTracks} {t('library.tracksCount')}</p>
-                </div>
-                */}
-
-                {favorites && (
-                    <PlaylistCard playlist={favorites} />
-                )}
                 {userPlaylists
-                    .filter(p => !(p.playlist ? p.playlist.is_favorite : p.is_favorite))
                     .map(playlist => (
                         <PlaylistCard
                             key={`custom-${playlist.id}`}

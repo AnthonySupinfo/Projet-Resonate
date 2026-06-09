@@ -20,6 +20,8 @@ import re
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 # POST /auth/register (3 inscriptions max par minute par IP)
+
+
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 @limiter.limit("3/minute")
 async def register(request: Request, data: RegisterRequest, db: AsyncSession = Depends(get_db)):
@@ -27,6 +29,8 @@ async def register(request: Request, data: RegisterRequest, db: AsyncSession = D
     return user
 
 # POST /auth/login (5 tentatives max par minute par IP)
+
+
 @router.post("/login", response_model=TokenResponse)
 @limiter.limit("5/minute")
 async def login(request: Request, data: LoginRequest, db: AsyncSession = Depends(get_db)):
@@ -37,6 +41,8 @@ async def login(request: Request, data: LoginRequest, db: AsyncSession = Depends
     )
 
 # POST /auth/token - Swagger uniquement (5 tentatives max par minute par IP)
+
+
 @router.post("/token", include_in_schema=False)
 @limiter.limit("5/minute")
 async def login_swagger(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
@@ -47,8 +53,11 @@ async def login_swagger(request: Request, form_data: OAuth2PasswordRequestForm =
     )
 
 # POST /auth/refresh (10 refresh max par minute par IP)
+
+
 class RefreshRequest(BaseModel):
     refresh_token: str
+
 
 @router.post("/refresh", response_model=TokenResponse)
 @limiter.limit("10/minute")
@@ -60,46 +69,62 @@ async def refresh(request: Request, data: RefreshRequest, db: AsyncSession = Dep
     )
 
 # POST /auth/logout (révoque tous les refresh tokens de l'utilisateur)
+
+
 @router.post("/logout", status_code=status.HTTP_200_OK)
 async def logout(current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     await revoke_all_refresh_tokens(current_user["user_id"], db)
     return {"message": "Déconnexion réussie"}
 
 # GET /auth/me
+
+
 @router.get("/me", tags=["auth"])
 async def get_me(current_user: dict = Depends(get_current_user)):
     return {"user_id": current_user["user_id"], "role": current_user["role"]}
 
 # GET /auth/admin-test
+
+
 @router.get("/admin-test", tags=["auth"])
 async def admin_test(admin: dict = Depends(require_admin)):
     return {"message": "Accès admin confirmé", "user_id": admin["user_id"]}
 
 # Schémas reset password
+
+
 class ForgotPasswordRequest(BaseModel):
     email: EmailStr
+
 
 class ResetPasswordRequest(BaseModel):
     token: str
     new_password: str
 
 # POST /auth/check-availability (10 vérifications max par minute par IP)
+
+
 class CheckAvailabilityRequest(BaseModel):
     email: EmailStr
     username: str
+
 
 @router.post("/check-availability", status_code=status.HTTP_200_OK)
 @limiter.limit("10/minute")
 async def check_availability(request: Request, data: CheckAvailabilityRequest, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(User.email == data.email))
     if result.scalar_one_or_none():
-        raise HTTPException(status_code=409, detail="Cet email est déjà utilisé.")
+        raise HTTPException(
+            status_code=409, detail="Cet email est déjà utilisé.")
     result = await db.execute(select(User).where(User.username == data.username))
     if result.scalar_one_or_none():
-        raise HTTPException(status_code=409, detail="Cet identifiant est déjà pris.")
+        raise HTTPException(
+            status_code=409, detail="Cet identifiant est déjà pris.")
     return {"available": True}
 
 # POST /auth/forgot-password (3 demandes max par minute par IP)
+
+
 @router.post("/forgot-password", status_code=status.HTTP_200_OK)
 @limiter.limit("3/minute")
 async def forgot_password(request: Request, data: ForgotPasswordRequest, db: AsyncSession = Depends(get_db)):
@@ -129,16 +154,20 @@ async def forgot_password(request: Request, data: ForgotPasswordRequest, db: Asy
 @limiter.limit("3/minute")
 async def reset_password(request: Request, data: ResetPasswordRequest, db: AsyncSession = Depends(get_db)):
     if len(data.new_password) < 6:
-        raise HTTPException(status_code=422, detail="Le mot de passe doit faire au moins 6 caractères")
+        raise HTTPException(
+            status_code=422, detail="Le mot de passe doit faire au moins 6 caractères")
 
     if len(re.findall(r'\d', data.new_password)) < 2:
-        raise HTTPException(status_code=422, detail="Le mot de passe doit contenir au moins 2 chiffres")
+        raise HTTPException(
+            status_code=422, detail="Le mot de passe doit contenir au moins 2 chiffres")
 
     if not re.search(r'[!@#$%^&*()\[\]{},.\-?":{}|<>_+=\\\/~`\';:]', data.new_password):
-        raise HTTPException(status_code=422, detail="Le mot de passe doit contenir au moins 1 caractère spécial")
+        raise HTTPException(
+            status_code=422, detail="Le mot de passe doit contenir au moins 1 caractère spécial")
 
     try:
-        payload = jwt.decode(data.token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+        payload = jwt.decode(data.token, settings.JWT_SECRET_KEY, algorithms=[
+                             settings.JWT_ALGORITHM])
         if payload.get("type") != "reset":
             raise HTTPException(status_code=400, detail="Token invalide")
         user_id = payload.get("sub")
@@ -151,16 +180,20 @@ async def reset_password(request: Request, data: ResetPasswordRequest, db: Async
     if not user:
         raise HTTPException(status_code=404, detail="Utilisateur introuvable")
 
-    new_hash = bcrypt.hashpw(data.new_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+    new_hash = bcrypt.hashpw(data.new_password.encode(
+        "utf-8"), bcrypt.gensalt()).decode("utf-8")
     user.hashed_password = new_hash
     await db.commit()
 
     return {"message": "Mot de passe modifié avec succès"}
 
 # POST /auth/change-password - changer son mot de passe (nécessite le mot de passe actuel)
+
+
 class ChangePasswordRequest(BaseModel):
     current_password: str
     new_password: str
+
 
 @router.post("/change-password", status_code=status.HTTP_200_OK)
 async def change_password(
@@ -183,18 +216,23 @@ async def change_password(
 
     # Vérification du mot de passe actuel
     if not bcrypt.checkpw(data.current_password.encode("utf-8"), user.hashed_password.encode("utf-8")):
-        raise HTTPException(status_code=401, detail="Mot de passe actuel incorrect")
+        raise HTTPException(
+            status_code=401, detail="Mot de passe actuel incorrect")
 
     # Validation du nouveau mot de passe (mêmes règles que reset-password)
     if len(data.new_password) < 6:
-        raise HTTPException(status_code=422, detail="Le mot de passe doit faire au moins 6 caractères")
+        raise HTTPException(
+            status_code=422, detail="Le mot de passe doit faire au moins 6 caractères")
     if len(re.findall(r'\d', data.new_password)) < 2:
-        raise HTTPException(status_code=422, detail="Le mot de passe doit contenir au moins 2 chiffres")
+        raise HTTPException(
+            status_code=422, detail="Le mot de passe doit contenir au moins 2 chiffres")
     if not re.search(r'[!@#$%^&*()\[\]{},.\-?":{}|<>_+=\\\/~`\';:]', data.new_password):
-        raise HTTPException(status_code=422, detail="Le mot de passe doit contenir au moins 1 caractère spécial")
+        raise HTTPException(
+            status_code=422, detail="Le mot de passe doit contenir au moins 1 caractère spécial")
 
     # Mise à jour du mot de passe
-    new_hash = bcrypt.hashpw(data.new_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+    new_hash = bcrypt.hashpw(data.new_password.encode(
+        "utf-8"), bcrypt.gensalt()).decode("utf-8")
     user.hashed_password = new_hash
     await db.commit()
 
@@ -205,6 +243,7 @@ async def change_password(
 class ChangeEmailRequest(BaseModel):
     current_password: str
     new_email: EmailStr
+
 
 @router.post("/change-email", status_code=status.HTTP_200_OK)
 async def change_email(
@@ -231,11 +270,13 @@ async def change_email(
 
     # Vérification que le nouvel email n'est pas déjà utilisé
     if data.new_email == user.email:
-        raise HTTPException(status_code=400, detail="C'est déjà votre email actuel")
+        raise HTTPException(
+            status_code=400, detail="C'est déjà votre email actuel")
 
     result = await db.execute(select(User).where(User.email == data.new_email))
     if result.scalar_one_or_none():
-        raise HTTPException(status_code=409, detail="Cet email est déjà utilisé")
+        raise HTTPException(
+            status_code=409, detail="Cet email est déjà utilisé")
 
     # Mise à jour
     user.email = data.new_email

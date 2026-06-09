@@ -11,7 +11,6 @@ export default function LibraryCard() {
     const [albums, setAlbums] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
-    const favoritePlaylist = playlists.find(p => p.is_favorite);
     const { t } = useLanguage();
 
     useEffect(() => {
@@ -38,6 +37,21 @@ export default function LibraryCard() {
         window.dispatchEvent(new Event("playlistUpdated"));
     };
 
+    const defaultPlaylist = playlists.find(p => 
+        p.type === 'DEFAULT' || 
+        p.name === 'Musiques favorites');
+
+    const customPlaylists = playlists.filter(p => 
+        p.type !== 'DEFAULT' &&
+        p.name !== 'Musiques favorites');
+
+    const getCoverUrl = (url, name) => {
+        if (url && url !== 'null') {
+            return `api/v1/image-proxy?url=${encodeURIComponent(url)}`;
+        }
+        return `https://placehold.co/40x40/2a2a2c/ffffff?text=${encodeURIComponent((name || '?')[0])}`;
+    }
+
     return (
         <div className="library-card-container">
             <h3 className="library-title" onClick={() => navigate('/library')} style={{ cursor: 'pointer' }}>{t('library.libraryTitle')}</h3>
@@ -59,30 +73,27 @@ export default function LibraryCard() {
 
             {activeTab === 'playlists' && (
                 <ul className="library-list">
-                    <li
-                        className='library-item'
-                        onClick={() => {
-                            if (favoritePlaylist) {
-                            navigate(`/library/playlists/${favoritePlaylist.id}`);
-                            }
-                        }}
-                    >
-                        <div className="library-icon favorite">♥</div>
-                        <div className="library-info">
-                            <span className="library-name">{t('library.favoriteTracks')}</span>
-                            <span className="library-meta">   {t('library.playlistMeta')}</span>
-                        </div>
-                    </li>
-                    {playlists
-                        .filter(p => !p.is_favorite)
-                        .map(playlist => (
-                    <li key={playlist.id} className="library-item" onClick={() => navigate (`/library/playlists/${playlist.id}`)}>
-                        <div className="library-icon cover-placeholder">
-                            <img src={playlist.cover_url || `https://placehold.co/40x40/1a1a1a/ffffff?text=${playlist.name[0]}`} alt={playlist.name}/>
-                        </div>
-                        <div className="library-info">
-                            <span className="library-name">{playlist.name}</span>
-                            <span className="library-meta">   {t('library.playlistMeta')} • {playlist.is_public ? t('library.publicStatus') : t('library.privateStatus')}</span>
+
+                    {defaultPlaylist && (
+                        <li className="library-item" onClick={() => navigate (`/library/playlists/${defaultPlaylist.id}`)}>
+                            <div className="library-icon favorite">♥</div>
+                            <div className="library-info">
+                                <span className="library-name">{t('library.favoriteTracks')}</span>
+                                <span className="library-meta">   {t('library.playlistMeta')}</span>
+                            </div>
+                        </li>
+                    )}
+
+                    {customPlaylists.map(playlist => (
+                        <li key={playlist.id} className="library-item" onClick={() => navigate (`/library/playlists/${playlist.id}`)}>
+                            <div className="library-icon cover-placeholder">
+                                <img src={playlist.cover_url || `https://placehold.co/40x40/1a1a1a/ffffff?text=${playlist.name[0]}`} alt={playlist.name}/>
+                            </div>
+                            <div className="library-info">
+                                <span className="library-name">
+                                    {playlist.name}
+                                </span>
+                                <span className="library-meta">   {t('library.playlistMeta')} • {playlist.is_public ? t('library.publicStatus') : t('library.privateStatus')}</span>
                         </div>
                     </li>
                     ))}
@@ -99,6 +110,8 @@ export default function LibraryCard() {
                         </li>
                     ) : albums.map(item => {
                         const a = item.album || item;
+                        const artist = a.artist_name || a.artist || "Artiste inconnu";
+                        const title = a.name || a.title || "Titre inconnu";
                         return (
                             <li
                                 key={item.id}
@@ -106,7 +119,7 @@ export default function LibraryCard() {
                                 onClick={() => navigate(`/albums/${encodeURIComponent(a.artist_name)}/${encodeURIComponent(a.name)}`)}
                             >
                                 <div className="library-icon cover-placeholder">
-                                    <img src={a.image_url || `https://placehold.co/40x40/2a2a2c/ffffff?text=${(a.name || '?') [0]}`} alt={a.name} />
+                                    <img src={getCoverUrl(a.image, a.name)} alt={a.name} />
                                 </div>
                                 <div className="library-info">
                                     <span className="library-name">{a.name}</span>

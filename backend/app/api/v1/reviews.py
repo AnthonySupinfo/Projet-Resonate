@@ -54,7 +54,6 @@ async def create_review(
     if not album:
         raise HTTPException(status_code=404, detail="Album introuvable")
 
-    
     stmt_user_review = select(Review).filter(
         Review.user_id == current_user["user_id"],
         Review.album_id == album_id,
@@ -86,6 +85,8 @@ async def create_review(
         album_id=new_review.album_id
     )
 
+    await db.commit()
+
     stmt_user = select(User).where(User.id == current_user["user_id"])
     result_user = await db.execute(stmt_user)
     user = result_user.scalars().first()
@@ -107,7 +108,6 @@ async def create_review(
         "user_liked": False,
         "replies": []
     }
-
 
 
 @router.patch("/reviews/{review_id}", response_model=ReviewResponse)
@@ -190,6 +190,7 @@ async def update_review(
         print(" UPDATE ERROR:", e)
         raise
 
+
 @router.delete("/reviews/{review_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_review(
     review_id: int,
@@ -221,7 +222,7 @@ async def get_album_reviews(
     )
     result_album = await db.execute(stmt_album)
     album = reviews_data = []
-    
+
     reviews_data = []
 
     rows = result_album.all()
@@ -323,4 +324,3 @@ async def get_album_reviews(
     print("FINAL RESPONSE SENT:", reviews_data)
 
     return reviews_data
-

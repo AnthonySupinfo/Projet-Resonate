@@ -5,6 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 
 from app.db.session import get_db
+from app.services.lastfm import lastfm_service
 from app.models.user_album_status import UserAlbumStatus, MediaStatus
 from app.models.album import Album
 from app.schemas.user_album_status import UserAlbumStatusCreate, UserAlbumStatusResponse, UserAlbumStatusWithAlbumResponse
@@ -93,7 +94,24 @@ async def get_my_library(
         query = query.filter(UserAlbumStatus.status == status)
 
     result = await db.execute(query)
-    return result.scalars().all()
+    items = result.scalars().all()
+
+    needs_commit = False  # a suppirmer peut etre
+    for item in items:
+        if item.album and not item.album.image:
+            try:
+                lastfm_data = await lastfm_service.get_album_detail(
+                    item.album.artist_name,
+                    item.album.name
+                )
+                if lastfm_data and lastfm_data.get("image"):
+                    item.album.image = lastfm_data["image"]
+                    needs_commit = True
+            except Exception as e:
+                print(f"Erreur enrichissement image : {e}")
+    if needs_commit:
+        await db.commit()
+    return items
 
 
 @library_router.get("/{target_user_id}/library", response_model=list[UserAlbumStatusWithAlbumResponse])

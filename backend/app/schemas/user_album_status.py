@@ -22,6 +22,7 @@ class AlbumInStatus(BaseModel):
     id: UUID
     name: str
     artist_name: str
+    image: str | None = None
     image_url: str | None = None
 
     model_config = {"from_attributes": True}

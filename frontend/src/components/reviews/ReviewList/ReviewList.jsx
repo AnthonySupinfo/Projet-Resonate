@@ -5,7 +5,7 @@ import ReviewForm from '../ReviewForm/ReviewForm';
 import ReviewCard from '../ReviewCard/ReviewCard';
 import './ReviewList.css';
 
-export default function ReviewList({ albumId }) {
+export default function ReviewList({ albumId, onReviewUpdated }) {
     const { user } = useAuth();
     const [reviews, setReviews] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -55,21 +55,24 @@ export default function ReviewList({ albumId }) {
                 ? prev.map(r => r.id === newReview.id ? newReview : r)
                 : [newReview, ...prev]
         );
+        if (onReviewUpdated) setTimeout(onReviewUpdated, 500);
     };
 
     // supprimer une review
     const handleReviewDeleted = (deletedId) => {
         setReviews(reviews.filter(r => r.id !== deletedId));
+        if (onReviewUpdated) setTimeout(onReviewUpdated, 500);
     };
 
     const handleReviewUpdated = (updatedReview) => {
-        console.log("🔄 UPDATE RECEIVED:", updatedReview);
+        console.log("UPDATE RECEIVED:", updatedReview);
 
         setReviews(prev =>
             prev.map(r =>
                 r.id === updatedReview.id ? updatedReview : r
             )
         );
+        if (onReviewUpdated) setTimeout(onReviewUpdated, 500);
     };
 
     return (

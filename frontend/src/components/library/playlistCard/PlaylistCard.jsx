@@ -4,15 +4,26 @@ import { useState } from "react";
 import { updatePlaylist } from "../../../api/api";
 import { useLanguage } from "../../../context/LanguageContext.jsx";
 
+const generateColorFrame = (name) => {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    const c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
+    return "00000" .substring(0, 6 - c.length) + c;
+};
+
+
 export default function PlaylistCard({ playlist, onPlaylistUpdated }) {
     const navigate = useNavigate();
     const [isFavorite, setIsFavorite] = useState(playlist?.is_favorite || false);
     const [isLiking, setIsLiking] = useState(false);
     const { t } = useLanguage();
+    
+    const isDefault = playlist.type === 'DEFAULT' || playlist.name === 'Musiques favorites';
 
     if (!playlist) return null;
 
-    const coverUrl = playlist.cover_url || playlist.coverUrl || `https://placehold.co/400x400/2a2a2c/ffffff?text=${encodeURIComponent(playlist.name)}`;
+    const bgColor = generateColorFrame(playlist.name || "default");
+    const coverUrl = playlist.cover_url || playlist.coverUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(playlist.name)}&background=${bgColor}&color=fff&size=400&format=svg`;
     const metaText = playlist.trackCount ? `${playlist.trackCount} ${t('library.tracksCount')}` : t('library.customPlaylistMeta');
 
     const handleFavoriteCLick = async (e) => {
@@ -40,11 +51,18 @@ export default function PlaylistCard({ playlist, onPlaylistUpdated }) {
     return (
         <div className="playlist-card" onClick={() => navigate(`/library/playlists/${playlist.id}`)}>
             <div className="playlist-cover-wrapper">
-                <img
+                {isDefault ? (
+                    <div className="playlist-cover favorite-default-style">
+                        <span>♥</span>
+                    </div>
+                ) : (
+                    <img
                     src={coverUrl}
-                    alt={playlist.name}
+                    alt={playlist.name || "Playlist"}
                     className="playlist-cover"
-                />
+                    />
+                )}
+        
 
                 <button
                     className={`playlist-fav-btn ${isFavorite ? 'is-fav' : ''}`}
