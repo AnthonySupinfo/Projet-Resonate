@@ -15,8 +15,8 @@ class FeedService:
                            target_user_id: str = None,
                            review_id: int = None,
                            playlist_id: int = None,
-                           album_id: int = None
-                           # track_id: int = None # TODO : Décommenter quand Krishna aura fait la table Track
+                           album_id: int = None,
+                           track_id: int = None
                            ) -> UserActivityFeed:
         """Enregistrer une nouvelle action (donc un nouveau post) dans le fil d'actualité."""
 
@@ -26,8 +26,8 @@ class FeedService:
             target_user_id=target_user_id,
             review_id=review_id,
             playlist_id=playlist_id,
-            album_id=album_id
-            # track_id=track_id # TODO : Décommenter quand Krishna aura fait la table Track
+            album_id=album_id,
+            track_id=track_id
         )
 
         db.add(new_activity)
@@ -89,7 +89,7 @@ class FeedService:
                 album = await db.get(Album, activity.album_id)
                 item["album_id"] = activity.album_id
                 item["album_title"] = album.title if album else "Album inconnu"
-                # item["cover_url"] = album.cover_url if album else None TODO: décommenter quand Krishna aura fait les albums
+                item["cover_url"] = album.image if album else None
 
             elif activity.activity_type == ActivityTypes.REVIEW_ALBUM and activity.review_id:
                 review = await db.get(Review, activity.review_id)
