@@ -230,10 +230,10 @@ class LastFMService:
 
             
             # NORMALISATION
-            if isinstance(tracks_data, dict):
-                tracks_data = [tracks_data]
+            if isinstance(tracks, dict):
+                tracks = [tracks]
 
-            for t in tracks_data:
+            for t in tracks:
                 if not isinstance(t, dict):
                     continue  # sécurité
 
