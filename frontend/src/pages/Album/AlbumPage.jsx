@@ -3,14 +3,23 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AlbumPage.css";
 import AlbumActions from "../../components/AlbumActions/AlbumActions.jsx";
+import { addTrackToPlaylist, getMyPlaylist, getPlaylistById, toggleFavorite } from "../../api/api";
+import ReviewList from "../../components/reviews/ReviewList/ReviewList.jsx";
+
 
 export default function AlbumPage() {
   
   const { artist, album } = useParams();
   const navigate = useNavigate();
 
-
   const [data, setData] = useState(null);
+
+  const [favoriteTracks, setFavoriteTracks] = useState([]);
+  const [playlists, setPlaylists] = useState([]);
+
+  const [openDropdownTrack, setOpenDropdownTrack] = useState(null);
+  const [toast, setToast] = useState(null);
+
 
   useEffect(() => {
     if (!artist || !album || album === "null") return;
@@ -22,6 +31,8 @@ export default function AlbumPage() {
       console.log("ALBUM DATA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!:", json, ""); 
       console.log("IMAGE:", json.image, "");
 
+      console.log("TRACKS:", json.tracks);
+
 
       setData(json);
     };
@@ -29,7 +40,120 @@ export default function AlbumPage() {
     fetchAlbum();
   }, [artist, album]);
 
-  if (!data) return <div className="album-loading">Chargement...</div>;
+
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      try {
+        const playlistsData = await getMyPlaylist();
+
+        const favoritePlaylist = playlistsData.find(p => p.is_favorite);
+
+        if (!favoritePlaylist) return;
+
+        const favDetails = await getPlaylistById(favoritePlaylist.id);
+
+        // noms des tracks favoris
+        const favTrackNames = favDetails.tracks.map(t => t.name);
+
+        // comparer avec les tracks de l'album
+        const favPositions = data.tracks
+          .filter(track => favTrackNames.includes(track.name))
+          .map(track => track.position);
+
+        setFavoriteTracks(favPositions);
+
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    if (data && favoriteTracks.length === 0) {
+      fetchFavorites();
+    }
+  }, [data]);
+
+
+  useEffect(() => {
+    const fetchPlaylists = async () => {
+      try {
+        const data = await getMyPlaylist();
+        setPlaylists(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchPlaylists();
+  }, []);
+
+  const handleAddToPlaylist = async (track, playlistId) => {
+    try {
+      await addTrackToPlaylist(playlistId, { track_id: track.name, artist: data.artist });
+      alert("Ajouté à la playlist !");
+      setOpenDropdownTrack(null);
+    } catch (err) {
+      console.error(err);
+      alert("Erreur ou déjà ajouté");
+    }
+  };
+
+  const toggleFavoriteUI = (trackId) => {
+    setFavoriteTracks((prev) =>
+      prev.includes(trackId)
+        ? prev.filter((id) => id !== trackId)
+        : [...prev, trackId]
+    );
+  };
+
+
+  const handleFavorite = async (track) => {
+    try {
+      const res = await toggleFavorite({
+        track_name: track.name,
+        artist: data.artist
+      });
+
+      // update UI selon réponse backend
+      setFavoriteTracks((prev) => {
+        if (res.status === "added") {
+          if (prev.includes(track.position)) return prev; // évite doublon
+          return [...prev, track.position];
+        } else {
+          return prev.filter((id) => id !== track.position);
+        }
+      });
+
+
+      // afficher message
+      if (res.status === "added") {
+        setToast(`"${track.name}" ajoutée aux favoris`);
+      } else {
+        setToast(`"${track.name}" retirée des favoris`);
+      }
+
+      // disparition automatique
+      setTimeout(() => setToast(null), 2000);
+
+
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setOpenDropdownTrack(null);
+    };
+
+    document.addEventListener("click", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
+
+  if (!data || !data.tracks) return <div className="album-loading">Chargement...</div>;
 
   return (
     <div className="album-page-container" style={{backgroundImage: data.image ? `url(/api/v1/image-proxy?url=${encodeURIComponent(data.image)})` : "none",  }}>
@@ -83,10 +207,10 @@ export default function AlbumPage() {
 
           {data.tracks?.length > 0 ? (
             <div className="tracks-list">
-              {data.tracks.map((track) => (
-                <div key={track.position} className="track-row">
+              {data.tracks ?.filter(track => track && track.name) .map((track) => (
+                <div key={`${track.name}-${track.position ?? "no-pos"}`} className="track-row">
                   <span className="track-index">
-                    {track.position.toString().padStart(2, "0")}
+                    {track?.position ? track.position.toString().padStart(2, "0") : "--"}
                   </span>
 
                   <span className="track-name">
@@ -100,6 +224,54 @@ export default function AlbumPage() {
                         String(track.duration % 60).padStart(2, "0")
                       : "--:--"}
                   </span>
+
+                  <div className="track-actions">
+                    
+                    <button
+                      className={`track-heart ${
+                        favoriteTracks.includes(track.position) ? "active" : ""
+                      }`}
+                      onClick={() => handleFavorite(track)}
+                    >
+                      {favoriteTracks.includes(track.position) ? "❤️" : "🤍"}
+                    </button>
+
+                    <div className="track-dropdown-wrapper">
+                      <button
+                        className="track-add"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenDropdownTrack(
+                            openDropdownTrack === track.name ? null : track.name
+                          );
+                        }}
+                      >
+                        +
+                      </button>
+
+                      {openDropdownTrack === track.name && (
+                        <div className="dropdown-menu" onClick={(e) => e.stopPropagation()}>
+                          {playlists.length === 0 ? (
+                            <div className="dropdown-item empty">
+                              Aucune playlist — crée-en une
+                            </div>
+                          ) : (
+                            playlists.map((playlist) => (
+                              <div
+                                key={playlist.id}
+                                className="dropdown-item"
+                                onClick={() =>
+                                  handleAddToPlaylist(track, playlist.id)
+                                }
+                              >
+                                {playlist.name}
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -107,7 +279,16 @@ export default function AlbumPage() {
             <p>Aucune track disponible</p>
           )}
         </div>
+        
+        {/* SECTION REVIEWS */}
+        <ReviewList albumId={data.id} />
+
       </div>
+      {toast && (
+        <div className="toast">
+          {toast}
+        </div>
+      )}
     </div>
   );
 }

@@ -60,7 +60,7 @@ export default function FavoritePlaylistCard({ playlistId }) {
                             <img src={track.cover_url || `https://placehold.co/40x40/2a2a2c/ffffff?text=${track.title?.[0] || 'M'}`} alt={track.title} className="fav-track-cover"/>
 
                             <div className="fav-track-info">
-                                <span className="fav-track-name">{track.title || t('library.unknownTitle')}</span>
+                                <span className="fav-track-name">{track.name || t('library.unknownTitle')}</span>
                                 <span className="fav-track-artist">{track.artist || t('library.unknownArtist')}</span>
                             </div>
                         </div>

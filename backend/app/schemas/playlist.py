@@ -2,6 +2,8 @@ from pydantic import BaseModel
 from datetime import datetime
 from uuid import UUID
 from app.models.playlist import PlaylistType
+from typing import List
+from app.schemas.track import TrackResponse
 
 
 class PlaylistCreate(BaseModel):
@@ -22,6 +24,7 @@ class PlaylistResponse(BaseModel):
     is_favorite: bool
     created_at: datetime
     track_count: int = 0
+    tracks: List[TrackResponse] = []
 
     model_config = {"from_attributes": True, "use_enum_values": True}
 
@@ -37,3 +40,9 @@ class PlaylistTrackAdd(BaseModel):
     album_id: UUID
 
     model_config = {"from_attributes": True}
+
+
+class ToggleFavoriteTrack(BaseModel):
+    track_name: str
+    artist: str
+

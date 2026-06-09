@@ -7,6 +7,14 @@
     margin-bottom: 32px;
 }
 
+/* Style pour le formulaire désactivé */
+.disabled-form .review-textarea,
+.disabled-form .rating-selection {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+
 .review-form-title {
     margin: 0 0 16px 0;
     font-size: 1.1rem;
@@ -93,4 +101,20 @@
     opacity: 0.5;
     cursor: not-allowed;
     border-color: var(--divider-color);
+}
+
+.btn-edit-review {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-edit-review:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: white;
 }

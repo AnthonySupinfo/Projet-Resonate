@@ -1,19 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import StarRating from '../StarRating/StarRating';
 import { likeReview, unlikeReview, deleteReview, reportReview, createCommentReview, deleteCommentReview, updateReview } from '../../../api/api';
 import './ReviewCard.css';
 import { useAuth } from '../../../context/AuthContext';
 import { getUserStats } from '../../../api/auth';
 
-export default function ReviewCard({ review, onReviewDeleted }) {
+export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated }) {
 
     const { user } = useAuth();
     const currentUserId = user?.user_id || user?.id;
 
     const [currentReview, setCurrentReview] = useState(review);
 
-    const [isLiked, setIsLiked] = useState(review.is_liked_by_user || false);
-    const [likesCount, setLikesCount] = useState(review.like_count || 0);
+    const [isLiked, setIsLiked] = useState(review.user_liked || false);
+    const [likesCount, setLikesCount] = useState(review.likes_count || 0);
     const [isLiking, setIsLiking] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
@@ -27,33 +27,70 @@ export default function ReviewCard({ review, onReviewDeleted }) {
     const [editContent, setEditContent] = useState(currentReview.content || '');
     const [isUpdating, setIsUpdating] = useState(false);
 
+    useEffect(() => {
+
+        console.log(" SYNC REVIEW CARD");
+
+        console.log("review.id:", review.id);
+        console.log("review.content:", review.content);
+        console.log("review.rating:", review.rating);
+
+        console.log("review.user_liked:", review.user_liked);
+        console.log("review.likes_count:", review.likes_count);
+
+        // CRITIQUE
+        setCurrentReview(review);
+
+        // likes / commentaires
+        setIsLiked(review.user_liked || false);
+        setLikesCount(review.likes_count || 0);
+        setComments(review.comments || []);
+
+    }, [review]); // IMPORTANT : dépendance sur review entier
+
 
     const formattedDate = new Date(review.posted_at).toLocaleDateString('fr-FR', {
         year: 'numeric', month: 'long', day: 'numeric'
     });
 
+    
     const handleLikeClick = async () => {
         if (isLiking) return;
+
+        console.log("CLICK LIKE");
+        console.log("review.id:", currentReview.id);
+        console.log("isLiked BEFORE:", isLiked);
+
         setIsLiking(true);
+
         const nextStatus = !isLiked;
 
+        // optimistic update
         setIsLiked(nextStatus);
         setLikesCount(prev => nextStatus ? prev + 1 : prev - 1);
 
         try {
             if (nextStatus) {
+                console.log(" CALL likeReview()");
                 await likeReview(currentReview.id);
             } else {
+                console.log(" CALL unlikeReview()");
                 await unlikeReview(currentReview.id);
             }
+
+            console.log(" API SUCCESS");
+
         } catch (error) {
-            console.error("Erreur lors du like", error);
-            setIsLiked(!nextStatus); // annule si backend refuse
-            setLikesCount(prev => !nextStatus ? prev +1 : prev - 1);
+            console.error(" ERROR LIKE:", error);
+
+            // rollback
+            setIsLiked(!nextStatus);
+            setLikesCount(prev => !nextStatus ? prev + 1 : prev - 1);
         } finally {
             setIsLiking(false);
         }
     };
+
 
     const handleDeleteClick = async () => {
         if (window.confirm("Voulez-vous vraiment supprimer cette critique ?")) {
@@ -83,36 +120,80 @@ export default function ReviewCard({ review, onReviewDeleted }) {
 
     const handleEditSubmit = async (e) => {
         e.preventDefault();
+
+        console.log(" EDIT SUBMIT");
+        console.log("review.id:", currentReview.id);
+
         setIsUpdating(true);
+
         try {
             const updatedRev = await updateReview(currentReview.id, {
                 rating: editRating,
                 content: editContent.trim()
             });
-            setCurrentReview({ ...currentReview, rating: updatedRev.rating, content: updatedRev.content, has_been_modified: true});
+
+            console.log(" API UPDATE RESULT:", updatedRev);
+
+            const updatedReviewFull = {
+                ...currentReview,
+                rating: updatedRev.rating,
+                content: updatedRev.content,
+                has_been_modified: true
+            };
+
+            //  update local
+            setCurrentReview(updatedReviewFull);
+
+            //  update parent (IMPORTANT)
+            if (onReviewUpdated) {
+                console.log(" SENDING UPDATE TO PARENT");
+                onReviewUpdated(updatedReviewFull);
+            }
+
             setIsEditing(false);
+            console.log(" UPDATE SUCCESS:", updatedRev);
+
         } catch (error) {
+            console.error(" ERROR UPDATE:", error);
             alert("Erreur lors de la modification.");
         } finally {
             setIsUpdating(false);
         }
+
     };
 
     const handleCommentSubmit = async (e) => {
         e.preventDefault();
-        if(!newComment.trim()) return;
+
+        if (!newComment.trim()) return;
+
+        console.log(" SUBMIT COMMENT");
+        console.log("review.id:", currentReview.id);
+        console.log("content:", newComment);
 
         setIsCommenting(true);
+
         try {
-            const addedComment = await createCommentReview(currentReview.id, newComment.trim()); 
+            console.log(" CALL createCommentReview");
+
+            const addedComment = await createCommentReview(
+                currentReview.id,
+                newComment.trim()
+            );
+
+            console.log(" API COMMENT RESPONSE:", addedComment);
+
             setComments([...comments, {
                 ...addedComment,
-                username: user?.username,// a modifier pour fetch les vraies commentaire 
+                username: user?.username,
                 user_id: currentUserId
             }]);
+
             setNewComment('');
+
         } catch (error) {
-            console.error("Erreur lors de l'ajout du commentaire", error);
+            console.error(" COMMENT ERROR:", error);
+
             alert("Impossible de poster le commentaire");
         } finally {
             setIsCommenting(false);
@@ -176,15 +257,22 @@ export default function ReviewCard({ review, onReviewDeleted }) {
                             {showComments ? 'Masquer' : 'Commenter'} {comments.length > 0 && `(${comments.length})`}
                         </button>
                     </div>
-
+             
                     <div className="review-actions">
                         {String(currentUserId) === String(currentReview.user_id) ? (
                             <>
-                                <button className="action-btn edit-btn" onClick={() => setIsEditing(true)}>Modifier</button>
-                                <button className="action-btn delete-btn" onClick={handleDeleteClick}>Supprimer</button>
+                                <button className="action-btn edit-btn" onClick={() => setIsEditing(true)}>
+                                    Modifier
+                                </button>
+                                <button
+                                    className="action-btn delete-btn" onClick={handleDeleteClick}>
+                                    Supprimer
+                                </button>
                             </>
                         ) : (
-                            <button className="action-btn report-btn" onClick={handleReportClick} title="Signaler">Signaler</button>
+                            <button className="action-btn report-btn" onClick={handleReportClick} title="Signaler">
+                                Signaler
+                            </button>
                         )}
                     </div>
                 </div>
@@ -219,3 +307,4 @@ export default function ReviewCard({ review, onReviewDeleted }) {
         </div>
     );
 }
+  

@@ -18,6 +18,9 @@ export default function LibraryPage() {
     const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const favorites = userPlaylists.find(p =>
+        p.playlist ? p.playlist.is_favorite : p.is_favorite
+    );
     const { t } = useLanguage();
 
     const [stats, setStats] = useState({
@@ -208,6 +211,7 @@ export default function LibraryPage() {
                     <h4 className="static-title">{t('library.createNewPlaylist')}</h4>
                 </div>
 
+                {/*
                 <div className="static-card favorite-card carousel-static">
                     <div className="static-cover favorites-cover">
                         <span className="heart-icon">♥</span>
@@ -215,10 +219,21 @@ export default function LibraryPage() {
                     <h4 className="static-title">{t('library.favoriteTracks')}</h4>
                     <p className="static-meta">{stats.favoriteTracks} {t('library.tracksCount')}</p>
                 </div>
+                */}
 
-                {userPlaylists.map(playlist => (
-                    <PlaylistCard key={`custom-${playlist.id}`} playlist={playlist} onPlaylistUpdated={handlePlaylistStatusChange}/>
-                ))}
+                {favorites && (
+                    <PlaylistCard playlist={favorites} />
+                )}
+                {userPlaylists
+                    .filter(p => !(p.playlist ? p.playlist.is_favorite : p.is_favorite))
+                    .map(playlist => (
+                        <PlaylistCard
+                            key={`custom-${playlist.id}`}
+                            playlist={playlist}
+                            onPlaylistUpdated={handlePlaylistStatusChange}
+                        />
+                    ))
+                }
             </Carousel>
 
             <CreatePlaylistModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onPlaylistCreated={handlePlaylistCreated} />
