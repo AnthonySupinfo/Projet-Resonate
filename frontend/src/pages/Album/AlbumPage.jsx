@@ -26,14 +26,6 @@ export default function AlbumPage() {
     const fetchAlbum = async () => {
       const res = await fetch(`/api/v1/detail/${artist}/${album}`);
       const json = await res.json();
-
-
-      console.log("ALBUM DATA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!:", json, ""); 
-      console.log("IMAGE:", json.image, "");
-
-      console.log("TRACKS:", json.tracks);
-
-
       setData(json);
     };
 
@@ -104,6 +96,8 @@ export default function AlbumPage() {
         : [...prev, trackId]
     );
   };
+
+  
 
 
   const handleFavorite = async (track) => {
