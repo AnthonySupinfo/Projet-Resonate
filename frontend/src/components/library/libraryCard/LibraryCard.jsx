@@ -26,7 +26,11 @@ export default function LibraryCard() {
         };
         load();
         window.addEventListener("playlistUpdated", load);
-        return () => window.removeEventListener("playlistUpdated", load);
+        window.addEventListener("libraryUpdated", load);
+        return () => {
+            window.removeEventListener("playlistUpdated", load);
+            window.removeEventListener("libraryUpdated", load);
+        };
     }, []);
 
     const handlePlaylistCreated = (newPlaylist) => {
@@ -96,7 +100,11 @@ export default function LibraryCard() {
                     ) : albums.map(item => {
                         const a = item.album || item;
                         return (
-                            <li key={item.id} className="library-item">
+                            <li
+                                key={item.id}
+                                className="library-item"
+                                onClick={() => navigate(`/albums/${encodeURIComponent(a.artist_name)}/${encodeURIComponent(a.name)}`)}
+                            >
                                 <div className="library-icon cover-placeholder">
                                     <img src={a.image_url || `https://placehold.co/40x40/2a2a2c/ffffff?text=${(a.name || '?') [0]}`} alt={a.name} />
                                 </div>

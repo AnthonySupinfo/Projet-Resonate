@@ -26,8 +26,8 @@ class FeedItemResponse(BaseModel):
 
     track_count: Optional[int] = 0
 
-    track_id: Optional[int]
-    track_title: Optional[str]
+    track_id: Optional[int] = None
+    track_title: Optional[str] = None
 
     cover_url: Optional[str] = None
 

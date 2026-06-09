@@ -120,7 +120,12 @@ export default function PlaylistDetailPage() {
                 ) : (
                     <ul className="tracklist">
                         {playlist.tracks.map((track, index) => (
-                            <li key={track.id} className="track-item">
+                            <li
+                                key={track.id}
+                                className="track-item"
+                                onClick={() => navigate(`/albums/${encodeURIComponent(track.artist)}/${encodeURIComponent(track.album_name)}`)}
+                                style={{ cursor: 'pointer' }}
+                            >
                                 <span className="track-number">{index + 1}</span>
                                 <div className="track-details">
                                     <span className="track-name">{track.name || "Titre inconnu"}</span>

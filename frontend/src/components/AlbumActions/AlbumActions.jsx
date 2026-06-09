@@ -36,6 +36,7 @@ export default function AlbumActions({ albumId }) {
         try {
             await upsertAlbumStatus(albumId, newStatus);
             setCurrentStatus(newStatus);
+            window.dispatchEvent(new Event("libraryUpdated"));
             
             setTimeout(() => {
                         navigate("/library/albums");
