@@ -5,6 +5,13 @@ import CreatePlaylistModal from '../modals/CreatePlaylistModal';
 import { useLanguage } from '../../../context/LanguageContext.jsx';
 import './LibraryCard.css';
 
+const generateColorFrame = (name) => {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    const c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
+    return "00000" .substring(0, 6 - c.length) + c;
+};
+
 export default function LibraryCard() {
     const [activeTab, setActiveTab] = useState('playlists'); // state pour gérer l'onglet actif
     const [playlists, setPlaylists] = useState([]);
@@ -47,7 +54,7 @@ export default function LibraryCard() {
 
     const getCoverUrl = (url, name) => {
         if (url && url !== 'null') {
-            return `api/v1/image-proxy?url=${encodeURIComponent(url)}`;
+            return `/api/v1/image-proxy?url=${encodeURIComponent(url)}`;
         }
         return `https://placehold.co/40x40/2a2a2c/ffffff?text=${encodeURIComponent((name || '?')[0])}`;
     }
@@ -84,19 +91,25 @@ export default function LibraryCard() {
                         </li>
                     )}
 
-                    {customPlaylists.map(playlist => (
-                        <li key={playlist.id} className="library-item" onClick={() => navigate (`/library/playlists/${playlist.id}`)}>
-                            <div className="library-icon cover-placeholder">
-                                <img src={playlist.cover_url || `https://placehold.co/40x40/1a1a1a/ffffff?text=${playlist.name[0]}`} alt={playlist.name}/>
-                            </div>
-                            <div className="library-info">
-                                <span className="library-name">
-                                    {playlist.name}
-                                </span>
-                                <span className="library-meta">   {t('library.playlistMeta')} • {playlist.is_public ? t('library.publicStatus') : t('library.privateStatus')}</span>
-                        </div>
-                    </li>
-                    ))}
+                    {customPlaylists.map(playlist => {
+
+                        const bgColor = generateColorFrame(playlist.name || "default");
+                        const fallbackCover = `https://ui-avatars.com/api/?name=${encodeURIComponent(playlist.name)}&background=${bgColor}&color=fff&size=400&format=svg`;
+
+                        return (
+                            <li key={playlist.id} className="library-item" onClick={() => navigate (`/library/playlists/${playlist.id}`)}>
+                                <div className="library-icon cover-placeholder">
+                                    <img src={playlist.cover_url || playlist.coverUrl || fallbackCover} alt={playlist.name}/>
+                                </div>
+                                <div className="library-info">
+                                    <span className="library-name">
+                                        {playlist.name}
+                                    </span>
+                                    <span className="library-meta">   {t('library.playlistMeta')} • {playlist.is_public ? t('library.publicStatus') : t('library.privateStatus')}</span>
+                                </div>
+                            </li>
+                        );
+                    })}
                 </ul>
             )}
 
@@ -112,18 +125,21 @@ export default function LibraryCard() {
                         const a = item.album || item;
                         const artist = a.artist_name || a.artist || "Artiste inconnu";
                         const title = a.name || a.title || "Titre inconnu";
+
+                        const coverSrc = a.image_url || a.image || a.cover_url;
+
                         return (
                             <li
                                 key={item.id}
                                 className="library-item"
-                                onClick={() => navigate(`/albums/${encodeURIComponent(a.artist_name)}/${encodeURIComponent(a.name)}`)}
+                                onClick={() => navigate(`/albums/${encodeURIComponent(a.artist)}/${encodeURIComponent(a.title)}`)}
                             >
                                 <div className="library-icon cover-placeholder">
-                                    <img src={getCoverUrl(a.image, a.name)} alt={a.name} />
+                                    <img src={getCoverUrl(coverSrc, title)} alt={title} />
                                 </div>
                                 <div className="library-info">
-                                    <span className="library-name">{a.name}</span>
-                                    <span className="library-meta">{a.artist_name} • {item.status}</span>
+                                    <span className="library-name">{title}</span>
+                                    <span className="library-meta">{artist} • {item.status}</span>
                                 </div>
                             </li>
                         );
