@@ -56,12 +56,16 @@ async def create_playlist(
 
     await db.flush()
 
-    await feed_service.log_activity(
-        db=db,
-        user_id=current_user["user_id"],
-        activity_type=ActivityTypes.CREATE_PLAYLIST,
-        playlist_id=new_playlist.id
-    )
+    if new_playlist.is_public:
+        try:
+            await feed_service.log_activity(
+                db=db,
+                user_id=current_user["user_id"],
+                activity_type=ActivityTypes.CREATE_PLAYLIST,
+                playlist_id=new_playlist.id
+            )
+        except Exception as e:
+            print("Feed error:", e)
 
     await db.commit()
     await db.refresh(new_playlist)
@@ -178,13 +182,11 @@ async def add_track_playlist(
     result_track_existing = await db.execute(stmt_track_existing)
     track_existing = result_track_existing.scalars().first()
 
-
     if not track_existing:
         stmt_album = select(Album).limit(1)
         result_album = await db.execute(stmt_album)
         album = result_album.scalars().first()
         artist = body.artist
-
 
         if not album:
             album = Album(
@@ -193,7 +195,6 @@ async def add_track_playlist(
             )
             db.add(album)
             await db.flush()
-
 
         if not album:
             raise HTTPException(status_code=500, detail="Aucun album en base")
@@ -227,16 +228,17 @@ async def add_track_playlist(
 
     db.add(new_item)
 
-    try:
-        await feed_service.log_activity(
-            db=db,
-            user_id=current_user["user_id"],
-            activity_type=ActivityTypes.ADD_TRACK_PLAYLIST,
-            playlist_id=playlist_id,
-            track_id=track_existing.id
-        )
-    except Exception as e:
-        print("Feed error:", e)
+    if getattr(existing, "is_public", False):
+        try:
+            await feed_service.log_activity(
+                db=db,
+                user_id=current_user["user_id"],
+                activity_type=ActivityTypes.ADD_TRACK_PLAYLIST,
+                playlist_id=playlist_id,
+                track_id=track_existing.id
+            )
+        except Exception as e:
+            print("Feed error:", e)
 
     await db.commit()
     await db.refresh(new_item)

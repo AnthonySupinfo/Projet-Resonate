@@ -18,8 +18,8 @@
         timeDaysAgo: "Il y a {time}j",
 
         notifDefaultUser: "Un utilisateur",
-        notifLike: "aime votre contenu",
-        notifComment: "a commenté votre publication",
+        notifLike: "aime le commentaire que vous avez laissé sur l'album",
+        notifComment: "a répondu au commentaire que vous avez laissé sur l'album",
         notifFollow: "vous suit",
         notifDefaultActivity: "Nouvelle activité de",
 
@@ -57,8 +57,8 @@
         timeDaysAgo: "{time}d ago",
 
         notifDefaultUser: "A user",
-        notifLike: "liked your content",
-        notifComment: "commented on your post",
+        notifLike: "liked the comment you left on the album",
+        notifComment: "responded to your post on the album",
         notifFollow: "followed you",
         notifDefaultActivity: "New activity from",
 

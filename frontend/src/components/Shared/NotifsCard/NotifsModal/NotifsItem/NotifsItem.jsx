@@ -67,18 +67,25 @@ export default function NotifsItem({ notification, onRead, myAvatar }) {
         }
 
         const username = notification.related_user_username || t('layout.notifDefaultUser');
+        const hasAlbumInfo = notification.album_title && notification.album_artist;
 
         switch (notification.type) {
             case "LIKE":
                 return (
                     <span className="notif-text-content">
                         <strong>{username}</strong> {t('layout.notifLike')}
+                        {hasAlbumInfo && (
+                            <> <strong>{notification.album_title}</strong> de <strong>{notification.album_artist}</strong></>
+                        )}
                     </span>
                 );
             case "COMMENT":
                 return (
                     <span className="notif-text-content">
                         <strong>{username}</strong> {t('layout.notifComment')}
+                        {hasAlbumInfo && (
+                            <> <strong>{notification.album_title}</strong> de <strong>{notification.album_artist}</strong></>
+                        )}
                     </span>
                 );
             case "FOLLOW":
@@ -129,7 +136,7 @@ export default function NotifsItem({ notification, onRead, myAvatar }) {
 
         return (
             <img
-                src={"https://placehold.co/44x44/1a1a1a/ffffff?text=C"}
+                src={notification.cover_url || "https://placehold.co/44x44/1a1a1a/ffffff?text=C"}
                 alt={t('layout.altCover')}
                 className="notif-thumbnail rounded"
             />
@@ -149,8 +156,17 @@ export default function NotifsItem({ notification, onRead, myAvatar }) {
                     if (!notification.is_read) {
                         onRead(notification.id);
                     }
+
                     if (notification.type === 'FOLLOW' && notification.related_user_id) {
                         navigate(`/user/${notification.related_user_id}`);
+                    } else if (
+                        (notification.type === 'LIKE' || notification.type === 'COMMENT') &&
+                        notification.album_artist &&
+                        notification.album_title
+                    ) {
+                        const safeArtist = encodeURIComponent(notification.album_artist);
+                        const safeTitle = encodeURIComponent(notification.album_title);
+                        navigate(`/albums/${safeArtist}/${safeTitle}`);
                     }
                 }}
             >

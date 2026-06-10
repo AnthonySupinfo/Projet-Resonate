@@ -1,5 +1,5 @@
 ﻿from sqlalchemy import select, desc, func
-from app.models import Album, Review
+from app.models import Album, Review, Track, UserAlbumStatus
 from app.models.follow import Follow
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.user_activity_feed import UserActivityFeed, ActivityTypes
@@ -85,11 +85,25 @@ class FeedService:
                     item["track_count"] = await db.scalar(stmt_count) or 0
 
             # Albums
-            elif activity.activity_type == ActivityTypes.LIKE_ALBUM and activity.album_id:
+            elif activity.activity_type == ActivityTypes.UPDATE_ALBUM_STATUS and activity.album_id:
                 album = await db.get(Album, activity.album_id)
                 item["album_id"] = activity.album_id
-                item["album_title"] = album.title if album else "Album inconnu"
-                item["cover_url"] = album.image if album else None
+
+                if album:
+                    item["album_title"] = album.title or album.name
+                    item["album_artist"] = album.artist_name
+                    item["cover_url"] = album.image
+                else:
+                    item["album_title"] = "Album inconnu"
+                    item["album_artist"] = "Artiste inconnu"
+
+                stmt_status = select(UserAlbumStatus).where(
+                    UserAlbumStatus.user_id == activity.user_id,
+                    UserAlbumStatus.album_id == activity.album_id
+                )
+                result_status = await db.execute(stmt_status)
+                status_obj = result_status.scalar_one_or_none()
+                item["album_status"] = status_obj.status.value if status_obj else "PLANNED"
 
             elif activity.activity_type == ActivityTypes.REVIEW_ALBUM and activity.review_id:
                 review = await db.get(Review, activity.review_id)
@@ -101,9 +115,11 @@ class FeedService:
 
                     if review.album_id:
                         album = await db.get(Album, review.album_id)
-                        item["album_id"] = review.album_id
-                        item["album_title"] = album.title if album else "Album inconnu"
-                        # item["cover_url"] = album.cover_url if album else None TODO: décommenter quand Krishna aura fait les albums
+                        if album:
+                            item["album_id"] = review.album_id
+                            item["album_title"] = album.title or album.name
+                            item["album_artist"] = album.artist_name
+                            item["cover_url"] = album.image
 
             # Follow users
             elif activity.activity_type == ActivityTypes.FOLLOW_USER and activity.target_user_id:
@@ -136,11 +152,20 @@ class FeedService:
                     item["playlist_id"] = activity.playlist_id
                     item["playlist_name"] = playlist.name if playlist else "Playlist supprimée"
 
-                # TODO : décommenter quand Krishna aura fait les tracks
-                # if activity.track_id:
-                #     track = await db.get(Track, activity.track_id)
-                #     item["track_id"] = activity.track_id
-                #     item["track_title"] = track.title if track else "Musique inconnue"
+                if activity.track_id:
+                    track = await db.get(Track, activity.track_id)
+                    if track:
+                        item["track_id"] = activity.track_id
+                        item["track_name"] = track.name
+                        item["track_artist"] = track.artist
+                        item["track_duration"] = track.duration
+
+                        if track.album_id:
+                            album = await db.get(Album, track.album_id)
+                            if album:
+                                item["album_id"] = track.album_id
+                                item["album_title"] = album.title or album.name
+                                item["cover_url"] = album.image
 
             injected_feed.append(item)
 

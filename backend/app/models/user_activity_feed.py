@@ -8,7 +8,7 @@ from app.db.session import Base
 
 class ActivityTypes(str, enum.Enum):
     LIKE_TRACK = "LIKE_TRACK"
-    LIKE_ALBUM = "LIKE_ALBUM"
+    UPDATE_ALBUM_STATUS = "UPDATE_ALBUM_STATUS"
     FOLLOW_PLAYLIST = "FOLLOW_PLAYLIST"
     FOLLOW_USER = "FOLLOW_USER"
     CREATE_PLAYLIST = "CREATE_PLAYLIST"

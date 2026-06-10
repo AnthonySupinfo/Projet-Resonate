@@ -1,0 +1,79 @@
+.social-item-review-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 12px 16px;
+}
+
+.review-cover-link {
+    flex-shrink: 0;
+    display: flex;
+}
+
+.review-album-cover {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.review-content-wrapper {
+    display: flex;
+    align-items: flex-start;
+    background-color: color-mix(in srgb, var(--bg-main-start) 20%, transparent);
+    border-radius: 12px;
+    padding: 12px 16px;
+    gap: 12px;
+    flex-grow: 1;
+    min-height: 80px;
+    box-sizing: border-box;
+}
+
+.review-avatar-link {
+    flex-shrink: 0;
+    display: flex;
+}
+
+.review-user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--input-bg-subtle);
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.review-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 2px;
+}
+
+.review-stars {
+    display: flex;
+    gap: 2px;
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+.review-star {
+    color: var(--text-muted);
+}
+
+.review-star.filled {
+    color: var(--accent-primary, #ff8da1);
+}
+
+.review-text {
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    margin: 0;
+    line-height: 1.4;
+    word-break: break-word;
+}

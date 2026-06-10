@@ -52,7 +52,12 @@ export const social = {
         editHint: "Entrée pour valider, Échap pour annuler",
         editIcon: "Modifier",
         yourMessagePlaceholder: "Votre message...",
-        clearTooltip: "Effacer"
+        clearTooltip: "Effacer",
+        statusPlanned: "veut écouter",
+        statusListening: "est en train d'écouter",
+        statusCompleted: "a terminé d'écouter",
+        statusDropped: "a abandonné l'écoute de",
+        reviewedAlbum: "a mis une critique sur"
     },
     en: {
         loading: "Loading...",
@@ -107,6 +112,11 @@ export const social = {
         editHint: "Enter to save, Esc to cancel",
         editIcon: "Edit",
         yourMessagePlaceholder: "Your message...",
-        clearTooltip: "Clear"
+        clearTooltip: "Clear",
+        statusPlanned: "wants to listen to",
+        statusListening: "is listening to",
+        statusCompleted: "finished listening to",
+        statusDropped: "dropped",
+        reviewedAlbum: "reviewed"
     }
 };

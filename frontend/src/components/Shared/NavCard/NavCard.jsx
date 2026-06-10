@@ -31,14 +31,14 @@ export default function NavCard() {
                     )}
                 </NavLink>
 
-                <NavLink to="/explore" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
-                    {({ isActive }) => (
-                        <>
-                            <span className="nav-text">{t('layout.navExplore')}</span>
-                            <img src={isActive ? iconExploreSelected : iconExploreUnselected} alt="" className="nav-icon" />
-                        </>
-                    )}
-                </NavLink>
+                {/*<NavLink to="/explore" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>*/}
+                {/*    {({ isActive }) => (*/}
+                {/*        <>*/}
+                {/*            <span className="nav-text">{t('layout.navExplore')}</span>*/}
+                {/*            <img src={isActive ? iconExploreSelected : iconExploreUnselected} alt="" className="nav-icon" />*/}
+                {/*        </>*/}
+                {/*    )}*/}
+                {/*</NavLink>*/}
 
 
                 {user ? (

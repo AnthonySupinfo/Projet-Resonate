@@ -1,6 +1,7 @@
 ﻿from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
+from uuid import UUID
 from app.models.user_activity_feed import ActivityTypes
 
 class FeedItemResponse(BaseModel):
@@ -8,7 +9,6 @@ class FeedItemResponse(BaseModel):
     activity_type: ActivityTypes
     created_at: datetime
 
-    # actor = user qui fait une action, déclenchant un post
     actor_id: str
     actor_username: str
     actor_avatar: Optional[str] = None
@@ -21,21 +21,23 @@ class FeedItemResponse(BaseModel):
     playlist_id: Optional[int] = None
     playlist_name: Optional[str] = None
 
-    album_id: Optional[int] = None
+    album_id: Optional[UUID] = None
     album_title: Optional[str] = None
+    album_artist: Optional[str] = None
+    album_status: Optional[str] = None
 
     track_count: Optional[int] = 0
 
-    track_id: Optional[int] = None
-    track_title: Optional[str] = None
+    track_id: Optional[UUID] = None
+    track_name: Optional[str] = None
+    track_artist: Optional[str] = None
+    track_duration: Optional[int] = None
 
     cover_url: Optional[str] = None
 
     review_id: Optional[int] = None
     review_comment_content: Optional[str] = None
     review_like_rating: Optional[int] = None
-
-    # rajouter les autres infos à afficher ici si il y en a besoin d'autres
 
     class Config:
         from_attributes = True

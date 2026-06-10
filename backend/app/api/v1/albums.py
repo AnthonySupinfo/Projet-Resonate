@@ -9,6 +9,8 @@ from typing import Literal
 from uuid import UUID
 
 from app.core.dependencies import get_current_user, require_admin, get_optional_user
+from app.models.user_activity_feed import ActivityTypes
+from app.services.feed import feed_service
 from app.services.lastfm import lastfm_service
 from app.models.album import Album
 from app.db.session import get_db
@@ -178,6 +180,9 @@ class StatusUpdate(BaseModel):
     status: Literal["PLANNED", "LISTENING", "COMPLETED", "DROPPED"]
 
 
+class StatusUpdate(BaseModel):
+    status: Literal["PLANNED", "LISTENING", "COMPLETED", "DROPPED"]
+
 @router.put("/albums/{album_id}/status")
 async def update_album_status(
     album_id: UUID,
@@ -205,5 +210,15 @@ async def update_album_status(
         db.add(new_status)
 
     await db.commit()
+
+    try:
+        await feed_service.log_activity(
+            db=db,
+            user_id=current_user["user_id"],
+            activity_type=ActivityTypes.UPDATE_ALBUM_STATUS,
+            album_id=album_id
+        )
+    except Exception as e:
+        print("Feed error:", e)
 
     return {"status": data.status}
