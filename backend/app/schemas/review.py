@@ -31,7 +31,6 @@ class ReviewUpdate(BaseModel):
 
 
 class ReviewResponse(ReviewCreate):
-
     id: int
     user_id: UUID
     album_id: UUID

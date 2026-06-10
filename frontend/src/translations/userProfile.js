@@ -29,13 +29,17 @@ export const userProfile = {
 
         statsTitle: "Statistiques",
         statAlbums: "albums",
-        statLiked: "aimés",
+        statInProgress: "en cours",
         statRatings: "notations",
         statGiven: "données",
         statComments: "commentaires",
         statLeft: "laissés",
         statMinutes: "minutes",
-        statListening: "d'écoute"
+        statListening: "d'écoute",
+
+        userNotFoundTitle: "Utilisateur introuvable",
+        userNotFoundDesc: "Ce profil n'existe pas ou a été supprimé.",
+        backToHome: "Retour à l'accueil",
     },
     en: {
         recentAlbums: "Recent albums",
@@ -67,12 +71,16 @@ export const userProfile = {
 
         statsTitle: "Statistics",
         statAlbums: "albums",
-        statLiked: "liked",
+        statInProgress: "in progress",
         statRatings: "ratings",
         statGiven: "given",
         statComments: "comments",
         statLeft: "left",
         statMinutes: "minutes",
-        statListening: "listened"
+        statListening: "listened",
+
+        userNotFoundTitle: "User not found",
+        userNotFoundDesc: "This profile does not exist or has been deleted.",
+        backToHome: "Back to home",
     }
 };

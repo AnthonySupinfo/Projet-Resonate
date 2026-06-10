@@ -1,24 +1,22 @@
-from sqlalchemy import Column, String, DateTime # type de colonne SQLAlchemy
-from sqlalchemy.dialects.postgresql import UUID # pour des clés uniques universelles
-from sqlalchemy.sql import func # pour des fonctions SQL
-import uuid # pour générer des UUID
+from sqlalchemy import Column, String, DateTime
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.sql import func
+import uuid
 
-from app.db.session import Base # la classe de base pour les modèles SQLAlchemy
-
-
+from app.db.session import Base
 
 
 
-class Artist(Base): # Artist hérite de Base : c'est un modèle ORM qui représente 
-    # la table "artists" dans la base de données
-    __tablename__ = "artists" # nom de la table dans la base de données
+
+
+class Artist(Base):
+    __tablename__ = "artists"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4) 
 
     name = Column(String, nullable=False, unique=True, index=True) 
 
-    lastfm_url = Column(String, unique=True, index=True) # URL unique de l'artiste 
-    # sur Last.fm, unique=True pour éviter les doublons,
+    lastfm_url = Column(String, unique=True, index=True)
 
     fetched_at = Column(DateTime(timezone=True), nullable=True) 
 

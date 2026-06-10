@@ -180,7 +180,6 @@ async def add_track_playlist(
 
 
     if not track_existing:
-        # récupérer un album existant
         stmt_album = select(Album).limit(1)
         result_album = await db.execute(stmt_album)
         album = result_album.scalars().first()
@@ -203,13 +202,12 @@ async def add_track_playlist(
             id=uuid4(),
             name=body.track_name,
             artist=artist,
-            album_id=album.id  # FIX IMPORTANT
+            album_id=album.id
         )
         db.add(track_existing)
         await db.flush()
 
     else:
-        # IMPORTANT : mettre à jour l'artiste si absent
         if not track_existing.artist and body.artist:
             track_existing.artist = body.artist
             await db.flush()
@@ -267,19 +265,12 @@ async def remove_track_playlist(
     await db.delete(item_playlist)
     await db.commit()
 
-# TOFIX : toggle favoris (ajout/suppression d'une track dans la playlist favoris)
 @router.post("/favorites/toggle", status_code=200)
 async def toggle_favorite_track(
     body: ToggleFavoriteTrack,
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user)
 ):
-
-    print("\n===== TOGGLE FAVORITE CALLED =====")
-    print("BODY:", body)
-    print("USER:", current_user)
-
-    # 1. FIND FAVORITES PLAYLIST
     stmt_fav = select(Playlist).filter(
         Playlist.user_id == current_user["user_id"],
         Playlist.is_favorite == True,
@@ -288,20 +279,14 @@ async def toggle_favorite_track(
     result_fav = await db.execute(stmt_fav)
     fav_playlist = result_fav.scalars().first()
 
-    # 2. PROTECTION : la playlist favoris doit exister (créée à l'inscription)
     if not fav_playlist:
         raise Exception("Favorites playlist should already exist")
 
-
-    print("USING PLAYLIST:", fav_playlist.id)
-
-    # 3. FIND TRACK (FIX IMPORTANT)
     stmt_track = select(Track).filter(Track.name == body.track_name, Track.artist == body.artist)
     result_track = await db.execute(stmt_track)
     track = result_track.scalars().first()
 
     if not track:
-        print("CREATE TRACK")
 
         stmt_album = select(Album).limit(1)
         result_album = await db.execute(stmt_album)
@@ -322,7 +307,6 @@ async def toggle_favorite_track(
         db.add(track)
         await db.flush()
 
-    # 4. CHECK EXISTING ITEM
     stmt_item = select(UserPlaylistItem).filter(
         UserPlaylistItem.playlist_id == fav_playlist.id,
         UserPlaylistItem.track_id == track.id
@@ -331,23 +315,17 @@ async def toggle_favorite_track(
     existing = result_item.scalars().first()
 
     if existing:
-        print("REMOVE FROM FAVORITES")
         await db.delete(existing)
         status = "removed"
     else:
-        print("ADD TO FAVORITES")
         db.add(UserPlaylistItem(
             playlist_id=fav_playlist.id,
             track_id=track.id
         ))
         status = "added"
 
-    # SEUL COMMIT ICI
     await db.commit()
 
-    print("FINAL COMMIT DONE")
-
-    # DEBUG FINAL (va maintenant s’exécuter !)
     stmt_check = select(Playlist).where(
         Playlist.user_id == current_user["user_id"]
     )

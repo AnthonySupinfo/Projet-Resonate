@@ -4,12 +4,14 @@ import { useLanguage } from "../../../context/LanguageContext.jsx";
 import { getUserStats } from "../../../api/auth.js";
 import './StatsCard.css';
 
-export default function StatsCard() {
+export default function StatsCard({ userId }) {
     const { user } = useAuth();
     const { t } = useLanguage();
 
+    const targetId = userId || user?.id;
+
     const [stats, setStats] = useState({
-        liked_albums_count: 0,
+        in_progress_albums_count: 0,
         reviews_count: 0,
         comments_count: 0,
         listening_minutes: 0
@@ -17,20 +19,20 @@ export default function StatsCard() {
 
     useEffect(() => {
         const fetchStats = async () => {
-            if (user?.id) {
+            if (targetId) {
                 try {
-                    const data = await getUserStats(user.id);
+                    const data = await getUserStats(targetId);
                     if (data) {
                         setStats(data);
                     }
                 } catch (err) {
-                    console.error("Erreur lors de la récupération des statistiques de la page profil", err);
+                    console.error(err);
                 }
             }
         };
 
         fetchStats();
-    }, [user?.id]);
+    }, [targetId]);
 
     return (
         <div className="stats-card-container">
@@ -38,8 +40,8 @@ export default function StatsCard() {
 
             <div className="stats-row">
                 <div className="stat-block">
-                    <span className="stat-value">{stats.liked_albums_count || 0}</span>
-                    <span className="stat-name">{t('userProfile.statAlbums')}<br/>{t('userProfile.statLiked')}</span>
+                    <span className="stat-value">{stats.in_progress_albums_count || 0}</span>
+                    <span className="stat-name">{t('userProfile.statAlbums')}<br/>{t('userProfile.statInProgress')}</span>
                 </div>
 
                 <div className="stat-block">

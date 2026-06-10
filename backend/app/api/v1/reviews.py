@@ -133,19 +133,14 @@ async def update_review(
     current_user: dict = Depends(get_current_user)
 ):
     try:
-        print(" UPDATE CALLED:", review_id)
-
         review = await check_review_exist_and_owner(review_id, current_user["user_id"], db)
 
         if not review:
-            print(" Review not found")
             raise HTTPException(status_code=404)
 
         if review.user_id != current_user["user_id"]:
-            print(" Unauthorized user")
             raise HTTPException(status_code=403)
 
-        # UPDATE PROPRE
         if body.rating is not None:
             review.rating = body.rating
 
@@ -158,19 +153,14 @@ async def update_review(
         await db.commit()
         await db.refresh(review)
 
-        print(" REVIEW UPDATED IN DB:", review.id)
-
-        # récupérer user
         stmt_user = select(User).where(User.id == review.user_id)
         user_result = await db.execute(stmt_user)
         user_obj = user_result.scalar_one()
 
-        # likes_count
         likes_count = await db.scalar(
             select(func.count()).where(ReviewLike.review_id == review.id)
         )
 
-        # user_liked
         stmt_like = select(ReviewLike).where(
             ReviewLike.review_id == review.id,
             ReviewLike.user_id == current_user["user_id"]
@@ -196,12 +186,9 @@ async def update_review(
             "comments": []
         }
 
-        print(" UPDATE RESPONSE:", response)
-
         return response
 
     except Exception as e:
-        print(" UPDATE ERROR:", e)
         raise
 
 @router.delete("/reviews/{review_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -240,14 +227,11 @@ async def get_album_reviews(
 
     rows = result_album.all()
 
-    print("TOTAL REVIEWS RAW:", len(rows))
-
     for row in rows:
         review_obj = row[0]
         username = row[1]
         avatar_url = row[2]
 
-        print("PROCESS REVIEW ID:", review_obj.id)
 
         # COUNT LIKES
         likes_count = await db.scalar(
@@ -323,17 +307,7 @@ async def get_album_reviews(
             "comments": formatted_comments
         }
 
-        print("ADDING REVIEW:", review_data["id"])
-
-        print("---- REVIEW DEBUG ----")
-        print("REVIEW ID:", review_obj.id)
-        print("LIKES COUNT:", likes_count)
-        print("USER LIKED:", user_liked)
-        print("----------------------")
-
         reviews_data.append(review_data)
 
-    print("FINAL REVIEWS SENT:", len(reviews_data))
-    print("FINAL RESPONSE SENT:", reviews_data)
 
     return reviews_data

@@ -33,7 +33,7 @@ class Review(Base):
     rating = Column(
         Integer,
         CheckConstraint('rating >= 0 AND rating <= 5'),
-        nullable=True  # IMPORTANT
+        nullable=True
     )
 
     content = Column(Text, nullable=True)
@@ -49,6 +49,5 @@ class Review(Base):
     # Coup de cœur admin
     is_featured = Column(Boolean, nullable=False, server_default="false")
 
-    # contrainte unique grâce à variable args
     __table_args__ = (UniqueConstraint("user_id", "album_id",
                                        name='unique review per person per album'),)
