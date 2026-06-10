@@ -98,6 +98,7 @@ export default function PlaylistDetailPage() {
     return (
         <div className="playlist-detail-page">
             <button className="back-btn" onClick={() => navigate(-1)}>← Retour</button>
+            
             <h1 className="playlist-page-title">{playlist.name}</h1>
             <div className="playlist-header">
                 <img
