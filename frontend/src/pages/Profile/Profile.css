@@ -6,3 +6,42 @@
     box-sizing: border-box;
     min-height: 100vh;
 }
+
+.profile-loading-container,
+.user-not-found-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+    text-align: center;
+    gap: 16px;
+}
+
+.user-not-found-icon {
+    font-size: 48px;
+    line-height: 1;
+}
+
+.user-not-found-text {
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.back-home-btn {
+    margin-top: 12px;
+    padding: 10px 24px;
+    border-radius: 24px;
+    background-color: var(--accent-primary);
+    color: var(--bg-main-start, #fff);
+    border: none;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.back-home-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}

@@ -5,6 +5,7 @@ import PlaylistCard from '../../components/library/playlistCard/PlaylistCard';
 import AlbumCard from '../../components/library/albumCard/AlbumCard';
 import { useLanguage } from '../../context/LanguageContext.jsx';
 import { getMyLibrary, getMyPlaylist, getUserLibrary, getUserPlaylists } from '../../api/api';
+import { getUserProfile } from '../../api/auth.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 
 import './Profile.css';
@@ -21,24 +22,36 @@ export default function Profile() {
     const [favoritePlaylists, setFavoritePlaylists] = useState([]);
     const [customPlaylists, setCustomPlaylists] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isError, setIsError] = useState(false);
 
     const navigate = useNavigate();
     const { t } = useLanguage();
 
     const fetchProfileContent = useCallback(async () => {
+        setIsLoading(true);
+        setIsError(false);
+
         try {
             let libraryRes, playlistRes;
 
-            if(isMyProfile) {
+            if (isMyProfile) {
                 [libraryRes, playlistRes] = await Promise.all([
                     getMyLibrary(),
                     getMyPlaylist()
                 ]);
             } else {
-                [libraryRes, playlistRes] = await Promise.all([
+                const [libraryResData, playlistResData, profileResData] = await Promise.all([
                     getUserLibrary(id),
-                    getUserPlaylists(id)
+                    getUserPlaylists(id),
+                    getUserProfile(id)
                 ]);
+
+                if (!profileResData || profileResData.error) {
+                    throw new Error("Utilisateur introuvable");
+                }
+
+                libraryRes = libraryResData;
+                playlistRes = playlistResData;
             }
 
             const sortedAlbum = [...libraryRes].sort((a, b) => {
@@ -54,7 +67,8 @@ export default function Profile() {
             setCustomPlaylists(playlistRes);
 
         } catch (error) {
-            console.error ("Erreur lors de la récupération du contenu du profil", error);
+            console.error(error);
+            setIsError(true);
         } finally {
             setIsLoading(false);
         }
@@ -63,7 +77,7 @@ export default function Profile() {
     useEffect(() => {
         fetchProfileContent();
 
-        if (isMyProfile) { // écoute que si notre profil
+        if (isMyProfile) {
             window.addEventListener("playlistUpdated", fetchProfileContent);
             window.addEventListener("favoriteChanged", fetchProfileContent);
             window.addEventListener("libraryUpdated", fetchProfileContent);
@@ -77,18 +91,43 @@ export default function Profile() {
 
     }, [fetchProfileContent, isMyProfile]);
 
-    const handlePlaylistStatusChange= (updatedPlaylist) => {
+    const handlePlaylistStatusChange = (updatedPlaylist) => {
         if (!isMyProfile) return;
         setCustomPlaylists(prev => prev.map(p => p.id === updatedPlaylist.id ? updatedPlaylist : p));
         setFavoritePlaylists(prev => prev.map(p => p.id === updatedPlaylist.id ? updatedPlaylist : p));
     };
+
+    if (isLoading) {
+        return (
+            <div className="profile-loading-container">
+                Chargement du profil...
+            </div>
+        );
+    }
+
+    if (isError) {
+        return (
+            <div className="user-not-found-container">
+                <h2>Utilisateur introuvable</h2>
+                <p className="user-not-found-text">
+                    Ce profil n'existe pas ou a été supprimé.
+                </p>
+                <button
+                    onClick={() => navigate('/')}
+                    className="back-home-btn"
+                >
+                    Retour à l'accueil
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div className="profile-container">
             <HeaderCard />
             <StatsCard />
 
-            {!isLoading && recentAlbums.length > 0 && (
+            {recentAlbums.length > 0 && (
                 <Carousel title={t('userProfile.recentAlbums')}>
                     {recentAlbums.map(item => {
                         const albumData = item.album || item;
@@ -97,7 +136,7 @@ export default function Profile() {
                 </Carousel>
             )}
 
-            {!isLoading && favoritePlaylists.length > 0 && (
+            {favoritePlaylists.length > 0 && (
                 <Carousel title={t('userProfile.favoritePlaylists')}>
                     {favoritePlaylists.map(item => {
                         const playlistData = item.playlist || item;
@@ -106,7 +145,7 @@ export default function Profile() {
                 </Carousel>
             )}
 
-            {!isLoading && customPlaylists.length > 0 && (
+            {customPlaylists.length > 0 && (
                 <Carousel title={isMyProfile ? t('userProfile.customPlaylists') : t('userProfile.customPublicPlaylists')} onSeeAll={() => isMyProfile ? navigate('/library/playlists') : null}>
                     {customPlaylists.map(item => {
                         const playlistData = item.playlist || item;
