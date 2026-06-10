@@ -17,6 +17,7 @@ from app.api.v1 import reviews
 from app.api.v1 import follows
 from app.api.v1 import notifications
 from app.api.v1 import message
+from app.api.v1 import admin
 
 # IMPORT DES MODELES (OBLIGATOIRE POUR create_all)
 from app.models.album import Album
@@ -110,13 +111,15 @@ app.include_router(playlist.router, prefix="/api/v1")
 app.include_router(reviews.router, prefix="/api/v1")
 app.include_router(interactions.router, prefix="/api/v1")
 
+# ROUTES ADMIN (modération signalements)
+app.include_router(admin.router, prefix="/api/v1")
 
 # HEALTH CHECK
 @app.get("/health")
 def health_check():
     return {"status": "ok", "service": "resonate-backend"}
+
 app.include_router(follows.router, prefix="/api/v1")
 app.include_router(notifications.router, prefix="/api/v1")
 app.include_router(message.router, prefix="/api/v1")
-
 app.include_router(websockets.router, prefix="/api/v1")

@@ -16,6 +16,7 @@ import Profile from "./pages/Profile/Profile.jsx";
 import Social from "./pages/Social/Social.jsx";
 import AlbumPage from "./pages/Album/AlbumPage";
 import SearchResults from "./pages/SearchResults/SearchResults";
+import AdminPage from "./pages/AdminPage";
 
 import LibraryPage from "./pages/LibraryPage";
 import AllPlaylistPage from "./pages/AllPlaylistsPage";
@@ -77,6 +78,9 @@ function AppRoutes() {
             <Route path="library/playlists" element={<AllPlaylistPage />} />
             <Route path="library/playlists/:id" element={<PlaylistDetailPage />} />
             <Route path="library/albums" element={<MyAlbumsPage />} />
+
+            {/* route admin — accessible uniquement aux administrateurs */}
+            {user?.role === "admin" && <Route path="/admin" element={<AdminPage />} />}
         </Route>
 
       <Route path="/oauth/callback" element={<OAuthCallback />} />

@@ -45,6 +45,9 @@ class Review(Base):
     updated_at = Column(DateTime(timezone=True),
                         server_default=func.now(), nullable=False)
     deleted_at = Column(DateTime(timezone=True), nullable=True)
+    
+    # Coup de cœur admin
+    is_featured = Column(Boolean, nullable=False, server_default="false")
 
     # contrainte unique grâce à variable args
     __table_args__ = (UniqueConstraint("user_id", "album_id",

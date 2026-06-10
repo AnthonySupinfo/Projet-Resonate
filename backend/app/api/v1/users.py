@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from app.services.auth import verify_password, revoke_all_refresh_tokens
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,6 +15,8 @@ from app.models.user_playlist_item import UserPlaylistItem
 from app.models.user_album_status import UserAlbumStatus
 from app.schemas.auth import UserProfileResponse, UpdateProfileRequest
 import json
+import csv
+import io
 from typing import List
 from app.schemas.feed import FeedItemResponse
 from app.services.feed import feed_service
@@ -112,10 +115,12 @@ async def delete_my_account(
     return None
 
 # GET /users/me/export (télécharger ses données (RGPD))
+# Paramètre optionnel : format=json (défaut) ou format=csv
 @router.get("/me/export")
 async def export_data(
     current_user: dict = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    format: str = Query(default="json", pattern="^(json|csv)$")
 ):
     user_id = current_user["user_id"]
 
@@ -238,7 +243,83 @@ async def export_data(
     followers = followers_result.scalars().all()
     export["abonnes"] = [f.follower_id for f in followers]
 
-    return export
+    # Retour JSON (défaut)
+    if format == "json":
+        return export
+
+    # Retour CSV - chaque section devient une feuille aplatie
+    # Le CSV contient plusieurs blocs séparés par une ligne vide et un titre de section
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    # Section profil
+    writer.writerow(["=== PROFIL ==="])
+    writer.writerow(export["profil"].keys())
+    writer.writerow(export["profil"].values())
+    writer.writerow([])
+
+    # Section critiques
+    writer.writerow(["=== CRITIQUES ==="])
+    if export["critiques"]:
+        writer.writerow(export["critiques"][0].keys())
+        for r in export["critiques"]:
+            writer.writerow(r.values())
+    else:
+        writer.writerow(["Aucune critique"])
+    writer.writerow([])
+
+    # Section commentaires
+    writer.writerow(["=== COMMENTAIRES ==="])
+    if export["commentaires"]:
+        writer.writerow(export["commentaires"][0].keys())
+        for c in export["commentaires"]:
+            writer.writerow(c.values())
+    else:
+        writer.writerow(["Aucun commentaire"])
+    writer.writerow([])
+
+    # Section playlists (sans les tracks pour garder le CSV lisible)
+    writer.writerow(["=== PLAYLISTS ==="])
+    if export["playlists"]:
+        writer.writerow(["id", "name", "type", "is_public", "description", "created_at", "nb_tracks"])
+        for pl in export["playlists"]:
+            writer.writerow([
+                pl["id"], pl["name"], pl["type"],
+                pl["is_public"], pl["description"],
+                pl["created_at"], len(pl["tracks"])
+            ])
+    else:
+        writer.writerow(["Aucune playlist"])
+    writer.writerow([])
+
+    # Section bibliothèque albums
+    writer.writerow(["=== BIBLIOTHEQUE ALBUMS ==="])
+    if export["bibliotheque_albums"]:
+        writer.writerow(export["bibliotheque_albums"][0].keys())
+        for s in export["bibliotheque_albums"]:
+            writer.writerow(s.values())
+    else:
+        writer.writerow(["Aucun album"])
+    writer.writerow([])
+
+    # Section abonnements
+    writer.writerow(["=== ABONNEMENTS ==="])
+    writer.writerow(["user_id"])
+    for uid in export["abonnements"]:
+        writer.writerow([uid])
+    writer.writerow([])
+
+    writer.writerow(["=== ABONNES ==="])
+    writer.writerow(["user_id"])
+    for uid in export["abonnes"]:
+        writer.writerow([uid])
+
+    output.seek(0)
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename=resonate-mes-donnees.csv"}
+    )
 
 
 @router.get("/me/feed", response_model=List[FeedItemResponse])

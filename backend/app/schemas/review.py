@@ -44,14 +44,14 @@ class ReviewResponse(ReviewCreate):
     username: str
     avatar_url: Optional[str]
 
-    # 🔥 AJOUT IMPORTANT
     likes_count: int
     user_liked: bool
 
-    # ✅ déjà présents chez toi normalement
+    # Coup de cœur admin
+    is_featured: bool = False
+
     replies: List[dict] = []
     comments: List[dict] = []
 
     class Config:
         orm_mode = True
-

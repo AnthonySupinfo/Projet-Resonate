@@ -3,12 +3,15 @@ import StarRating from '../StarRating/StarRating';
 import { likeReview, unlikeReview, deleteReview, reportReview, createCommentReview, deleteCommentReview, updateReview } from '../../../api/api';
 import './ReviewCard.css';
 import { useAuth } from '../../../context/AuthContext';
-import { getUserStats } from '../../../api/auth';
+import { getUserStats, authFetch } from '../../../api/auth';
+
+const API_URL = import.meta.env.VITE_API_URL || ""
 
 export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated }) {
 
     const { user } = useAuth();
     const currentUserId = user?.user_id || user?.id;
+    const isAdmin = user?.role === "admin"
 
     const [currentReview, setCurrentReview] = useState(review);
 
@@ -26,6 +29,10 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
     const [editRating, setEditRating] = useState(currentReview.rating);
     const [editContent, setEditContent] = useState(currentReview.content || '');
     const [isUpdating, setIsUpdating] = useState(false);
+
+    // Coup de cœur admin
+    const [isFeatured, setIsFeatured] = useState(review.is_featured || false)
+    const [isFeatureLoading, setIsFeatureLoading] = useState(false)
 
     useEffect(() => {
 
@@ -45,6 +52,7 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
         setIsLiked(review.user_liked || false);
         setLikesCount(review.likes_count || 0);
         setComments(review.comments || []);
+        setIsFeatured(review.is_featured || false)
 
     }, [review]); // IMPORTANT : dépendance sur review entier
 
@@ -211,8 +219,32 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
         }
     };
 
+    // Coup de cœur admin — met en avant ou retire la mise en avant
+    const handleFeatureClick = async () => {
+        if (isFeatureLoading) return
+        setIsFeatureLoading(true)
+        const action = isFeatured ? "unfeature" : "feature"
+        try {
+            const res = await authFetch(`${API_URL}/api/v1/admin/reviews/${currentReview.id}/${action}`, {
+                method: "PATCH"
+            })
+            if (!res.ok) throw new Error()
+            setIsFeatured(!isFeatured)
+        } catch {
+            alert("Erreur lors de la mise en avant.")
+        } finally {
+            setIsFeatureLoading(false)
+        }
+    }
+
     return (
-        <div className={`review-card ${isDeleting ? 'deleting' : ''}`}>
+        <div className={`review-card ${isDeleting ? 'deleting' : ''} ${isFeatured ? 'review-card--featured' : ''}`}>
+
+            {/* Badge coup de cœur — visible pour tous si la critique est mise en avant */}
+            {isFeatured && (
+                <div className="review-featured-badge">❤️ Coup de cœur</div>
+            )}
+
             <div className="review-card-header">
                 <div className="review-author-info">
                     <img src={review.avatar_url || `https://placehold.co/40x40/2a2a2c/ffffff?text=${review.username?.[0] || 'U'}`} alt="Avatar" className="review-avatar"/>
@@ -259,6 +291,18 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
                     </div>
              
                     <div className="review-actions">
+                        {/* Bouton coup de cœur — visible uniquement pour l'admin */}
+                        {isAdmin && (
+                            <button
+                                className={`action-btn feature-btn ${isFeatured ? 'feature-btn--active' : ''}`}
+                                onClick={handleFeatureClick}
+                                disabled={isFeatureLoading}
+                                title={isFeatured ? "Retirer le coup de cœur" : "Mettre en avant"}
+                            >
+                                {isFeatureLoading ? "..." : isFeatured ? "💔" : "❤️"}
+                            </button>
+                        )}
+
                         {String(currentUserId) === String(currentReview.user_id) ? (
                             <>
                                 <button className="action-btn edit-btn" onClick={() => setIsEditing(true)}>
@@ -307,4 +351,3 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
         </div>
     );
 }
-  

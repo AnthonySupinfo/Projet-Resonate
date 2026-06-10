@@ -54,6 +54,7 @@ async def create_review(
     if not album:
         raise HTTPException(status_code=404, detail="Album introuvable")
 
+    
     stmt_user_review = select(Review).filter(
         Review.user_id == current_user["user_id"],
         Review.album_id == album_id,
@@ -114,13 +115,14 @@ async def create_review(
         "posted_at": new_review.posted_at,
         "updated_at": new_review.updated_at,
         "has_been_modified": new_review.has_been_modified,
-
+        "is_featured": new_review.is_featured,
         "username": user.username,
         "avatar_url": user.avatar_url,
         "likes_count": 0,
         "user_liked": False,
         "replies": []
     }
+
 
 
 @router.patch("/reviews/{review_id}", response_model=ReviewResponse)
@@ -185,12 +187,11 @@ async def update_review(
             "has_been_modified": review.has_been_modified,
             "posted_at": review.posted_at,
             "updated_at": review.updated_at,
+            "is_featured": review.is_featured,
             "username": user_obj.username,
             "avatar_url": user_obj.avatar_url,
-
             "likes_count": likes_count,
             "user_liked": user_liked,
-
             "replies": [],
             "comments": []
         }
@@ -202,7 +203,6 @@ async def update_review(
     except Exception as e:
         print(" UPDATE ERROR:", e)
         raise
-
 
 @router.delete("/reviews/{review_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_review(
@@ -229,13 +229,13 @@ async def get_album_reviews(
         select(Review, User.username, User.avatar_url)
         .join(User, Review.user_id == User.id)
         .where(Review.album_id == album_id, Review.deleted_at == None)
-        .order_by(Review.posted_at.desc())
+        .order_by(Review.is_featured.desc(), Review.posted_at.desc())
         .offset((page - 1) * limit)
         .limit(limit)
     )
     result_album = await db.execute(stmt_album)
     album = reviews_data = []
-
+    
     reviews_data = []
 
     rows = result_album.all()
@@ -314,9 +314,9 @@ async def get_album_reviews(
             "has_been_modified": review_obj.has_been_modified,
             "posted_at": review_obj.posted_at,
             "updated_at": review_obj.updated_at,
+            "is_featured": review_obj.is_featured,
             "username": username,
             "avatar_url": avatar_url,
-
             "likes_count": likes_count,
             "user_liked": user_liked,
             "replies": formatted_replies,
