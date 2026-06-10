@@ -53,6 +53,9 @@ function AppRoutes() {
         <Route element={<GuestLayout />}>
             {!user && <Route path="/" element={<Home />} />}
             {!user && <Route path="/explore" element={<Explore />} />}
+            {!user && <Route path="/albums/:artist/:album" element={<AlbumPage />} />}
+            {!user && <Route path="/search" element={<SearchResults />} />}
+
         </Route>
 
       {/*  Authentified user routes  */}

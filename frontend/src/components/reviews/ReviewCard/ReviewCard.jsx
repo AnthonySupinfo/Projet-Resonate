@@ -35,6 +35,7 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
     const [isFeatureLoading, setIsFeatureLoading] = useState(false)
 
     const [confirmDeleteCommentId, setConfirmDeleteCommentId] = useState(null);
+    const [confirmDeleteReview, setConfirmDeleteReview] = useState(false);
 
     useEffect(() => {
 
@@ -103,8 +104,12 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
 
 
     const handleDeleteClick = async () => {
-        if (window.confirm("Voulez-vous vraiment supprimer cette critique ?")) {
-            setIsDeleting(true);
+        setConfirmDeleteReview(true);
+    };
+
+    const confirmDeleteReviewAction = async () => {
+        setConfirmDeleteReview(false);
+        setIsDeleting(true);
             try {
                 await deleteReview(currentReview.id);
                 if (onReviewDeleted) onReviewDeleted(currentReview.id);
@@ -113,7 +118,6 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
                 alert("Impossible de supprimer la critique");
                 setIsDeleting(false);
             }
-        }
     };
 
     const handleReportClick = async () => {
@@ -253,7 +257,21 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
 
             <div className="review-card-header">
                 <div className="review-author-info">
-                    <img src={review.avatar_url || `https://placehold.co/40x40/2a2a2c/ffffff?text=${review.username?.[0] || 'U'}`} alt="Avatar" className="review-avatar"/>
+
+                    {(() => {
+                        const av = currentReview.avatar_url;
+                        const isUrl = av && (av.startsWith('http') || av.startsWith('/') || av.startsWith('data:image'));
+                        const placeholder = `https://placehold.co/40x40/35313A/ffffff?text=${encodeURIComponent(currentReview.username?.[0]?.toUpperCase() || 'U')}`;
+
+                        return isUrl ? (
+                            <img src={av} alt="Avatar" className="review-avatar" onError={(e) => { e.target.src = placeholder; }}/>
+                        ) : av ? (
+                            <span className="review-avatar">{av}</span>
+                        ) : (
+                            <img src={placeholder} alt="Avatar" className="review-avatar"/>
+                        );
+                    }) () }
+                    
                     <div className="review-meta">
                         <span className="review-username">{currentReview.username || "Utilisateur"}</span>
                         <span className="review-date">{formattedDate} {currentReview.has_been_modified && "(Modifié)"}</span>
@@ -285,13 +303,13 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
                 <div className="review-card-footer">
                     <div className="review-interactions">
                         <button 
-                            className={`interactions-btn like-btn ${isLiked ? 'active' : ''}`} 
+                            className={`interaction-btn like-btn ${isLiked ? 'active' : ''}`} 
                             onClick={handleLikeClick} 
                             disabled={isLiking}>
                                 {isLiked ? '❤️' : '🤍'} <span className="count">{likesCount}</span>
                         </button>
 
-                        <button className={`interactions-btn comment-btn ${showComments ? 'active' : ''}`} onClick={() => setShowComments(!showComments)}>
+                        <button className={`interaction-btn comment-btn ${showComments ? 'active' : ''}`} onClick={() => setShowComments(!showComments)}>
                             {showComments ? 'Masquer' : 'Commenter'} {comments.length > 0 && `(${comments.length})`}
                         </button>
                     </div>
@@ -340,22 +358,10 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
                                         <span className="comment-author">{c.username || "Utilisateur"}</span>
                                         <span className="comment-text">{c.content}</span>
                                     </div>
-                                    {confirmDeleteCommentId && (
-                                        <div className="confirm-modal-overlay" onClick={() => setConfirmDeleteCommentId(null)}>
-                                            <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
-                                                <p className="confirm-modal-text">Supprimer ce commentaire</p>
-                                                <div className="confirm-modal-actions">
-                                                    <button className="confirm-modal-cancel" onClick={() => setConfirmDeleteCommentId(null)}>
-                                                        Annuler
-                                                    </button>
-                                                    <button className="confirm-modal-confirm" onClick={confirmDeleteCommentAction}>
-                                                        Supprimer
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    {String(currentUserId) === String(c.user_id) && (
+                                        <button className="delete-comment-btn" onClick={() => handleDeleteComment(c.id)} title="Supprimer">x</button>
                                     )}
-                                </div>
+                                    </div>
                             ))
                         )}
                     </div>
@@ -364,6 +370,37 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
                         <input type="text" className="comment-input" placeholder="Ajouter un commentaire..." value={newComment} onChange={(e) => setNewComment(e.target.value)} disabled={isCommenting}/>
                         <button type="submit" className="comment-submit-btn" disabled={!newComment.trim() || isCommenting}>Envoyer</button>
                     </form>
+                </div>
+            )}
+            {confirmDeleteCommentId && (
+                <div className="confirm-modal-overlay" onClick={() => setConfirmDeleteCommentId(null)}>
+                    <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
+                        <p className="confirm-modal-text">Supprimer ce commentaire</p>
+                        <div className="confirm-modal-actions">
+                            <button className="confirm-modal-cancel" onClick={() => setConfirmDeleteCommentId(null)}>
+                                Annuler
+                            </button>
+                            <button className="confirm-modal-confirm" onClick={confirmDeleteCommentAction}>
+                                Supprimer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {confirmDeleteReview && (
+                <div className="confirm-modal-overlay" onClick={() => setConfirmDeleteReview(false)}>
+                    <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
+                        <p className="confirm-modal-text">Supprimer cette critique ?</p>
+                        <div className="confirm-modal-actions">
+                            <button className="confirm-modal-cancel" onClick={() => setConfirmDeleteReview(false)}>
+                                Annuler
+                            </button>
+                            <button className="confirm-modal-confirm" onClick={confirmDeleteReviewAction}>
+                                Supprimer
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

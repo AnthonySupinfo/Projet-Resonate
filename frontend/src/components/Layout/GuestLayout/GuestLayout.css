@@ -18,3 +18,7 @@
 .guest-content {
     min-width: 0;
 }
+
+.guest-topbar {
+    margin-bottom: 18px;
+}

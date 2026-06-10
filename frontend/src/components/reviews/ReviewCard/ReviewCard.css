@@ -1,5 +1,6 @@
 .review-card {
-    background-color: var(--input-bg-subtle);
+    background-color: var(--bg-card);
+    background-image: radial-gradient(circle at top left, rgba(var(--grad-rose-rgb), 0.25) 0%, rgba(var(--grad-gris-rgb), 0) 60%);
     border: 1px solid var(--divider-color);
     border-radius: 20px;
     padding: 20px 24px;
@@ -8,7 +9,8 @@
 }
 
 .review-card:hover {
-    background-color: rgba(128,128,128,0.08);
+    background-color: var(--bg-card);
+    filter: brightness(1.05);
 }
 
 .review-card.deleting {
