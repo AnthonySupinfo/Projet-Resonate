@@ -5,15 +5,16 @@ import CommentItem from "./CommentItem/CommentItem.jsx";
 import NewCommItem from "./NewCommItem/NewCommItem.jsx";
 import UserFollowBox from "./SocialItemVariations/UserFollowBox/UserFollowBox.jsx";
 import PlaylistBox from "./SocialItemVariations/PlaylistBox/PlaylistBox.jsx";
+import AlbumStatusBox from "./SocialItemVariations/AlbumStatusBox/AlbumStatusBox.jsx";
 import { useLanguage } from "../../../context/LanguageContext.jsx";
 import { Link } from 'react-router-dom';
 
 const CONTENT_COMPONENTS = {
-    LIKE_TRACK: PlaylistBox,
     ADD_TRACK_PLAYLIST: PlaylistBox,
     FOLLOW_USER: UserFollowBox,
     CREATE_PLAYLIST: PlaylistBox,
-    FOLLOW_PLAYLIST: PlaylistBox
+    FOLLOW_PLAYLIST: PlaylistBox,
+    UPDATE_ALBUM_STATUS: AlbumStatusBox
 };
 
 export default function SocialItem({ activity, hideComments = false }) {
@@ -58,17 +59,34 @@ export default function SocialItem({ activity, hideComments = false }) {
             </Link>
         );
 
+        const albumLink = (title, artist) => (
+            <Link to={`/albums/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`} className="social-item-user-link">
+                <strong>{title}</strong>
+            </Link>
+        );
+
         switch (activity.type) {
             case 'FOLLOW_USER':
                 return <>{userLink} {t('social.startedFollowing')} <Link to={`/user/${activity.target.id}`} className="social-item-user-link"><strong>{activity.target.name}</strong></Link></>;
-            case 'LIKE_TRACK':
-                return <>{userLink} {t('social.likes')} {trackLink(activity.target.name, activity.target.artist, activity.target.albumTitle)} {t('social.by')} <strong>{activity.target.artist}</strong></>;
             case 'ADD_TRACK_PLAYLIST':
                 return <>{userLink} {t('social.added')} {trackLink(activity.target.name, activity.target.artist, activity.target.albumTitle)} {t('social.toPlaylist')} {playlistLink(activity.target.playlistName, activity.target.playlistId)}</>;
             case 'CREATE_PLAYLIST':
                 return <>{userLink} {t('social.createdPlaylist')} {playlistLink(activity.target.name, activity.target.id)}</>;
             case 'FOLLOW_PLAYLIST':
                 return <>{userLink} {t('social.followsPlaylist')} {playlistLink(activity.target.name, activity.target.id)}</>;
+            case 'UPDATE_ALBUM_STATUS':
+                switch (activity.target.albumStatus) {
+                    case 'PLANNED':
+                        return <>{userLink} {t('social.statusPlanned')} {albumLink(activity.target.albumTitle, activity.target.artist)} {t('social.by')} <strong>{activity.target.artist}</strong></>;
+                    case 'LISTENING':
+                        return <>{userLink} {t('social.statusListening')} {albumLink(activity.target.albumTitle, activity.target.artist)} {t('social.by')} <strong>{activity.target.artist}</strong></>;
+                    case 'COMPLETED':
+                        return <>{userLink} {t('social.statusCompleted')} {albumLink(activity.target.albumTitle, activity.target.artist)} {t('social.by')} <strong>{activity.target.artist}</strong></>;
+                    case 'DROPPED':
+                        return <>{userLink} {t('social.statusDropped')} {albumLink(activity.target.albumTitle, activity.target.artist)} {t('social.by')} <strong>{activity.target.artist}</strong></>;
+                    default:
+                        return <>{userLink} a interagi avec {albumLink(activity.target.albumTitle, activity.target.artist)}</>;
+                }
             default:
                 return <>{userLink} {t('social.interactedWith')} <strong>{activity.target.name}</strong></>;
         }

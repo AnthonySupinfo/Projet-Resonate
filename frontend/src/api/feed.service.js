@@ -27,8 +27,9 @@ export const feedService = {
             target: {
                 id: item.track_id || item.playlist_id || item.target_user_id || item.album_id,
                 name: item.track_name || item.playlist_name || item.target_user_username || item.album_title || "Élément",
-                artist: item.track_artist || "",
+                artist: item.track_artist || item.album_artist || "",
                 albumTitle: item.album_title || "",
+                albumStatus: item.album_status || "PLANNED",
                 duration: item.track_duration || 0,
                 playlistId: item.playlist_id,
                 playlistName: item.playlist_name,
