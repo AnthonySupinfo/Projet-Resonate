@@ -6,6 +6,7 @@ import NewCommItem from "./NewCommItem/NewCommItem.jsx";
 import UserFollowBox from "./SocialItemVariations/UserFollowBox/UserFollowBox.jsx";
 import PlaylistBox from "./SocialItemVariations/PlaylistBox/PlaylistBox.jsx";
 import AlbumStatusBox from "./SocialItemVariations/AlbumStatusBox/AlbumStatusBox.jsx";
+import AlbumReviewBox from "./SocialItemVariations/AlbumReviewBox/AlbumReviewBox.jsx";
 import { useLanguage } from "../../../context/LanguageContext.jsx";
 import { Link } from 'react-router-dom';
 
@@ -14,7 +15,8 @@ const CONTENT_COMPONENTS = {
     FOLLOW_USER: UserFollowBox,
     CREATE_PLAYLIST: PlaylistBox,
     FOLLOW_PLAYLIST: PlaylistBox,
-    UPDATE_ALBUM_STATUS: AlbumStatusBox
+    UPDATE_ALBUM_STATUS: AlbumStatusBox,
+    REVIEW_ALBUM: AlbumReviewBox
 };
 
 export default function SocialItem({ activity, hideComments = false }) {
@@ -87,6 +89,8 @@ export default function SocialItem({ activity, hideComments = false }) {
                     default:
                         return <>{userLink} a interagi avec {albumLink(activity.target.albumTitle, activity.target.artist)}</>;
                 }
+            case 'REVIEW_ALBUM':
+                return <>{userLink} {t('social.reviewedAlbum')} {albumLink(activity.target.albumTitle, activity.target.artist)} {t('social.by')} <strong>{activity.target.artist}</strong></>;
             default:
                 return <>{userLink} {t('social.interactedWith')} <strong>{activity.target.name}</strong></>;
         }

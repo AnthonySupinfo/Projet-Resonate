@@ -105,6 +105,22 @@ class FeedService:
                 status_obj = result_status.scalar_one_or_none()
                 item["album_status"] = status_obj.status.value if status_obj else "PLANNED"
 
+            elif activity.activity_type == ActivityTypes.REVIEW_ALBUM and activity.review_id:
+                review = await db.get(Review, activity.review_id)
+                item["review_id"] = activity.review_id
+
+                if review:
+                    item["review_like_rating"] = review.rating
+                    item["review_comment_content"] = review.content
+
+                    if review.album_id:
+                        album = await db.get(Album, review.album_id)
+                        if album:
+                            item["album_id"] = review.album_id
+                            item["album_title"] = album.title or album.name
+                            item["album_artist"] = album.artist_name
+                            item["cover_url"] = album.image
+
             # Follow users
             elif activity.activity_type == ActivityTypes.FOLLOW_USER and activity.target_user_id:
                 target_user = await db.get(User, activity.target_user_id)

@@ -38,6 +38,11 @@ export const feedService = {
                 username: item.target_user_username ? `@${item.target_user_username}` : "",
                 avatarUrl: item.target_user_avatar || item.target_user_username?.charAt(0).toUpperCase() || '?',
                 isFollowedByMe: item.target_user_is_followed_by_me || false
+            },
+            review: {
+                id: item.review_id,
+                rating: item.review_like_rating,
+                content: item.review_comment_content
             }
         }));
     },
