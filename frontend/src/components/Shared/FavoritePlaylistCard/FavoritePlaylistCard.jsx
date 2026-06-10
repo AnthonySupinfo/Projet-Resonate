@@ -15,6 +15,7 @@ export default function FavoritePlaylistCard({ playlistId }) {
     const [playlist, setPlaylist] = useState(null);
     const [loading, setLoading] = useState(true);
     const { t } = useLanguage();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchFavoritePlaylist = async () => {
@@ -76,7 +77,7 @@ export default function FavoritePlaylistCard({ playlistId }) {
                         
                         
                         return (
-                            <div key={track.id || index} className="fav-track-item" onClick={() => navigate (`/albums/${encodeURIComponent(track.artist)}/${encodeURIComponent(track.name)}`)}>
+                            <div key={track.id || index} className="fav-track-item" onClick={() => navigate (`/albums/${encodeURIComponent(track.artist)}/${encodeURIComponent(track.album_name)}`)}>
                                 <img src={coverUrl} alt={track.title} className="fav-track-cover" onError={(e) => e.target.src = "https://placehold.co/40x40/2a2a2c/ffffff?text=!"}/>
 
                                 <div className="fav-track-info">
