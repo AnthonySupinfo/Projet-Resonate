@@ -10,7 +10,7 @@ import ChatModal from "../../Shared/ChatModal/ChatModal.jsx";
 import {useNotificationSocket} from "../../../hooks/useNotificationSocket.js";
 import {useAuth} from "../../../context/AuthContext.jsx";
 import { ChatContext } from "../../../context/ChatContext.jsx";
-import {useState} from "react";
+import {useCallback, useState} from "react";
 
 export default function AuthLayout() {
     const location = useLocation();
@@ -19,12 +19,13 @@ export default function AuthLayout() {
     const [incomingChatEvent, setIncomingChatEvent] = useState(null);
     const [incomingNotificationEvent, setIncomingNotificationEvent] = useState(null);
 
-    const handleIncomingWebsocketMessage = (data) => {
+    const handleIncomingWebsocketMessage = useCallback((data) => {
         console.log("WebSocket a reçu un message :", data);
 
         switch (data.type) {
             case 'new_message':
             case 'conversation_read':
+            case 'message_edited':
                 setIncomingChatEvent({ ...data, timestamp: Date.now() });
                 break;
 
@@ -35,7 +36,7 @@ export default function AuthLayout() {
             default:
                 console.warn("Type de message inconnu :", data.type);
         }
-    };
+    }, []);
 
     useNotificationSocket(token, handleIncomingWebsocketMessage);
 

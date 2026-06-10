@@ -43,10 +43,16 @@ export default function ChatConversation({ conversationId, friend, onBack }) {
                 });
 
                 chatService.markConversationRead(conversationId).catch(console.error);
-            } else if (incomingChatEvent.type === 'message_updated') {
+            } else if (incomingChatEvent.type === 'message_edited') {
                 setMessages(prevMessages =>
                     prevMessages.map(msg =>
-                        msg.id === incomingChatEvent.message.id ? incomingChatEvent.message : msg
+                        msg.id === incomingChatEvent.message_id
+                            ? {
+                                ...msg,
+                                content: incomingChatEvent.new_content,
+                                is_updated: incomingChatEvent.is_updated
+                            }
+                            : msg
                     )
                 );
             } else if (incomingChatEvent.type === 'conversation_read') {
