@@ -10,6 +10,7 @@ class ReportCreate(BaseModel):
 class ReportResponse(BaseModel):
     id: int
     reporter_id: str
+    reporter_username: str | None = None  # @username du signaleur
     review_id: int
     reason: str
     status: ReportStatus

@@ -1,0 +1,335 @@
+.admin-container {
+  width: 100%;
+  font-family: 'Inter', "Segoe UI", system-ui, sans-serif;
+}
+
+.admin-header {
+  margin-bottom: 24px;
+}
+
+.admin-title {
+  color: var(--text-primary);
+  font-size: 1.6rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.admin-subtitle {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin: 4px 0 0;
+}
+
+/* Filtres */
+.admin-filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.admin-filter-btn {
+  padding: 8px 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-filter-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.admin-filter-btn--active {
+  background: rgba(244, 147, 144, 0.2);
+  border-color: #F49390;
+  color: #F49390;
+}
+
+/* Messages */
+.admin-success {
+  background: rgba(16, 110, 86, 0.3);
+  border: 1px solid rgba(16, 110, 86, 0.5);
+  color: #6ee7b7;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.admin-error {
+  background: rgba(103, 26, 31, 0.45);
+  border: 1px solid rgba(255, 133, 133, 0.55);
+  color: #ffd9dc;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.admin-loading,
+.admin-empty {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  text-align: center;
+  padding: 40px 0;
+}
+
+/* Tableau */
+.admin-table-wrapper {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.admin-table th {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+  font-weight: 500;
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  white-space: nowrap;
+}
+
+.admin-table td {
+  padding: 12px 16px;
+  color: var(--text-primary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  vertical-align: middle;
+}
+
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.admin-cell--id {
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.admin-cell--reason {
+  max-width: 240px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-cell--actions {
+  display: flex;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.badge--pending   { background: rgba(234, 179, 8, 0.15);  color: #fbbf24; }
+.badge--resolved  { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; }
+.badge--dismissed { background: rgba(107, 114, 128, 0.2); color: #9ca3af; }
+
+/*  Boutons d'action  */
+.admin-btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: none;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: filter 0.2s;
+}
+
+.admin-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.admin-btn--resolve {
+  background: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.admin-btn--resolve:hover:not(:disabled) {
+  filter: brightness(1.2);
+}
+
+.admin-btn--dismiss {
+  background: rgba(107, 114, 128, 0.2);
+  color: #9ca3af;
+  border: 1px solid rgba(107, 114, 128, 0.3);
+}
+
+.admin-btn--dismiss:hover:not(:disabled) {
+  filter: brightness(1.2);
+}
+
+@media (max-width: 768px) {
+  .admin-cell--reason {
+    max-width: 120px;
+  }
+  .admin-cell--actions {
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+
+/*  Onglets  */
+.admin-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 12px;
+}
+
+.admin-tab {
+  padding: 8px 20px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-tab:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+}
+
+.admin-tab--active {
+  background: rgba(244, 147, 144, 0.15);
+  border-color: #F49390;
+  color: #F49390;
+}
+
+/*  Section coups de cœur  */
+.admin-feature-section {
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.admin-feature-desc {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin: 0 0 20px;
+  line-height: 1.5;
+}
+
+.admin-feature-form {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.admin-feature-input {
+  width: 220px;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.admin-feature-input:focus {
+  border-color: #F49390;
+}
+
+.admin-btn--feature {
+  background: rgba(244, 147, 144, 0.2);
+  color: #F49390;
+  border: 1px solid rgba(244, 147, 144, 0.3);
+}
+
+.admin-btn--feature:hover:not(:disabled) {
+  filter: brightness(1.2);
+}
+
+.admin-btn--unfeature {
+  background: rgba(107, 114, 128, 0.2);
+  color: #9ca3af;
+  border: 1px solid rgba(107, 114, 128, 0.3);
+}
+
+.admin-btn--unfeature:hover:not(:disabled) {
+  filter: brightness(1.2);
+}
+
+/*  Section utilisateurs  */
+.admin-users-section {
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.admin-feature-input--wide {
+  width: 320px;
+}
+
+.admin-btn--search {
+  background: rgba(130, 188, 255, 0.2);
+  color: #82bcff;
+  border: 1px solid rgba(130, 188, 255, 0.3);
+}
+
+.admin-btn--search:hover:not(:disabled) {
+  filter: brightness(1.2);
+}
+
+.admin-btn--ban {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.admin-btn--ban:hover:not(:disabled) {
+  filter: brightness(1.2);
+}
+
+.admin-btn--unban {
+  background: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.admin-btn--unban:hover:not(:disabled) {
+  filter: brightness(1.2);
+}
+
+/* Ligne cliquable */
+.admin-row--clickable {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.admin-row--clickable:hover td {
+  background: rgba(244, 147, 144, 0.06);
+}

@@ -16,6 +16,24 @@
     pointer-events: none;
 }
 
+/* Coup de cœur — bordure corail subtile */
+.review-card--featured {
+    border: 1px solid rgba(244, 147, 144, 0.4);
+    background: linear-gradient(135deg, rgba(244, 147, 144, 0.05) 0%, transparent 60%);
+}
+
+.review-featured-badge {
+    display: inline-block;
+    background: rgba(244, 147, 144, 0.15);
+    color: #F49390;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    border: 1px solid rgba(244, 147, 144, 0.3);
+}
+
 .review-card-header {
     display: flex;
     justify-content: space-between;
@@ -108,6 +126,19 @@
 
 .action-btn.report-btn:hover {
     color: #ff9f0a;
+}
+
+/* Bouton coup de cœur admin */
+.feature-btn {
+    color: #F49390;
+}
+
+.feature-btn:hover {
+    background-color: rgba(244, 147, 144, 0.12) !important;
+}
+
+.feature-btn--active {
+    color: #f1a2a2;
 }
 
 /* Section commentaires */

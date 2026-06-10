@@ -13,7 +13,7 @@ import {useChatContext} from "../../../context/ChatContext.jsx";
 import {chatService} from "../../../api/chat.service.js";
 
 export default function NotifsCard() {
-    const { logout } = useAuth();
+    const { logout, user } = useAuth();
     const navigate = useNavigate();
 
     const [notifications, setNotifications] = useState([]);
@@ -175,6 +175,13 @@ export default function NotifsCard() {
             <button className="notif-card-btn" onClick={onLogoutClick}>
                 <img src={iconLogout} alt="Se déconnecter" className="notif-card-icon" />
             </button>
+
+            {/* Bouton admin — visible uniquement pour les administrateurs */}
+            {user?.role === "admin" && (
+                <button className="notif-card-btn notif-card-btn--admin" onClick={() => navigate("/admin")} title="Panneau d'administration">
+                    🛡️
+                </button>
+            )}
 
             <Link to="/" className="notif-card-logo">
                 <img src={logoResonate} alt="Accueil" className="notif-card-logo-img" />
