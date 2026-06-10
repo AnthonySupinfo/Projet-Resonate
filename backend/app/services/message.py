@@ -200,6 +200,7 @@ class MessageService:
         ws_payload = {
             "type": "message_edited",
             "message_id": message.id,
+            "conversation_id": message.conversation_id,
             "new_content": new_content,
             "is_updated": True
         }

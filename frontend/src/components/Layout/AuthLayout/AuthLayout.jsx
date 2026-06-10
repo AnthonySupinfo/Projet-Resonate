@@ -10,29 +10,33 @@ import ChatModal from "../../Shared/ChatModal/ChatModal.jsx";
 import {useNotificationSocket} from "../../../hooks/useNotificationSocket.js";
 import {useAuth} from "../../../context/AuthContext.jsx";
 import { ChatContext } from "../../../context/ChatContext.jsx";
-import {useState} from "react";
+import {useCallback, useState} from "react";
 
 export default function AuthLayout() {
     const location = useLocation();
     const { token } = useAuth();
 
     const [incomingChatEvent, setIncomingChatEvent] = useState(null);
-    const handleIncomingWebsocketMessage = (data) => {
+    const [incomingNotificationEvent, setIncomingNotificationEvent] = useState(null);
+
+    const handleIncomingWebsocketMessage = useCallback((data) => {
         console.log("WebSocket a reçu un message :", data);
 
         switch (data.type) {
             case 'new_message':
             case 'conversation_read':
+            case 'message_edited':
                 setIncomingChatEvent({ ...data, timestamp: Date.now() });
                 break;
 
-            case 'notification':
+            case 'new_notification':
+                setIncomingNotificationEvent({ ...data, timestamp: Date.now() });
                 break;
 
             default:
                 console.warn("Type de message inconnu :", data.type);
         }
-    };
+    }, []);
 
     useNotificationSocket(token, handleIncomingWebsocketMessage);
 
@@ -40,7 +44,7 @@ export default function AuthLayout() {
     const hasRightSidebar = location.pathname === '/' || location.pathname === '/social';
 
     return (
-        <ChatContext.Provider value={{ incomingChatEvent }}>
+        <ChatContext.Provider value={{ incomingChatEvent, incomingNotificationEvent }}>
             <div className={`auth-layout ${!hasRightSidebar ? 'profile-mode' : ''} ${isHomePage ? 'home-mode' : ''}`}>
                 <aside className="left-sidebar">
                     <UserCard />
@@ -62,11 +66,11 @@ export default function AuthLayout() {
                     <Outlet />
                 </main>
 
-            {hasRightSidebar && (
-                <aside>
-                    <FavoritePlaylistCard/>
-                </aside>
-            )}
+                {hasRightSidebar && (
+                    <aside>
+                        <FavoritePlaylistCard/>
+                    </aside>
+                )}
 
                 <ChatModal />
             </div>

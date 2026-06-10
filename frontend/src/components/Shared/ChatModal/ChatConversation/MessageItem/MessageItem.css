@@ -159,8 +159,8 @@
     border-radius: 16px 16px 4px 16px;
     font-family: 'Inter', sans-serif;
     font-size: 0.9rem;
-    color: var(--bg-main);
-    background-color: var(--text-primary);
+    color: var(--text-primary);
+    background-color: transparent;
     border: 2px solid var(--accent-primary);
     outline: none;
     min-width: 180px;
