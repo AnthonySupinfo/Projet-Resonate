@@ -1,5 +1,6 @@
 ﻿from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 from starlette.status import HTTP_404_NOT_FOUND
 from app.db.session import get_db
 from app.core.dependencies import get_current_user
@@ -8,6 +9,7 @@ from fastapi import HTTPException
 from app.models.user import User
 from typing import List
 from app.schemas.auth import UserProfileResponse
+from app.services.email import send_follow_email
 
 router = APIRouter(prefix="/users", tags=["Social"])
 
@@ -22,7 +24,18 @@ async def follow(
     if not user_id:
         raise HTTPException(status_code=401, detail="Impossible de trouver l'ID dans le token")
 
-    return await follow_service.follow_user(db, user_id, target_id)
+    result = await follow_service.follow_user(db, user_id, target_id)
+
+    # Notif email à l'utilisateur suivi si il a activé les notifications
+    try:
+        target_user = await db.get(User, target_id)
+        follower = await db.get(User, user_id)
+        if target_user and follower and target_user.email_notifications:
+            await send_follow_email(target_user.email, follower.username)
+    except Exception:
+        pass  # Silencieux (l'email ne doit jamais bloquer l'action)
+
+    return result
 
 @router.delete("/{target_id}/follow")
 async def unfollow(

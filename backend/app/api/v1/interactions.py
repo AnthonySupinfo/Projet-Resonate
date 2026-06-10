@@ -11,13 +11,15 @@ from app.models.reviews import Review
 from app.models.review_likes import ReviewLike
 from app.models.review_comments import ReviewComment
 from app.models.reports import Report
-# from app.models.user_activity_feed import UserActivityFeed, ActivityType
+from app.models.user import User
+from app.models.album import Album
 from app.schemas.review_comments import ReviewCommentCreate, ReviewCommentResponse
 from app.schemas.review_likes import ReviewLikeResponse
 from app.schemas.reports import ReportCreate, ReportResponse
 from app.services.feed import feed_service
 from app.models.user_activity_feed import ActivityTypes
 from app.services.notification import notification_service
+from app.services.email import send_like_email, send_comment_email
 
 router = APIRouter(tags=["interactions"])
 
@@ -73,6 +75,18 @@ async def like_review(
 
     await db.commit()
     await db.refresh(new_like)
+
+    # Notif email à l'auteur de la review si il a activé les notifications
+    try:
+        review_author = await db.get(User, review.user_id)
+        liker = await db.get(User, current_user["user_id"])
+        album = await db.get(Album, review.album_id)
+        if review_author and liker and album and review_author.email_notifications:
+            if str(review_author.id) != str(current_user["user_id"]):  # pas de notif si on like sa propre review
+                await send_like_email(review_author.email, liker.username, album.name)
+    except Exception:
+        pass  # Silencieux (l'email ne doit jamais bloquer l'action)
+
     return new_like
 
 
@@ -129,7 +143,20 @@ async def create_comment(
         related_review_id=review.id
     )
 
+    await db.commit()
     await db.refresh(new_comment)
+
+    # Notif email à l'auteur de la review si il a activé les notifications
+    try:
+        review_author = await db.get(User, review.user_id)
+        commenter = await db.get(User, current_user["user_id"])
+        album = await db.get(Album, review.album_id)
+        if review_author and commenter and album and review_author.email_notifications:
+            if str(review_author.id) != str(current_user["user_id"]):  # pas de notif si on commente sa propre review
+                await send_comment_email(review_author.email, commenter.username, album.name, body.content)
+    except Exception:
+        pass  # Silencieux (l'email ne doit jamais bloquer l'action)
+
     return new_comment
 
 
@@ -165,7 +192,7 @@ async def report_review(
 ):
     review = await get_existing_review(review_id, db)
 
-    # V2rifie que c'est la première fois qu'on signale cette reviex
+    # Vérifie que c'est la première fois qu'on signale cette review
     stmt_unique_report = select(Report).filter(
         Report.review_id == review_id, Report.reporter_id == current_user["user_id"])
     result = await db.execute(stmt_unique_report)

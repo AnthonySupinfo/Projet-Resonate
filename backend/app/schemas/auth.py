@@ -69,6 +69,7 @@ class UserProfileResponse(BaseModel):
     website: Optional[str] = None
     theme: str = "dark"
     language: str = "fr"
+    email_notifications: bool = True
     is_followed_by_me: bool = False
     created_at: datetime
     followers_count: int = 0
@@ -86,6 +87,7 @@ class UpdateProfileRequest(BaseModel):
     website: Optional[str] = None
     theme: Optional[str] = None
     language: Optional[str] = None
+    email_notifications: Optional[bool] = None
 
     @field_validator("theme")
     @classmethod

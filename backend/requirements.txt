@@ -43,3 +43,7 @@ aiosmtplib==3.0.1
 # Rate limiting
 slowapi==0.1.9
 # limite le nombre de requêtes par IP sur les routes sensibles, protection contre le bruteforce et le spam.
+
+# Tests
+pytest==8.3.2
+pytest-asyncio==0.23.8

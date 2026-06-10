@@ -64,6 +64,7 @@ export default function Settings() {
   const [theme, setTheme]           = useState("dark")
   const [avatarUrl, setAvatarUrl]   = useState("")
   const [username, setUsername]     = useState("")
+  const [emailNotifications, setEmailNotifications] = useState(true)
 
   // Avatar dropdown
   const [avatarDropdownOpen, setAvatarDropdownOpen] = useState(false)
@@ -107,6 +108,7 @@ export default function Settings() {
           setWebsite(profile.website || "")
           setTheme(profile.theme || "dark")
           setAvatarUrl(profile.avatar_url || "")
+          setEmailNotifications(profile.email_notifications ?? true)
         }
       } catch {
         setError(t("settings.errorLoad"))
@@ -142,7 +144,8 @@ export default function Settings() {
         avatar_url: avatarUrl || null,
         bio: bio || null,
         website: website || null,
-        theme: theme
+        theme: theme,
+        email_notifications: emailNotifications
       })
 
       setUser(updatedProfile)
@@ -457,6 +460,21 @@ export default function Settings() {
                 </select>
               </div>
             </div>
+          </div>
+
+          {/* Toggle notifications email */}
+          <div className="settings-notifications-row">
+            <div className="settings-notifications-info">
+              <span className="settings-label">🔔 Recevoir un email lors d'un like, commentaire ou nouvel abonné</span>
+            </div>
+            <label className="settings-toggle">
+              <input
+                type="checkbox"
+                checked={emailNotifications}
+                onChange={e => setEmailNotifications(e.target.checked)}
+              />
+              <span className="settings-toggle-slider" />
+            </label>
           </div>
 
           {/* Bouton sauvegarder centré */}

@@ -49,6 +49,9 @@ class User(Base):
     theme: Mapped[str] = mapped_column(String, default="dark", nullable=False)
     language: Mapped[str] = mapped_column(String, default="fr", nullable=False)
 
+    # Préférences notifications
+    email_notifications: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+
     # Following
     following: Mapped[list["User"]] = relationship(
         "User",

@@ -78,6 +78,8 @@ async def update_profile(
         user.theme = data.theme
     if data.language is not None:
         user.language = data.language
+    if data.email_notifications is not None:
+        user.email_notifications = data.email_notifications
 
     await db.commit()
     await db.refresh(user)
@@ -109,7 +111,7 @@ async def delete_my_account(
     await db.commit()
     return None
 
-# GET /users/me/export - télécharger ses données (RGPD)
+# GET /users/me/export (télécharger ses données (RGPD))
 @router.get("/me/export")
 async def export_data(
     current_user: dict = Depends(get_current_user),
@@ -327,13 +329,13 @@ async def ban_user(
     user.is_active = False
     await db.commit()
 
-    # Révoque toutes ses sessions d'authentification, il ne pourra plus rafraîchir son token
+    # Révoque toutes ses sessions d'authentification (il ne pourra plus rafraîchir son token)
     await revoke_all_refresh_tokens(user_id, db)
 
     return {"message": "Utilisateur banni", "user_id": user_id}
 
 
-# PATCH /users/{user_id}/unban - réactiver un utilisateur (admin uniquement)
+# PATCH /users/{user_id}/unban (réactiver un utilisateur (admin uniquement))
 @router.patch("/{user_id}/unban", status_code=status.HTTP_200_OK)
 async def unban_user(
     user_id: str,
