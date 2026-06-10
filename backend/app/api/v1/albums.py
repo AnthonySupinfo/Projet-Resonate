@@ -140,7 +140,7 @@ async def post_review(album_id: str, current_user=Depends(get_current_user)):
 # Route admin - doit être admin
 
 
-@router.delete("/reviews/{review_id}")
+@router.delete("/admin/reviews/{review_id}")
 async def delete_review(review_id: str, admin=Depends(require_admin)):
     return {"message": "Critique supprimée"}
     # Si on arrive ici, l'utilisateur est admin. require_admin a vérifié le rôle et renvoyé une 403 sinon.
@@ -260,7 +260,3 @@ async def update_album_status(
     await db.commit()
 
     return {"status": data.status}
-
-# test temporaire pour vérifier que les routes sont bien intégrées
-print(""" \n\n\n\n\n\n\n!!!!!!!!!\n\n\n\n\n!!!!!!!!
-      ALBUMS ROUTES LOADED\n\n\n\n!!!!!!!!!\n\n\n\n\n\n!!!!!!!!!""")

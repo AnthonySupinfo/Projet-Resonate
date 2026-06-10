@@ -57,25 +57,40 @@ async def create_review(
     stmt_user_review = select(Review).filter(
         Review.user_id == current_user["user_id"],
         Review.album_id == album_id,
-        Review.parent_id == None,  # IMPORTANT
-        Review.deleted_at == None
+        Review.parent_id == None,
     )
     result_user_review = await db.execute(stmt_user_review)
     user_review = result_user_review.scalars().first()
 
-    if user_review:
-        raise HTTPException(
-            status_code=409, detail="Vous avez déjà posté une review pour cet album")
+    new_review = None
 
-    new_review = Review(
-        user_id=current_user["user_id"],
-        album_id=album_id,
-        rating=body.rating,
-        content=body.content,
-        parent_id=body.parent_id
-    )
-    db.add(new_review)
-    await db.flush()  # flush pour obtenir l'id avant le commit
+    if user_review:
+        if user_review.deleted_at is None:
+            raise HTTPException(
+                status_code=409, detail="Vous avez déjà posté une review pour cet album")
+        else:
+            user_review.rating = body.rating
+            user_review.content = body.content
+            user_review.deleted_at = None
+            user_review.posted_at = datetime.now(timezone.utc)
+            user_review.has_been_modified = False
+
+            await db.commit()
+            await db.refresh(user_review)
+            new_review = user_review
+
+    else:
+        new_review = Review(
+            user_id=current_user["user_id"],
+            album_id=album_id,
+            rating=body.rating,
+            content=body.content,
+            parent_id=body.parent_id
+        )
+        db.add(new_review)
+        await db.flush()
+        await db.commit()
+        await db.refresh(new_review)
 
     await feed_service.log_activity(
         db=db,
@@ -84,8 +99,6 @@ async def create_review(
         review_id=new_review.id,
         album_id=new_review.album_id
     )
-
-    await db.commit()
 
     stmt_user = select(User).where(User.id == current_user["user_id"])
     result_user = await db.execute(stmt_user)
