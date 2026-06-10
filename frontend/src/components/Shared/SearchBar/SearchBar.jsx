@@ -35,11 +35,6 @@ export default function SearchBar() {
     return () => clearTimeout(timeout);
   }, [query]);
 
-  // debug (temporaire)
-  useEffect(() => {
-    console.log("RESULTS:", results);
-  }, [results]);
-
   // fermer dropdown au clic en dehors
   useEffect(() => {
     const handleClickOutside = (event) => {

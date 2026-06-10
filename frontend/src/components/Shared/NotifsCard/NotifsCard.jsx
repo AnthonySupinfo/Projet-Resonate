@@ -9,7 +9,6 @@ import {useEffect, useState, useCallback } from "react";
 import NotifsModal from "./NotifsModal/NotifsModal.jsx";
 import { getProfile } from "../../../api/auth.js";
 import {notificationService} from "../../../api/notification.service.js";
-import {useNotificationSocket} from "../../../hooks/useNotificationSocket.js";
 import {useChatContext} from "../../../context/ChatContext.jsx";
 import {chatService} from "../../../api/chat.service.js";
 
@@ -33,22 +32,18 @@ export default function NotifsCard() {
         return saved ? parseInt(saved, 10) : 0;
     });
 
-    const { incomingChatEvent } = useChatContext();
+    const { incomingChatEvent, incomingNotificationEvent } = useChatContext();
     const token = localStorage.getItem("token");
 
-    const handleNewWebSocketNotification = useCallback((data) => {
-        console.log("Nouvelle activité reçue du serveur", data);
-
-        if (data.unread_count !== undefined) {
-            setUnreadCount(data.unread_count);
+    useEffect(() => {
+        if (incomingNotificationEvent && incomingNotificationEvent.unread_count !== undefined) {
+            setUnreadCount(incomingNotificationEvent.unread_count);
 
             notificationService.getNotifications()
                 .then(setNotifications)
                 .catch(console.error);
         }
-    }, []);
-
-    useNotificationSocket(token, handleNewWebSocketNotification);
+    }, [incomingNotificationEvent]);
 
     useEffect(() => {
         const fetchNotificationsData = async () => {
@@ -130,7 +125,6 @@ export default function NotifsCard() {
         try {
             await notificationService.markAsRead(id);
 
-            // prev est égale à la valeur précédente, sécurité comme useState est asynchrone
             setNotifications(prev =>
                 prev.map(n => n.id === id ? { ...n, is_read: true } : n)
             );
@@ -155,6 +149,7 @@ export default function NotifsCard() {
             console.error("Erreur lors du marquage comme lu des notifications", err);
         }
     };
+
     const onLogoutClick = () => {
         logout();
         navigate('/');

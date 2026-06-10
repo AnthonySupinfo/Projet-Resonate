@@ -17,6 +17,8 @@ export default function AuthLayout() {
     const { token } = useAuth();
 
     const [incomingChatEvent, setIncomingChatEvent] = useState(null);
+    const [incomingNotificationEvent, setIncomingNotificationEvent] = useState(null);
+
     const handleIncomingWebsocketMessage = (data) => {
         console.log("WebSocket a reçu un message :", data);
 
@@ -26,7 +28,8 @@ export default function AuthLayout() {
                 setIncomingChatEvent({ ...data, timestamp: Date.now() });
                 break;
 
-            case 'notification':
+            case 'new_notification':
+                setIncomingNotificationEvent({ ...data, timestamp: Date.now() });
                 break;
 
             default:
@@ -40,7 +43,7 @@ export default function AuthLayout() {
     const hasRightSidebar = location.pathname === '/' || location.pathname === '/social';
 
     return (
-        <ChatContext.Provider value={{ incomingChatEvent }}>
+        <ChatContext.Provider value={{ incomingChatEvent, incomingNotificationEvent }}>
             <div className={`auth-layout ${!hasRightSidebar ? 'profile-mode' : ''} ${isHomePage ? 'home-mode' : ''}`}>
                 <aside className="left-sidebar">
                     <UserCard />
@@ -62,11 +65,11 @@ export default function AuthLayout() {
                     <Outlet />
                 </main>
 
-            {hasRightSidebar && (
-                <aside>
-                    <FavoritePlaylistCard/>
-                </aside>
-            )}
+                {hasRightSidebar && (
+                    <aside>
+                        <FavoritePlaylistCard/>
+                    </aside>
+                )}
 
                 <ChatModal />
             </div>
