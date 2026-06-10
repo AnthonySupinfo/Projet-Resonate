@@ -157,9 +157,9 @@ export default function HeaderCard() {
                             >
                                 {isFollowLoading ? "..." : isFollowing ? t('userProfile.followed') : t('userProfile.follow')}
                             </button>
-                            <button className="header-icon-btn">
-                                <img src={reportIcon} alt={t('userProfile.altReport')} className="action-icon-img" />
-                            </button>
+                            {/*<button className="header-icon-btn">*/}
+                            {/*    <img src={reportIcon} alt={t('userProfile.altReport')} className="action-icon-img" />*/}
+                            {/*</button>*/}
                         </div>
                     )}
                 </div>

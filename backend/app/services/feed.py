@@ -1,5 +1,5 @@
 ﻿from sqlalchemy import select, desc, func
-from app.models import Album, Review
+from app.models import Album, Review, Track
 from app.models.follow import Follow
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.user_activity_feed import UserActivityFeed, ActivityTypes
@@ -136,11 +136,20 @@ class FeedService:
                     item["playlist_id"] = activity.playlist_id
                     item["playlist_name"] = playlist.name if playlist else "Playlist supprimée"
 
-                # TODO : décommenter quand Krishna aura fait les tracks
-                # if activity.track_id:
-                #     track = await db.get(Track, activity.track_id)
-                #     item["track_id"] = activity.track_id
-                #     item["track_title"] = track.title if track else "Musique inconnue"
+                if activity.track_id:
+                    track = await db.get(Track, activity.track_id)
+                    if track:
+                        item["track_id"] = activity.track_id
+                        item["track_name"] = track.name
+                        item["track_artist"] = track.artist
+                        item["track_duration"] = track.duration
+
+                        if track.album_id:
+                            album = await db.get(Album, track.album_id)
+                            if album:
+                                item["album_id"] = track.album_id
+                                item["album_title"] = album.title or album.name
+                                item["cover_url"] = album.image
 
             injected_feed.append(item)
 

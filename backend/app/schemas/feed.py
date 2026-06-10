@@ -1,6 +1,7 @@
 ﻿from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
+from uuid import UUID
 from app.models.user_activity_feed import ActivityTypes
 
 class FeedItemResponse(BaseModel):
@@ -21,13 +22,15 @@ class FeedItemResponse(BaseModel):
     playlist_id: Optional[int] = None
     playlist_name: Optional[str] = None
 
-    album_id: Optional[int] = None
+    album_id: Optional[UUID] = None
     album_title: Optional[str] = None
 
     track_count: Optional[int] = 0
 
-    track_id: Optional[int] = None
-    track_title: Optional[str] = None
+    track_id: Optional[UUID] = None
+    track_name: Optional[str] = None
+    track_artist: Optional[str] = None
+    track_duration: Optional[int] = None
 
     cover_url: Optional[str] = None
 

@@ -25,9 +25,12 @@ export const feedService = {
                 avatar: item.actor_avatar || item.actor_username?.charAt(0).toUpperCase() || '?'
             },
             target: {
-                id: item.playlist_id || item.target_user_id || item.album_id,
-                name: item.target_user_username || item.album_title || item.playlist_name || "Élément",
-                artist: "",
+                id: item.track_id || item.playlist_id || item.target_user_id || item.album_id,
+                name: item.track_name || item.playlist_name || item.target_user_username || item.album_title || "Élément",
+                artist: item.track_artist || "",
+                albumTitle: item.album_title || "",
+                duration: item.track_duration || 0,
+                playlistId: item.playlist_id,
                 playlistName: item.playlist_name,
                 coverUrl: item.cover_url,
                 trackCount: item.track_count || item.tracks_count || 0,
