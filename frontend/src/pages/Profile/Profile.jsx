@@ -17,6 +17,7 @@ export default function Profile() {
     const { user } = useAuth();
 
     const isMyProfile = !id || (user && id === String(user.user_id || user.id));
+    const targetUserId = id || user?.user_id || user?.id;
 
     const [recentAlbums, setRecentAlbums] = useState([]);
     const [favoritePlaylists, setFavoritePlaylists] = useState([]);
@@ -100,7 +101,7 @@ export default function Profile() {
     if (isLoading) {
         return (
             <div className="profile-loading-container">
-                Chargement du profil...
+                {t('userProfile.loadingProfile')}
             </div>
         );
     }
@@ -108,15 +109,15 @@ export default function Profile() {
     if (isError) {
         return (
             <div className="user-not-found-container">
-                <h2>Utilisateur introuvable</h2>
+                <h2>{t('userProfile.userNotFoundTitle')}</h2>
                 <p className="user-not-found-text">
-                    Ce profil n'existe pas ou a été supprimé.
+                    {t('userProfile.userNotFoundDesc')}
                 </p>
                 <button
                     onClick={() => navigate('/')}
                     className="back-home-btn"
                 >
-                    Retour à l'accueil
+                    {t('userProfile.backToHome')}
                 </button>
             </div>
         );
@@ -125,7 +126,7 @@ export default function Profile() {
     return (
         <div className="profile-container">
             <HeaderCard />
-            <StatsCard />
+            <StatsCard userId={targetUserId} />
 
             {recentAlbums.length > 0 && (
                 <Carousel title={t('userProfile.recentAlbums')}>
