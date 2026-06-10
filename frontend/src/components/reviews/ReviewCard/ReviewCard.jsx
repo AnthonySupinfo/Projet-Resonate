@@ -34,6 +34,8 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
     const [isFeatured, setIsFeatured] = useState(review.is_featured || false)
     const [isFeatureLoading, setIsFeatureLoading] = useState(false)
 
+    const [confirmDeleteCommentId, setConfirmDeleteCommentId] = useState(null);
+
     useEffect(() => {
 
         console.log(" SYNC REVIEW CARD");
@@ -209,14 +211,18 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
     };
 
     const handleDeleteComment = async (commentId) => {
-        if (window.confirm("Voulez-vous supprimer ce commentaire ?")) {
+        setConfirmDeleteCommentId(commentId); 
+    };
+
+        const confirmDeleteCommentAction = async () => {
             try {
-                await deleteCommentReview(commentId);
-                setComments(comments.filter(c => c.id !== commentId));
+               await deleteCommentReview(confirmDeleteCommentId);
+                setComments(comments.filter(c => c.id !== confirmDeleteCommentId));
             } catch (error) {
                 alert ("Erreur lors de la suppression du commentaire.");
+            } finally {
+                setConfirmDeleteCommentId(null);
             }
-        }
     };
 
     // Coup de cœur admin — met en avant ou retire la mise en avant
@@ -279,7 +285,7 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
                 <div className="review-card-footer">
                     <div className="review-interactions">
                         <button 
-                            className={`interaction-btn like-btn ${isLiked ? 'active' : ''}`} 
+                            className={`interactions-btn like-btn ${isLiked ? 'active' : ''}`} 
                             onClick={handleLikeClick} 
                             disabled={isLiking}>
                                 {isLiked ? '❤️' : '🤍'} <span className="count">{likesCount}</span>
@@ -334,8 +340,20 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
                                         <span className="comment-author">{c.username || "Utilisateur"}</span>
                                         <span className="comment-text">{c.content}</span>
                                     </div>
-                                    {String(currentUserId) === String(c.user_id) && (
-                                        <button className="delete-comment-btn" onClick={() => handleDeleteComment(c.id)}>x</button>
+                                    {confirmDeleteCommentId && (
+                                        <div className="confirm-modal-overlay" onClick={() => setConfirmDeleteCommentId(null)}>
+                                            <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
+                                                <p className="confirm-modal-text">Supprimer ce commentaire</p>
+                                                <div className="confirm-modal-actions">
+                                                    <button className="confirm-modal-cancel" onClick={() => setConfirmDeleteCommentId(null)}>
+                                                        Annuler
+                                                    </button>
+                                                    <button className="confirm-modal-confirm" onClick={confirmDeleteCommentAction}>
+                                                        Supprimer
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
                                     )}
                                 </div>
                             ))
