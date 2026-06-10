@@ -43,7 +43,7 @@ export function AuthProvider({ children }) {
         .finally(() => setLoading(false))
   }, [])
 
-  // Synchronise le thème BDD → DOM + localStorage à chaque changement
+  // Synchronise le thème BDD -> DOM + localStorage à chaque changement
   useEffect(() => {
     if (!user?.theme) return
     const theme = user.theme
