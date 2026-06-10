@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload
@@ -7,24 +7,15 @@ import httpx
 from pydantic import BaseModel
 from typing import Literal
 from uuid import UUID
-from app.core.dependencies import get_current_user, require_admin
-from app.services.lastfm import lastfm_service
 
-from app.db.session import get_db
+from app.core.dependencies import get_current_user, require_admin, get_optional_user
+from app.services.lastfm import lastfm_service
 from app.models.album import Album
-from app.db.session import AsyncSessionLocal
-from app.models.track import Track
+from app.db.session import get_db
 from app.models.reviews import Review
 from app.models.user_album_status import UserAlbumStatus
-from app.services.lastfm import lastfm_service
-from app.core.dependencies import get_optional_user
-from app.models.user import User
-
 
 router = APIRouter(tags=["albums"])
-
-# Route publique - pas besoin d'être connecté
-
 
 @router.get("/albums/{album_id}")
 async def get_album_detail(
@@ -114,68 +105,49 @@ async def get_album_detail(
         "name": album.name,
         "artist": album.artist_name,
         "url": album.lastfm_url,
-
         "tracks": tracks_data,
         "genres": genres,
-
         "average_rating": average_rating,
         "user_status": user_status,
-
         "year": album.year,
-
         "image": final_image,
-
         "source": "cache"
     }
 
 
-# Route protégée - doit être connecté
-
-
 @router.post("/albums/{album_id}/review", tags=["reviews"])
-async def post_review(album_id: str, current_user=Depends(get_current_user)):
-    # Si on arrive ici, le token est valide. current_user contient user_id et role.
+async def post_review(
+    album_id: str,
+    current_user=Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
     return {"message": f"Critique postée par {current_user['user_id']}"}
-
-# Route admin - doit être admin
 
 
 @router.delete("/admin/reviews/{review_id}")
-async def delete_review(review_id: str, admin=Depends(require_admin)):
+async def delete_review(
+    review_id: str,
+    admin=Depends(require_admin),
+    db: AsyncSession = Depends(get_db)
+):
     return {"message": "Critique supprimée"}
-    # Si on arrive ici, l'utilisateur est admin. require_admin a vérifié le rôle et renvoyé une 403 sinon.
-
-
-# ROUTES LAST.FM (NOUVELLES)
-
-# 1) Recherche d'albums
-@router.get("/search", tags=["search"])
-async def search_albums(q: str = Query(..., description="Nom de l'album à rechercher"), page: int = Query(1), limit: int = Query(30)):
-    return await lastfm_service.search_albums(q, page, limit)
-
-# 2) Détail d'un album
 
 
 @router.get("/detail/{artist}/{album}", tags=["albums"])
 async def album_detail(artist: str, album: str):
     return await lastfm_service.get_album_detail(artist, album)
 
-# 3) Détail d'un artiste
-
 
 @router.get("/artist/{name}", tags=["artists"])
 async def artist_detail(name: str):
     return await lastfm_service.get_artist_detail(name)
 
-# 4) Pour récupérer l'image d'un album (proxy pour contourner les CORS, par le frontend ca ne passe pas donc passe par backend)
-
 
 @router.get("/image-proxy")
 async def image_proxy(url: str | None = None):
-    FALLBACK_URL = "http://localhost/fallback.jpg"  # ton image locale
+    FALLBACK_URL = "http://localhost/fallback.jpg"
 
     try:
-        # URL invalide ou vide
         if not url or url.strip() == "":
             raise ValueError("Empty URL")
 
@@ -193,7 +165,6 @@ async def image_proxy(url: str | None = None):
     except Exception as e:
         print("IMAGE ERROR:", e)
 
-        # fallback LOCAL (ultra important)
         async with httpx.AsyncClient() as client:
             fallback = await client.get(FALLBACK_URL)
 
@@ -201,30 +172,6 @@ async def image_proxy(url: str | None = None):
                 content=fallback.content,
                 media_type="image/jpeg"
             )
-
-# 5) Recherche d'autre users (pour le social, ex: suivre un utilisateur)
-
-
-@router.get("/search/users")
-async def search_users(q: str):
-    async with AsyncSessionLocal() as db:
-        result = await db.execute(
-            select(User).where(User.username.ilike(f"%{q}%"))
-        )
-
-        users = result.scalars().all()
-
-        return {
-            "results": [
-                {
-                    "id": str(u.id),
-                    "username": u.username,
-                }
-                for u in users
-            ]
-        }
-
-# status d'un album pour l'utilisateur connecté (ex: "want_to_listen", "listening", "listened")
 
 
 class StatusUpdate(BaseModel):

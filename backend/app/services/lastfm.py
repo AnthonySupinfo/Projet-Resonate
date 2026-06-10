@@ -1,8 +1,6 @@
-# backend/app/services/lastfm.py
-
 import httpx
 from fastapi import HTTPException
-from app.core.config import settings  # charge LASTFM_API_KEY depuis .env
+from app.core.config import settings
 
 from datetime import datetime, timedelta, timezone
 
@@ -22,11 +20,9 @@ from app.models.album_search_cache import AlbumSearchCache
 class LastFMService: 
     BASE_URL = "https://ws.audioscrobbler.com/2.0/"
 
-    CACHE_DURATION = timedelta(days=7) # durée de validité du cache, ici 7 jours, 
-    # on peut ajuster selon les besoins
+    CACHE_DURATION = timedelta(days=7)
 
-    def __init__(self): # récupère la clé API depuis les settings et vérifie sa 
-        # présence
+    def __init__(self):
         self.api_key = settings.LASTFM_API_KEY
         if not self.api_key:
             raise RuntimeError("LASTFM_API_KEY is missing in backend/.env")
@@ -46,7 +42,6 @@ class LastFMService:
 
         data = response.json() 
 
-        # Last.fm renvoie souvent les erreurs dans le JSON lui-même
         if "error" in data:
             raise HTTPException(400, f"Last.fm error: {data.get('message')}")
 
@@ -59,24 +54,22 @@ class LastFMService:
         stmt = select(AlbumSearchCache).where( 
             AlbumSearchCache.query == query
         )
-        result = await session.execute(stmt) # execute
+        result = await session.execute(stmt)
         cache_entry = result.scalar_one_or_none() 
 
-        # 2 Cache valide → retour immédiat
-        if cache_entry and is_cache_valid(cache_entry.fetched_at): 
+        if cache_entry and is_cache_valid(cache_entry.fetched_at):
             return {
-                "query": query, # la requete de recherche d'album
+                "query": query,
                 "page": page,
                 "limit": limit,
-                "results": cache_entry.results, # les albums depuis le cache
-                "source": "cache" # indique que les résultats proviennent du cache
+                "results": cache_entry.results,
+                "source": "cache"
             }
 
         # 3 Appel Last.fm
         params = { 
-            "method": "album.search", # méthode de l'API Last.fm pour rechercher
-             # des albums
-            "album": query, 
+            "method": "album.search",
+            "album": query,
             "page": page,
             "limit": limit,
         }
@@ -87,13 +80,11 @@ class LastFMService:
             raise HTTPException(404, "Aucun album trouvé.")
 
 
-        # 4 UPSERT cache
-        if cache_entry: 
-            cache_entry.results = albums # remplace les résultats de l'entrée de 
-            # cache existante par les nouveaux résultats obtenus de Last.fm
+        if cache_entry:
+            cache_entry.results = albums
             cache_entry.fetched_at = datetime.now(timezone.utc) 
         else: 
-            cache_entry = AlbumSearchCache( # créer la nouvelle entrée de cache 
+            cache_entry = AlbumSearchCache(
                 query=query,
                 results=albums,
                 fetched_at=datetime.now(timezone.utc),
@@ -117,25 +108,20 @@ class LastFMService:
                 Album.name == album
             )
 
-            result = await session.execute(stmt) # pour executer de maniere asynchrone 
+            result = await session.execute(stmt)
             db_album = result.scalar_one_or_none() 
 
-            # 2 Cache valide → retour immédiat
-            if db_album and is_cache_valid(db_album.fetched_at): 
+            if db_album and is_cache_valid(db_album.fetched_at):
                 serialized = self._serialize_album(db_album)
                 serialized["year"] = db_album.year
                 return serialized
 
-            # 3 Cache absent ou périmé → appel Last.fm
             params = {
                 "method": "album.getinfo", 
                 "artist": artist, 
                 "album": album,
             }
-            data = await self._request(params) 
-
-            # pour voir si on peut extraire une année de la date de sortie (souvent dans un format pas très propre)
-            print("LASTFM ALBUM DETAIL RAW:", data)
+            data = await self._request(params)
 
             import re
 
@@ -152,9 +138,6 @@ class LastFMService:
                 if match:
                     year = match.group(0)
 
-            print("DETAIL RELEASE:", release_date)
-            print("DETAIL YEAR:", year)
-
             album_info = data.get("album") 
             images = album_info.get("image", [])
             cover_image = None
@@ -170,7 +153,6 @@ class LastFMService:
             if not album_info:
                 raise HTTPException(404, "Album introuvable sur Last.fm.")
 
-            # 4 UPSERT ARTIST
             artist_name = album_info.get("artist")
 
             if artist_name:
@@ -178,7 +160,6 @@ class LastFMService:
             else:
                 lastfm_artist_url = None
 
-            # UPSERT DOIT TOUJOURS S’EXÉCUTER (PAS DANS ELSE)
             stmt = select(Artist).where(Artist.lastfm_url == lastfm_artist_url)
             result = await session.execute(stmt)
             db_artist = result.scalar_one_or_none()
@@ -194,10 +175,8 @@ class LastFMService:
                 )
                 session.add(db_artist)
 
-            # 5 UPSERT ALBUM
-            lastfm_album_url = album_info.get("url") 
+            lastfm_album_url = album_info.get("url")
             
-            # chercher avec la bonne clé UNIQUE
             stmt = select(Album).where(Album.lastfm_url == lastfm_album_url)
             result = await session.execute(stmt)
             db_album = result.scalar_one_or_none()
@@ -219,23 +198,21 @@ class LastFMService:
                 )
                 session.add(db_album)
 
-            await session.flush()  # garantit db_album.id
+            await session.flush()
 
-            # 6 UPSERT TRACKS (delete & recreate)
-            await session.execute( 
+            await session.execute(
                 delete(Track).where(Track.album_id == db_album.id) 
             )
 
             tracks = album_info.get("tracks", {}).get("track", []) 
 
             
-            # NORMALISATION
             if isinstance(tracks, dict):
                 tracks = [tracks]
 
             for t in tracks:
                 if not isinstance(t, dict):
-                    continue  # sécurité
+                    continue
 
                 track = Track(
                     album_id=db_album.id,
@@ -246,7 +223,7 @@ class LastFMService:
                 session.add(track)
 
 
-            await session.commit() # enregistre les modifications dans la base de 
+            await session.commit()
             # données
             
             stmt = (
@@ -257,22 +234,13 @@ class LastFMService:
 
             result = await session.execute(stmt)
             db_album = result.scalar_one()
-            # rafraîchit l'instance de l'album pour 
-            # obtenir les données mises à jour
 
             serialized = self._serialize_album(db_album) 
             serialized["year"] = db_album.year
             return serialized
 
-    async def get_artist_detail(self, name: str): # fonction async
-        """
-        Détails d’un artiste avec Smart Cache BDD.
-        """
-
-        
+    async def get_artist_detail(self, name: str):
         async with AsyncSessionLocal() as session:
-
-                # 1 appel Last.fm DIRECT AVANT
                 params = {
                     "method": "artist.getinfo",
                     "artist": name,
@@ -286,16 +254,13 @@ class LastFMService:
                 artist_name = artist_info.get("name")
                 lastfm_url = artist_info.get("url")
 
-                # 2 chercher avec clé UNIQUE 
                 stmt = select(Artist).where(Artist.lastfm_url == lastfm_url)
                 result = await session.execute(stmt)
                 db_artist = result.scalar_one_or_none()
 
-                # 3 cache valide
                 if db_artist and is_cache_valid(db_artist.fetched_at):
                     return self._serialize_artist(db_artist)
 
-                # 4 UPSERT propre
                 if db_artist:
                     db_artist.name = artist_name
                     db_artist.fetched_at = datetime.now(timezone.utc)
@@ -319,8 +284,7 @@ class LastFMService:
 
     
     def _serialize_album(self, album: Album) -> dict: 
-        return { # retourne un dictionnaire avec les informations de l'album 
-            # formatées 
+        return {
             "id": str(album.id),
             "name": album.name,
             "artist": album.artist_name,
@@ -337,8 +301,7 @@ class LastFMService:
             "fetched_at": album.fetched_at.isoformat() if album.fetched_at else None,
         }
     
-    def _serialize_artist(self, artist: Artist) -> dict: # méthode privée pour 
-        # formater les données de l'artiste de manière cohérente
+    def _serialize_artist(self, artist: Artist) -> dict:
         return {
             "id": str(artist.id),
             "name": artist.name,
@@ -364,19 +327,13 @@ class LastFMService:
                 .strip()
             )
 
-            print("REALISE DATE:", release_date)
-
             if release_date:
-                # prendre les 4 derniers chiffres valides
                 import re
                 match = re.search(r"\d{4}", release_date)
                 if match:
-                    print("YEAR PARSED", year)
                     return year
 
         except Exception as e:
-            print("YEAR ERROR:", e)
-
         return None
     '''
 
@@ -388,5 +345,4 @@ def is_cache_valid(fetched_at: datetime | None) -> bool:
 
 
 
-# Instance réutilisable dans les routes FastAPI
 lastfm_service = LastFMService()

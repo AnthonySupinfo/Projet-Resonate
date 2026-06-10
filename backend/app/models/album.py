@@ -13,9 +13,7 @@ class Album(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
-    #  fusion des noms
-    name = Column(String, nullable=False)          # ton champ
-    # optionnel (compat collègue)
+    name = Column(String, nullable=False)
     title = Column(String, nullable=True)
 
     artist_name = Column(String, nullable=False)
