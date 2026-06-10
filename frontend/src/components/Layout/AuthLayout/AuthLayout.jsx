@@ -7,36 +7,33 @@ import LibraryCard from "../../library/libraryCard/LibraryCard.jsx";
 import NotifsCard from "../../Shared/NotifsCard/NotifsCard.jsx";
 import SearchBar from "../../Shared/SearchBar/SearchBar.jsx";
 import ChatModal from "../../Shared/ChatModal/ChatModal.jsx";
+import Footer from "../../Shared/Footer/Footer.jsx";
 import {useNotificationSocket} from "../../../hooks/useNotificationSocket.js";
 import {useAuth} from "../../../context/AuthContext.jsx";
 import { ChatContext } from "../../../context/ChatContext.jsx";
-import {useCallback, useState} from "react";
+import {useState} from "react";
 
 export default function AuthLayout() {
     const location = useLocation();
     const { token } = useAuth();
 
     const [incomingChatEvent, setIncomingChatEvent] = useState(null);
-    const [incomingNotificationEvent, setIncomingNotificationEvent] = useState(null);
-
-    const handleIncomingWebsocketMessage = useCallback((data) => {
+    const handleIncomingWebsocketMessage = (data) => {
         console.log("WebSocket a reçu un message :", data);
 
         switch (data.type) {
             case 'new_message':
             case 'conversation_read':
-            case 'message_edited':
                 setIncomingChatEvent({ ...data, timestamp: Date.now() });
                 break;
 
-            case 'new_notification':
-                setIncomingNotificationEvent({ ...data, timestamp: Date.now() });
+            case 'notification':
                 break;
 
             default:
                 console.warn("Type de message inconnu :", data.type);
         }
-    }, []);
+    };
 
     useNotificationSocket(token, handleIncomingWebsocketMessage);
 
@@ -44,19 +41,20 @@ export default function AuthLayout() {
     const hasRightSidebar = location.pathname === '/' || location.pathname === '/social';
 
     return (
-        <ChatContext.Provider value={{ incomingChatEvent, incomingNotificationEvent }}>
+        <ChatContext.Provider value={{ incomingChatEvent }}>
             <div className={`auth-layout ${!hasRightSidebar ? 'profile-mode' : ''} ${isHomePage ? 'home-mode' : ''}`}>
                 <aside className="left-sidebar">
                     <UserCard />
                     <NavCard />
                     <LibraryCard />
+                    {/* Footer dans la sidebar gauche — hors de portée du ChatModal */}
+                    <Footer />
                 </aside>
 
                 <div className="auth-topbar">
                     {!isHomePage && (
                         <SearchBar />
                     )}
-
                     <div className="notifs-wrapper">
                         <NotifsCard />
                     </div>
@@ -66,11 +64,11 @@ export default function AuthLayout() {
                     <Outlet />
                 </main>
 
-                {hasRightSidebar && (
-                    <aside>
-                        <FavoritePlaylistCard/>
-                    </aside>
-                )}
+            {hasRightSidebar && (
+                <aside>
+                    <FavoritePlaylistCard/>
+                </aside>
+            )}
 
                 <ChatModal />
             </div>

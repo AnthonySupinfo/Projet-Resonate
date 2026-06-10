@@ -1,0 +1,106 @@
+.mentions-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Inter', "Segoe UI", system-ui, sans-serif;
+}
+
+.mentions-card {
+  background-color: var(--bg-card);
+  border-radius: 20px;
+  padding: 36px 48px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.mentions-back {
+  background: none;
+  border: none;
+  color: var(--accent-primary);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 24px;
+  display: block;
+  font-family: 'Inter', sans-serif;
+}
+
+.mentions-back:hover {
+  opacity: 0.7;
+}
+
+.mentions-title {
+  color: var(--text-primary);
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 500;
+  margin: 0 0 32px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(244, 147, 144, 0.4);
+}
+
+.mentions-section {
+  margin-bottom: 28px;
+}
+
+.mentions-section h2 {
+  color: var(--accent-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 10px;
+  font-family: 'Inter', sans-serif;
+}
+
+.mentions-section p {
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0 0 8px;
+}
+
+.mentions-section ul {
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  line-height: 1.8;
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.mentions-section a {
+  color: var(--accent-primary);
+  text-decoration: underline;
+}
+
+.mentions-section a:hover {
+  opacity: 0.7;
+}
+
+.mentions-footer {
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: center;
+}
+
+.mentions-footer p {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+/* Lien footer discret */
+.legal-footer-link {
+  display: block;
+  text-align: center;
+  margin-top: 16px;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  text-decoration: none;
+  font-family: 'Inter', sans-serif;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.legal-footer-link:hover {
+  opacity: 1;
+  color: var(--accent-primary);
+}
