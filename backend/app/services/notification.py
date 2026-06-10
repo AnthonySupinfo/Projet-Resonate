@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc
 from sqlalchemy import func
-from app.models import User
+from app.models import User, Review, Album
 from app.models.notification import Notification, NotificationType
 from app.core.websocket_manager import manager
 
@@ -68,6 +68,16 @@ class NotificationService:
                 if actor:
                     item["related_user_username"] = actor.username
                     item["related_user_avatar"] = actor.avatar_url
+
+            if notif.related_review_id:
+                review = await db.get(Review, notif.related_review_id)
+                if review and review.album_id:
+                    album = await db.get(Album, review.album_id)
+                    if album:
+                        item["album_id"] = review.album_id
+                        item["album_title"] = album.title or album.name
+                        item["album_artist"] = album.artist_name
+                        item["cover_url"] = album.image
 
             injected_notifs.append(item)
 
