@@ -4,6 +4,13 @@ import { getPlaylist, updatePlaylist, removeTrackFromPlaylist, deletePlaylist } 
 import { useAuth } from '../context/AuthContext';
 import './PlaylistDetailPage.css';
 
+const generateColorFrame = (name) => {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    const c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
+    return "00000" .substring(0, 6 - c.length) + c;
+};
+
 export default function PlaylistDetailPage() {
     const { id } = useParams(); // récup ID playlist dans URL
     const navigate = useNavigate();
@@ -81,15 +88,20 @@ export default function PlaylistDetailPage() {
     if (isLoading) return <div className="playlist-status-msg">Chargement de la playlist...</div>;
     if (error || !playlist) return <div className="playlist-status-msg error">Playlist introuvable.</div>;
 
+    const bgColor = generateColorFrame(playlist.name || "default");
+    const fallbackCover = `https://ui-avatars.com/api/?name=${encodeURIComponent(playlist.name)}&background=${bgColor}&color=fff&size=400&format=svg`;
+
+
     const currentUserId = user?.user_id || user?.id;
     const isOwner = String(currentUserId) === String(playlist.user_id);
 
     return (
         <div className="playlist-detail-page">
             <button className="back-btn" onClick={() => navigate(-1)}>← Retour</button>
+            <h1 className="playlist-page-title">{playlist.name}</h1>
             <div className="playlist-header">
                 <img
-                    src={playlist.cover_url || playlist.coverUrl ||  "https://placehold.co/200x200/2a2a2c/ffffff?text=Playlist"}
+                    src={playlist.cover_url || playlist.coverUrl ||  fallbackCover}
                     alt={playlist.name}
                     className="playlist-main-cover"
                 />
@@ -97,7 +109,6 @@ export default function PlaylistDetailPage() {
                     <span className="playlist-type">
                         {playlist.is_public ? 'Playlist publique' : 'Playlist privée'}
                     </span>
-                    <h1 className="playlist-title">{playlist.name}</h1>
                     {playlist.description && <p className="playlist-desc">{playlist.description}</p>}
 
                     {isOwner && (
@@ -124,7 +135,6 @@ export default function PlaylistDetailPage() {
                                 key={track.id}
                                 className="track-item"
                                 onClick={() => navigate(`/albums/${encodeURIComponent(track.artist)}/${encodeURIComponent(track.album_name)}`)}
-                                style={{ cursor: 'pointer' }}
                             >
                                 <span className="track-number">{index + 1}</span>
                                 <div className="track-details">

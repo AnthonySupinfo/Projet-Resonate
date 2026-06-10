@@ -4,6 +4,13 @@ import { useLanguage } from '../../../context/LanguageContext.jsx';
 import { useNavigate } from 'react-router-dom';
 import './FavoritePlaylistCard.css';
 
+const generateColorFrameForArtist = (name) => {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    const c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
+    return "00000" .substring(0, 6 - c.length) + c;
+};
+
 export default function FavoritePlaylistCard({ playlistId }) {
     const [playlist, setPlaylist] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -57,11 +64,15 @@ export default function FavoritePlaylistCard({ playlistId }) {
                     <p className="empty-msg">{t('library.emptyPlaylist')}</p>
                 ): (
                     tracks.map((track, index) => {
+                        
                         const rawUrl = track.cover_url || track.image || track.album?.image || track.album?.image_url;
+
+                        const artistName = track.artist || "Inconnu";
+                        const bgColor = generateColorFrameForArtist(artistName);
 
                         const coverUrl = rawUrl
                             ? `/api/v1/image-proxy?url=${encodeURIComponent(rawUrl)}`
-                            : `https://placehold.co/40x40/2a2a2c/ffffff?text=${encodeURIComponent(track.name?.[0] || 'M')}&background=2a2a2c&color=fff&size=40`;
+                            : `https://placehold.co/40x40/${bgColor}/ffffff?text=${encodeURIComponent(artistName)}`;
                         
                         
                         return (

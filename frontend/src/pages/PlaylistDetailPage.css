@@ -33,8 +33,10 @@
 
 .playlist-header {
     display: flex;
-    gap: 32px;
-    align-items: flex-end;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
     margin-bottom: 48px;
 }
 
@@ -49,6 +51,7 @@
 .playlist-info {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 8px;
 }
 
@@ -60,17 +63,25 @@
     color: var(--text-muted);
 }
 
-.playlist-title {
-    font-size: 3.5rem;
-    font-weight: 700;
-    margin: 0;
+.playlist-page-title {
+    font-size: 4rem;
+    font-weight: 800;
+    margin: 0 0 40px 0;
     line-height: 1.1;
+    text-align: center;
 }
 
 .playlist-desc {
     color: var(--text-soft);
     font-size: 0.95rem;
     margin: 0 0 16px 0;
+}
+
+.playlist-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px 0;
+    justify-content: center;
 }
 
 .toggle-privacy-btn {
