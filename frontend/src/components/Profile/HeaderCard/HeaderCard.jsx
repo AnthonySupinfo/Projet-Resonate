@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useAuth } from "../../../context/AuthContext.jsx";
 import { useLanguage } from "../../../context/LanguageContext.jsx";
-import { getProfile, getUserProfile } from "../../../api/auth.js";
+import { getProfile, getUserProfile, authFetch } from "../../../api/auth.js";
 import { feedService } from "../../../api/feed.service.js";
 import modifyIcon from '../../../../public/icons/modify.png';
 import reportIcon from '../../../../public/icons/report.png';
 import FollowUsersListModal from './FollowUsersListModal/FollowUsersListModal.jsx';
 import './HeaderCard.css';
+
+const API_URL = import.meta.env.VITE_API_URL || ""
 
 export default function HeaderCard() {
     const { id } = useParams();
@@ -18,6 +20,13 @@ export default function HeaderCard() {
     const [isFollowing, setIsFollowing] = useState(false);
     const [isFollowLoading, setIsFollowLoading] = useState(false);
     const [modalConfig, setModalConfig] = useState({ isOpen: false, type: 'followers' });
+
+    // Modale de signalement utilisateur
+    const [reportModalOpen, setReportModalOpen] = useState(false);
+    const [reportReason, setReportReason] = useState("");
+    const [reportLoading, setReportLoading] = useState(false);
+    const [reportSuccess, setReportSuccess] = useState("");
+    const [reportError, setReportError] = useState("");
     const token = localStorage.getItem("token");
 
     const isMyProfile = !id || (user && id === String(user.id));
@@ -74,7 +83,6 @@ export default function HeaderCard() {
 
     const handleFollowToggle = async () => {
         if (isFollowLoading) return;
-
         setIsFollowLoading(true);
         try {
             if (isFollowing) {
@@ -92,6 +100,32 @@ export default function HeaderCard() {
             setIsFollowLoading(false);
         }
     };
+
+    // Signalement d'un utilisateur — soumission de la modale
+    const handleReportSubmit = async () => {
+        if (!reportReason.trim()) return
+        setReportLoading(true)
+        setReportError("")
+        try {
+            const res = await authFetch(`${API_URL}/api/v1/users/${id}/report`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ reason: reportReason })
+            })
+            if (res.status === 409) {
+                setReportError("Vous avez déjà signalé cet utilisateur.")
+                return
+            }
+            if (!res.ok) throw new Error()
+            setReportSuccess("Merci, l'utilisateur a été signalé à l'équipe de modération.")
+            setReportReason("")
+            setTimeout(() => { setReportModalOpen(false); setReportSuccess("") }, 2000)
+        } catch {
+            setReportError("Erreur lors du signalement.")
+        } finally {
+            setReportLoading(false)
+        }
+    }
 
     return (
         <>
@@ -123,15 +157,15 @@ export default function HeaderCard() {
                                     className="header-stat clickable"
                                     onClick={() => setModalConfig({ isOpen: true, type: 'followers' })}
                                 >
-                                        {currentUser.followers_count || 0} {t('userProfile.followers')}
-                                    </span>
+                                    {currentUser.followers_count || 0} {t('userProfile.followers')}
+                                </span>
                                 <span className="header-stat-separator">•</span>
                                 <span
                                     className="header-stat clickable"
                                     onClick={() => setModalConfig({ isOpen: true, type: 'following' })}
                                 >
-                                        {currentUser.following_count || 0} {t('userProfile.following')}
-                                    </span>
+                                    {currentUser.following_count || 0} {t('userProfile.following')}
+                                </span>
                             </div>
 
                             <span className="header-joined-date">{t('userProfile.joinedSince')} {joinedDate}</span>
@@ -157,9 +191,10 @@ export default function HeaderCard() {
                             >
                                 {isFollowLoading ? "..." : isFollowing ? t('userProfile.followed') : t('userProfile.follow')}
                             </button>
-                            {/*<button className="header-icon-btn">*/}
-                            {/*    <img src={reportIcon} alt={t('userProfile.altReport')} className="action-icon-img" />*/}
-                            {/*</button>*/}
+                            {/* Bouton signaler un utilisateur */}
+                            <button className="header-icon-btn" onClick={() => { setReportModalOpen(true); setReportReason(""); setReportError(""); setReportSuccess("") }} title="Signaler cet utilisateur">
+                                <img src={reportIcon} alt={t('userProfile.altReport')} className="action-icon-img" />
+                            </button>
                         </div>
                     )}
                 </div>
@@ -190,6 +225,32 @@ export default function HeaderCard() {
                 type={modalConfig.type}
                 userId={currentUser.id}
             />
+
+            {/* Modale de signalement utilisateur */}
+            {reportModalOpen && (
+                <div className="confirm-modal-overlay" onClick={() => setReportModalOpen(false)}>
+                    <div className="confirm-modal" onClick={e => e.stopPropagation()} style={{ minWidth: "340px" }}>
+                        <p className="confirm-modal-text">Signaler cet utilisateur</p>
+                        <textarea
+                            style={{ width: "100%", borderRadius: "12px", padding: "10px 14px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", color: "var(--text-primary)", fontFamily: "Inter, sans-serif", fontSize: "0.9rem", resize: "none", outline: "none", boxSizing: "border-box" }}
+                            rows={3}
+                            placeholder="Faux compte, arnaque, comportement abusif..."
+                            value={reportReason}
+                            onChange={e => setReportReason(e.target.value)}
+                        />
+                        {reportError && <p style={{ color: "#ff4b4b", fontSize: "0.85rem", margin: 0 }}>{reportError}</p>}
+                        {reportSuccess && <p style={{ color: "#27ae60", fontSize: "0.85rem", margin: 0 }}>{reportSuccess}</p>}
+                        <div className="confirm-modal-actions">
+                            <button className="confirm-modal-cancel" onClick={() => setReportModalOpen(false)}>
+                                Annuler
+                            </button>
+                            <button className="confirm-modal-confirm" onClick={handleReportSubmit} disabled={reportLoading || !reportReason.trim()}>
+                                {reportLoading ? "..." : "Signaler"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }

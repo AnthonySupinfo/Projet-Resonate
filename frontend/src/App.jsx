@@ -17,6 +17,7 @@ import Social from "./pages/Social/Social.jsx";
 import AlbumPage from "./pages/Album/AlbumPage";
 import SearchResults from "./pages/SearchResults/SearchResults";
 import AdminPage from "./pages/AdminPage";
+import MentionsLegales from "./pages/MentionsLegales";
 
 import LibraryPage from "./pages/LibraryPage";
 import AllPlaylistPage from "./pages/AllPlaylistsPage";
@@ -48,6 +49,9 @@ function AppRoutes() {
         <Route path="/register" element={user ? <Navigate to="/" replace /> : <Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+
+        {/* Page mentions légales - accessible sans connexion */}
+        <Route path="/mentions-legales" element={<MentionsLegales />} />
 
       {/*  Guest routes  */}
         <Route element={<GuestLayout />}>
@@ -82,7 +86,7 @@ function AppRoutes() {
             <Route path="library/playlists/:id" element={<PlaylistDetailPage />} />
             <Route path="library/albums" element={<MyAlbumsPage />} />
 
-            {/* route admin — accessible uniquement aux administrateurs */}
+            {/* route admin - accessible uniquement aux administrateurs */}
             {user?.role === "admin" && <Route path="/admin" element={<AdminPage />} />}
         </Route>
 

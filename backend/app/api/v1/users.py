@@ -22,6 +22,8 @@ from app.schemas.feed import FeedItemResponse
 from app.services.feed import feed_service
 from app.schemas.stats import UserStatsResponse
 from app.services.stats_service import stats_service
+from app.models.reports import Report, ReportStatus
+from app.schemas.reports import ReportCreate, ReportResponse
 
 
 
@@ -432,3 +434,40 @@ async def unban_user(
     await db.commit()
 
     return {"message": "Utilisateur réactivé", "user_id": user_id}
+
+
+@router.post("/{user_id}/report", response_model=ReportResponse, status_code=status.HTTP_201_CREATED)
+async def report_user(
+    user_id: str,
+    body: ReportCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    # Vérifie que l'utilisateur signalé existe
+    reported_user = await db.get(User, user_id)
+    if not reported_user:
+        raise HTTPException(status_code=404, detail="Utilisateur introuvable")
+
+    # Impossible de se signaler soi-même
+    if user_id == current_user["user_id"]:
+        raise HTTPException(status_code=400, detail="Vous ne pouvez pas vous signaler vous-même")
+
+    # Vérifie qu'on n'a pas déjà signalé cet utilisateur
+    stmt_unique = select(Report).where(
+        Report.reported_user_id == user_id,
+        Report.reporter_id == current_user["user_id"]
+    )
+    result = await db.execute(stmt_unique)
+    existing = result.scalars().first()
+    if existing:
+        raise HTTPException(status_code=409, detail="Vous avez déjà signalé cet utilisateur")
+
+    new_report = Report(
+        reporter_id=current_user["user_id"],
+        reported_user_id=user_id,
+        reason=body.reason
+    )
+    db.add(new_report)
+    await db.commit()
+    await db.refresh(new_report)
+    return new_report

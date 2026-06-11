@@ -259,7 +259,7 @@ export default function AdminPage() {
                 <thead>
                   <tr>
                     <th>#</th>
-                    <th>Review ID</th>
+                    <th>Cible</th>
                     <th>Signalé par</th>
                     <th>Raison</th>
                     <th>Date</th>
@@ -269,10 +269,16 @@ export default function AdminPage() {
                 </thead>
                 <tbody>
                   {reports.map(report => (
-                    <tr key={report.id} className="admin-row--clickable" onClick={() => report.album_artist && report.album_name && navigate(`/albums/${encodeURIComponent(report.album_artist)}/${encodeURIComponent(report.album_name)}`)} title={report.album_name ? `Voir la critique sur ${report.album_name}` : "Album introuvable"}>
+                    <tr key={report.id} className="admin-row--clickable" onClick={() => {
+                      if (report.reported_user_id) {
+                        navigate(`/user/${report.reported_user_id}`)
+                      } else if (report.album_artist && report.album_name) {
+                        navigate(`/albums/${encodeURIComponent(report.album_artist)}/${encodeURIComponent(report.album_name)}`)
+                      }
+                    }} title={report.reported_user_id ? `Voir le profil de @${report.reported_username}` : report.album_name || ""}>
                       <td>{report.id}</td>
-                      <td>#{report.review_id}</td>
-                      <td className="admin-cell--id">@{report.reporter_username || report.reporter_id.slice(0, 8) + "…"}</td>
+                      <td>{report.reported_user_id ? `👤 @${report.reported_username || "user"}` : `📝 #${report.review_id}`}</td>
+                      <td className="admin-cell--id">@{report.reporter_username || report.reporter_id?.slice(0, 8) + "…"}</td>
                       <td className="admin-cell--reason">{report.reason}</td>
                       <td>{formatDate(report.created_at)}</td>
                       <td>{statusBadge(report.status)}</td>
