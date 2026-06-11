@@ -6,8 +6,11 @@ from app.core.config import settings
 from app.models.user import User
 from app.models.oauth_account import OAuthAccount
 from app.services.auth import create_access_token, create_refresh_token
+from app.models.playlist import Playlist, PlaylistType
 
 # Fonctions Google
+
+
 async def get_google_access_token(code: str) -> str:
     async with httpx.AsyncClient() as client:
         response = await client.post(
@@ -27,6 +30,7 @@ async def get_google_access_token(code: str) -> str:
             detail="Impossible d'obtenir le token Google"
         )
     return data["access_token"]
+
 
 async def get_google_user_info(access_token: str) -> dict:
     async with httpx.AsyncClient() as client:
@@ -62,6 +66,7 @@ async def get_github_access_token(code: str) -> str:
             detail="Impossible d'obtenir le token GitHub"
         )
     return data["access_token"]
+
 
 async def get_github_user_info(access_token: str) -> dict:
     async with httpx.AsyncClient() as client:
@@ -144,7 +149,8 @@ async def handle_oauth_user(
         )
         db.add(new_oauth)
         await db.commit()
-        access_token = create_access_token(existing_user.id, existing_user.role)
+        access_token = create_access_token(
+            existing_user.id, existing_user.role)
         refresh_token = await create_refresh_token(existing_user.id, db)
         return {"access_token": access_token, "refresh_token": refresh_token}
 
@@ -178,6 +184,16 @@ async def handle_oauth_user(
     db.add(new_oauth)
     await db.commit()
     await db.refresh(new_user)
+
+    favorite_playlist = Playlist(
+        user_id=new_user.id,
+        name="Musiques favorites",
+        type=PlaylistType.DEFAULT,
+        is_public=False,
+        is_favorite=True
+    )
+    db.add(favorite_playlist)
+    await db.commit()
 
     access_token = create_access_token(new_user.id, new_user.role)
     refresh_token = await create_refresh_token(new_user.id, db)
