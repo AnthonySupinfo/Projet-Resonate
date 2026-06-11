@@ -28,6 +28,12 @@ export default function UserCard() {
         };
 
         loadProfile();
+        
+        window.addEventListener("profileUpdated", loadProfile);
+
+        return () => {
+            window.removeEventListener("profileUpdated", loadProfile);
+        };
     }, []);
 
     const currentUser = fetchedUser || user;

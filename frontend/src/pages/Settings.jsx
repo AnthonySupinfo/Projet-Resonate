@@ -153,6 +153,7 @@ export default function Settings() {
       })
 
       setUser(updatedProfile)
+      window.dispatchEvent(new Event("profileUpdated"))
       showSuccess(t("settings.successMessage"))
     } catch (err) {
       showError(err.message)
@@ -502,7 +503,7 @@ export default function Settings() {
             </label>
           </div>
 
-          {/* Bouton sauvegarder centré */}
+          {/* Bouton sauvegarder */}
           <div className="settings-save-row">
             <button type="submit" className="settings-save-btn" disabled={saving}>
               {saving ? t("settings.saving") : t("settings.save")}
