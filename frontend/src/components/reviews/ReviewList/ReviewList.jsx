@@ -24,9 +24,6 @@ export default function ReviewList({ albumId, onReviewUpdated }) {
 
             try {
                 const data = await getAlbumReviews(albumId, 1);
-
-                console.log("FETCH REVIEWS:", data);
-
                 setReviews(data);
 
             } catch (error) {
@@ -38,14 +35,13 @@ export default function ReviewList({ albumId, onReviewUpdated }) {
         };
 
         fetchReviews();
-    }, [albumId]); // important : user.id
+    }, [albumId]);
 
 
     // trouver la review de l'user connecté
     const myReview = uid
         ? reviews.find(r => String(r.user_id) === String(uid))
         : null;
-
 
 
     // ajouter une review
@@ -65,8 +61,6 @@ export default function ReviewList({ albumId, onReviewUpdated }) {
     };
 
     const handleReviewUpdated = (updatedReview) => {
-        console.log("UPDATE RECEIVED:", updatedReview);
-
         setReviews(prev =>
             prev.map(r =>
                 r.id === updatedReview.id ? updatedReview : r

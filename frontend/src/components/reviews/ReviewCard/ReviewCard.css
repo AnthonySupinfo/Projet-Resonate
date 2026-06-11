@@ -390,3 +390,21 @@
     align-items: center;
     color:#ff4b4b;
 }
+
+.interaction-icon {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    opacity: 0.8;
+}
+
+.like-btn.active .interaction-icon {
+    opacity: 1;
+}
+
+.interaction-btn:hover .interaction-icon,
+.action-btn:hover .interaction-icon {
+    transform: scale(1.15);
+    opacity: 1;
+}

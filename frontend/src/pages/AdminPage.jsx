@@ -303,7 +303,7 @@ export default function AdminPage() {
         </>
       )}
 
-      {/* ═══ ONGLET COUPS DE CŒUR ═══ */}
+      {/*ONGLET COUPS DE CŒUR*/}
       {tab === "featured" && (
         <div className="admin-feature-section">
           <p className="admin-feature-desc">
@@ -353,7 +353,7 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* ═══ ONGLET UTILISATEURS ═══ */}
+      {/* ONGLET UTILISATEURS*/}
       {tab === "users" && (
         <div className="admin-users-section">
           <p className="admin-feature-desc">
