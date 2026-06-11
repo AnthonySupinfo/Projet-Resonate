@@ -35,6 +35,8 @@
         statPlaylists: "Playlists",
         statMinutes: "Minutes",
         statListening: "d'écoute",
+        statAlbums: "Albums",
+        statCompleted: "écoutés",
         loadingProfile: "Chargement...",
         altAvatarOf: "Avatar de"
     },
@@ -74,6 +76,8 @@
         statPlaylists: "Playlists",
         statMinutes: "Minutes",
         statListening: "listened",
+        statAlbums: "Albums",
+        statCompleted: "completed",
         loadingProfile: "Loading...",
         altAvatarOf: "Avatar of"
     }

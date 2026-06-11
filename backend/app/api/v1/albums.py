@@ -209,9 +209,6 @@ class StatusUpdate(BaseModel):
     status: Literal["PLANNED", "LISTENING", "COMPLETED", "DROPPED"]
 
 
-class StatusUpdate(BaseModel):
-    status: Literal["PLANNED", "LISTENING", "COMPLETED", "DROPPED"]
-
 @router.put("/albums/{album_id}/status")
 async def update_album_status(
     album_id: UUID,

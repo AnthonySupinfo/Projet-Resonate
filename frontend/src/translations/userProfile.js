@@ -36,6 +36,7 @@ export const userProfile = {
         statLeft: "laissés",
         statMinutes: "minutes",
         statListening: "d'écoute",
+        statCompleted: "terminés",
 
         userNotFoundTitle: "Utilisateur introuvable",
         userNotFoundDesc: "Ce profil n'existe pas ou a été supprimé.",
@@ -78,6 +79,7 @@ export const userProfile = {
         statLeft: "left",
         statMinutes: "minutes",
         statListening: "listened",
+        statCompleted: "completed",
 
         userNotFoundTitle: "User not found",
         userNotFoundDesc: "This profile does not exist or has been deleted.",

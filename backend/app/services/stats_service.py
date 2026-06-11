@@ -12,8 +12,11 @@ class StatsService:
         playlists_stmt = select(func.count()).select_from(Playlist).where(Playlist.user_id == target_user_id)
         playlists_count = await db.scalar(playlists_stmt) or 0
 
-        # ToDo: adapter et décommenté quand j'aurai récupéré les tracks :
-        listening_minutes = 0
+        completed_stmt = select(func.count()).select_from(UserAlbumStatus).where(
+            UserAlbumStatus.user_id == target_user_id,
+            UserAlbumStatus.status == MediaStatus.COMPLETED
+        )
+        completed_albums_count = await db.scalar(completed_stmt) or 0
 
         # Albums en cours d'écoute (statut LISTENING dans user_album_status)
         listening_stmt = select(func.count()).select_from(UserAlbumStatus).where(
@@ -39,7 +42,7 @@ class StatsService:
         return {
             "followers_count": followers_count,
             "playlists_count": playlists_count,
-            "listening_minutes": listening_minutes,
+            "completed_albums_count": completed_albums_count,
             "liked_albums_count": liked_albums_count,
             "in_progress_albums_count": liked_albums_count,
             "reviews_count": reviews_count,
