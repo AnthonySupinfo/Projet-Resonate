@@ -19,6 +19,9 @@ export const feedService = {
             id: item.id,
             type: item.activity_type,
             timeAgo: new Date(item.created_at).toLocaleDateString(),
+            comments: item.comments || [],
+            likesCount: item.likes_count || 0,
+            userLiked: item.user_liked || false,
             user: {
                 id: item.actor_id,
                 name: item.actor_username,
@@ -97,5 +100,42 @@ export const feedService = {
         });
         if (!response.ok) throw new Error('Erreur réseau');
         return response.json();
+    },
+
+    async createFeedComment(feedId, content) {
+        const res = await fetch(`${BASE_URL}/users/feed/${feedId}/comments`, {
+            method: "POST",
+            headers: authHeaders(),
+            body: JSON.stringify({ content })
+        });
+        if (!res.ok) throw new Error("Erreur lors de l'ajout du commentaire");
+        return res.json();
+    },
+
+    async deleteFeedComment(commentId) {
+        const res = await fetch(`${BASE_URL}/users/feed/comments/${commentId}`, {
+            method: "DELETE",
+            headers: authHeaders()
+        });
+        if (!res.ok) throw new Error("Erreur lors de la suppression du commentaire");
+        return true;
+    },
+
+    async likeFeedItem(feedId) {
+        const res = await fetch(`${BASE_URL}/users/feed/${feedId}/like`, {
+            method: "POST",
+            headers: authHeaders()
+        });
+        if (!res.ok) throw new Error("Erreur lors de l'ajout du like");
+        return res.json();
+    },
+
+    async unlikeFeedItem(feedId) {
+        const res = await fetch(`${BASE_URL}/users/feed/${feedId}/like`, {
+            method: "DELETE",
+            headers: authHeaders()
+        });
+        if (!res.ok) throw new Error("Erreur lors de la suppression du like");
+        return true;
     }
 };

@@ -2,8 +2,10 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import "./SearchResults.css";
 import { searchService } from "../../api/search.service";
+import {useLanguage} from "../../context/LanguageContext.jsx";
 
 export default function SearchResults() {
+  const { t } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -109,35 +111,29 @@ export default function SearchResults() {
 
   return (
       <div className="search-page">
-        <h1 className="search-title">Résultats pour "{query}"</h1>
+        <h1 className="search-title">{t('home.resultsFor')} "{query}"</h1>
 
         <div className="search-tabs">
-          <button className={activeTab === "albums" ? "active" : ""} onClick={() => setActiveTab("albums")}>
-            Albums
-          </button>
-          <button className={activeTab === "users" ? "active" : ""} onClick={() => setActiveTab("users")}>
-            Utilisateurs
-          </button>
-          <button className={activeTab === "lists" ? "active" : ""} onClick={() => setActiveTab("lists")}>
-            Listes
-          </button>
+          <button className={activeTab === "albums" ? "active" : ""} onClick={() => setActiveTab("albums")}>{t('home.tabsAlbums')}</button>
+          <button className={activeTab === "users" ? "active" : ""} onClick={() => setActiveTab("users")}>{t('home.tabsUsers')}</button>
+          <button className={activeTab === "lists" ? "active" : ""} onClick={() => setActiveTab("lists")}>{t('home.tabsLists')}</button>
         </div>
 
         {activeTab === "albums" && (
             <>
               <div className="search-sort">
-                <span>Trier par :</span>
+                <span>{t('home.sortBy')}</span>
                 <button className={sortBy === "az" ? "active" : ""} onClick={() => setSortBy("az")}>A-Z</button>
                 <button className={sortBy === "za" ? "active" : ""} onClick={() => setSortBy("za")}>Z-A</button>
               </div>
 
               <div className="search-filters">
-                <label>Année :</label>
-                <input type="number" placeholder="Min" value={yearMin || ""} onChange={(e) => setYearMin(Number(e.target.value))} />
-                <input type="number" placeholder="Max" value={yearMax || ""} onChange={(e) => setYearMax(Number(e.target.value))} />
-                <label>Genre :</label>
+                <label>{t('home.year')}</label>
+                <input type="number" placeholder={t('home.min')} value={yearMin || ""} onChange={(e) => setYearMin(Number(e.target.value))} />
+                <input type="number" placeholder={t('home.max')} value={yearMax || ""} onChange={(e) => setYearMax(Number(e.target.value))} />
+                <label>{t('home.genre')}</label>
                 <select className="genre-select" value={genre} onChange={(e) => setGenre(e.target.value)}>
-                  <option value="">Tous les genres</option>
+                  <option value="">{t('home.allGenres')}</option>
                   <option value="pop">Pop</option>
                   <option value="rock">Rock</option>
                   <option value="hip hop">Hip-Hop</option>
@@ -171,7 +167,7 @@ export default function SearchResults() {
         {activeTab === "users" && (
             <div className="search-grid">
               {userResults.length === 0 ? (
-                  <p className="search-empty-state">Aucun utilisateur</p>
+                  <p className="search-empty-state">{t('home.noUsers')}</p>
               ) : (
                   userResults.map((user) => (
                       <Link key={user.id} to={`/user/${user.id}`} className="search-card">
@@ -181,10 +177,9 @@ export default function SearchResults() {
               )}
             </div>
         )}
-
-        {activeTab === "lists" && <p className="search-empty-state">Aucune liste pour le moment</p>}
-        {loading && <p className="search-loader">Chargement...</p>}
-        {!hasMore && <p className="search-end-msg">Plus de résultats</p>}
+        {activeTab === "lists" && <p className="search-empty-state">{t('home.noLists')}</p>}
+        {loading && <p className="search-loader">{t('home.loading')}</p>}
+        {!hasMore && <p className="search-end-msg">{t('home.noMoreResults')}</p>}
       </div>
   );
 }

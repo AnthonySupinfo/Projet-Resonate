@@ -2,20 +2,27 @@
 import './Social.css';
 import SocialItem from "../../components/Social/SocialItem/SocialItem.jsx";
 import { useLanguage } from "../../context/LanguageContext.jsx";
-import {feedService} from "../../api/feed.service.js";
+import { feedService } from "../../api/feed.service.js";
+import { getProfile } from "../../api/auth.js";
 
 export default function Social() {
     const [feedData, setFeedData] = useState([]);
+    const [currentUserProfile, setCurrentUserProfile] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const { t } = useLanguage();
 
     useEffect(() => {
-        const fetchFeed = async () => {
+        const fetchData = async () => {
             try {
                 setIsLoading(true);
-                const data = await feedService.getFeed();
-                setFeedData(data);
+                const [feed, profile] = await Promise.all([
+                    feedService.getFeed(),
+                    getProfile().catch(() => null)
+                ]);
+
+                setFeedData(feed);
+                if (profile) setCurrentUserProfile(profile);
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -23,7 +30,7 @@ export default function Social() {
             }
         };
 
-        fetchFeed();
+        fetchData();
     }, []);
 
     return (
@@ -40,7 +47,11 @@ export default function Social() {
                 )}
 
                 {!isLoading && !error && feedData.map((activity) => (
-                    <SocialItem key={activity.id} activity={activity} />
+                    <SocialItem
+                        key={activity.id}
+                        activity={activity}
+                        currentUserProfile={currentUserProfile}
+                    />
                 ))}
             </div>
         </div>

@@ -3,6 +3,7 @@ import { upsertAlbumStatus, getMyLibrary, getMyPlaylist, addTrackToPlaylist, rem
 import CreatePlaylistModal from '../library/modals/CreatePlaylistModal';
 import { useNavigate } from "react-router-dom";
 import './AlbumActions.css';
+import { useLanguage } from "../../context/LanguageContext.jsx";
 
 export default function AlbumActions({ albumId }) {
     const [currentStatus, setCurrentStatus] = useState(null);
@@ -10,6 +11,7 @@ export default function AlbumActions({ albumId }) {
     const [playlists, setPlaylists] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const { t } = useLanguage();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -23,7 +25,7 @@ export default function AlbumActions({ albumId }) {
 
                 const fetchedPlaylists = await getMyPlaylist();
                 setPlaylists(fetchedPlaylists);
-            }catch (error) {
+            } catch (error) {
                 console.error("Erreur lors du chargement des données AlbumActions", error);
             }
         };
@@ -37,12 +39,12 @@ export default function AlbumActions({ albumId }) {
             await upsertAlbumStatus(albumId, newStatus);
             setCurrentStatus(newStatus);
             window.dispatchEvent(new Event("libraryUpdated"));
-            
+
             setTimeout(() => {
-                        navigate("/library/albums");
-                    }, 200); // petit délai pour laisser le temps à la mise à jour de se faire avant de rediriger
+                navigate("/library/albums");
+            }, 200);
         } catch (error) {
-            console.error ("Erreur mise à jour du statut", error);
+            console.error("Erreur mise à jour du statut", error);
         } finally {
             setIsLoading(false);
         }
@@ -52,35 +54,43 @@ export default function AlbumActions({ albumId }) {
         <div className="album-actions-container">
             <div className="status-group">
                 <button
-                className={`status-btn ${currentStatus === 'PLANNED' ? 'active' : ''}`}
-                onClick={() => handleStatusClick('PLANNED')}
-                disabled={isLoading}
-                >À écouter</button>
+                    className={`status-btn ${currentStatus === 'PLANNED' ? 'active' : ''}`}
+                    onClick={() => handleStatusClick('PLANNED')}
+                    disabled={isLoading}
+                >
+                    {t('album.planned')}
+                </button>
 
                 <button
-                className={`status-btn ${currentStatus === 'LISTENING' ? 'active' : ''}`}
-                onClick={() => handleStatusClick('LISTENING')}
-                disabled={isLoading}
-                >En cours</button>
+                    className={`status-btn ${currentStatus === 'LISTENING' ? 'active' : ''}`}
+                    onClick={() => handleStatusClick('LISTENING')}
+                    disabled={isLoading}
+                >
+                    {t('album.listening')}
+                </button>
 
                 <button
-                className={`status-btn ${currentStatus === 'COMPLETED' ? 'active' : ''}`}
-                onClick={() => handleStatusClick('COMPLETED')}
-                disabled={isLoading}
-                >Terminé</button>
+                    className={`status-btn ${currentStatus === 'COMPLETED' ? 'active' : ''}`}
+                    onClick={() => handleStatusClick('COMPLETED')}
+                    disabled={isLoading}
+                >
+                    {t('album.completed')}
+                </button>
 
                 <button
-                className={`status-btn ${currentStatus === 'DROPPED' ? 'active' : ''}`}
-                onClick={() => handleStatusClick('DROPPED')}
-                disabled={isLoading}
-                >Abandonné</button>
+                    className={`status-btn ${currentStatus === 'DROPPED' ? 'active' : ''}`}
+                    onClick={() => handleStatusClick('DROPPED')}
+                    disabled={isLoading}
+                >
+                    {t('album.dropped')}
+                </button>
             </div>
 
-            <CreatePlaylistModal 
-                isOpen={isCreateModalOpen} 
-                onClose={() => setIsCreateModalOpen(false)} 
-                onPlaylistCreated={(newPlaylist) => { 
-                    setPlaylists([newPlaylist, ...playlists]); 
+            <CreatePlaylistModal
+                isOpen={isCreateModalOpen}
+                onClose={() => setIsCreateModalOpen(false)}
+                onPlaylistCreated={(newPlaylist) => {
+                    setPlaylists([newPlaylist, ...playlists]);
                 }}
             />
         </div>

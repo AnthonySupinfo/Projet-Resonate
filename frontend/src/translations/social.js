@@ -53,11 +53,12 @@ export const social = {
         editIcon: "Modifier",
         yourMessagePlaceholder: "Votre message...",
         clearTooltip: "Effacer",
-        statusPlanned: "veut écouter",
-        statusListening: "est en train d'écouter",
-        statusCompleted: "a terminé d'écouter",
-        statusDropped: "a abandonné l'écoute de",
-        reviewedAlbum: "a mis une critique sur"
+        statusCOMPLETED: "a terminé",
+        statusLISTENING: "écoute",
+        statusPLANNED: "veut écouter",
+        statusDROPPED: "a abandonné",
+        reviewedAlbum: "a mis une critique sur",
+        delete: "Supprimer"
     },
     en: {
         loading: "Loading...",
@@ -113,10 +114,11 @@ export const social = {
         editIcon: "Edit",
         yourMessagePlaceholder: "Your message...",
         clearTooltip: "Clear",
-        statusPlanned: "wants to listen to",
-        statusListening: "is listening to",
-        statusCompleted: "finished listening to",
-        statusDropped: "dropped",
-        reviewedAlbum: "reviewed"
+        statusCOMPLETED: "finished listening to",
+        statusLISTENING: "is listening to",
+        statusPLANNED: "wants to listen to",
+        statusDROPPED: "dropped",
+        reviewedAlbum: "reviewed",
+        delete: "Delete"
     }
 };

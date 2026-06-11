@@ -46,6 +46,13 @@
     z-index: 2;
 }
 
+.comment-avatar.text-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
 .comment-content {
     display: flex;
     flex-direction: column;
@@ -126,4 +133,15 @@
     font-size: 1.2rem;
     font-weight: bold;
     padding-bottom: 4px;
+}
+
+.delete-text-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.delete-text-btn:hover {
+    color: #e74c3c;
+    opacity: 1;
 }

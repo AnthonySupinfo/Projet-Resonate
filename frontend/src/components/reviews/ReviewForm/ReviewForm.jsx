@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import StarRating from '../StarRating/StarRating';
 import { createReview, updateReview } from '../../../api/api';
+import { useLanguage } from '../../../context/LanguageContext.jsx';
 import './ReviewForm.css';
 
 export default function ReviewForm({ albumId, onReviewAdded, existingReview }) {
+    const { t } = useLanguage();
     const [rating, setRating] = useState(0);
     const [content, setContent] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -21,7 +23,7 @@ export default function ReviewForm({ albumId, onReviewAdded, existingReview }) {
         e.preventDefault();
 
         if (!rating) {
-            setError("Veuillez attribuer une note");
+            setError(t('album.errorNoRating'));
             return;
         }
 
@@ -32,22 +34,19 @@ export default function ReviewForm({ albumId, onReviewAdded, existingReview }) {
             let result;
 
             if (!existingReview) {
-                // CREATION
                 result = await createReview(albumId, {
                     rating,
                     content: content.trim()
                 });
 
             } else if (existingReview && isEditing) {
-                // UPDATE
                 result = await updateReview(existingReview.id, {
                     rating,
                     content: content.trim()
                 });
 
             } else {
-                // CAS BLOQUÉ
-                setError("Vous avez déjà publié une critique");
+                setError(t('album.errorAlreadyReviewed'));
                 setIsLoading(false);
                 return;
             }
@@ -59,23 +58,22 @@ export default function ReviewForm({ albumId, onReviewAdded, existingReview }) {
             }
 
         } catch (error) {
-            setError("Erreur lors de la publication...");
+            setError(t('album.errorPublishing'));
         } finally {
             setIsLoading(false);
         }
     };
 
-
     return (
         <div className="review-form-container">
-            <h3 className="review-form-title">Écrire une critique</h3>
+            <h3 className="review-form-title">{t('album.writeReviewTitle')}</h3>
 
             {error && <div className="review-form-error">{error}</div>}
 
             <form onSubmit={handleSubmit} className={`review-form ${existingReview && !isEditing ? "disabled-form" : ""}`}>
 
                 <div className="rating-selection">
-                    <span className="rating-label">Votre note : </span>
+                    <span className="rating-label">{t('album.yourRatingLabel')}</span>
                     <StarRating
                         rating={rating}
                         onRatingChange={setRating}
@@ -97,7 +95,7 @@ export default function ReviewForm({ albumId, onReviewAdded, existingReview }) {
                             className="btn-edit-review"
                             onClick={() => setIsEditing(true)}
                         >
-                            Modifier votre critique
+                            {t('album.editReviewBtn')}
                         </button>
                     )}
 
@@ -107,7 +105,7 @@ export default function ReviewForm({ albumId, onReviewAdded, existingReview }) {
                             className="btn-submit-review"
                             disabled={isLoading || rating === 0}
                         >
-                            {existingReview ? "Mettre à jour" : "Publier la critique"}
+                            {existingReview ? t('album.updateReviewBtn') : t('album.publishReviewBtn')}
                         </button>
                     )}
                 </div>
