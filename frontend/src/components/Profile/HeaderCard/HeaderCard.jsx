@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useAuth } from "../../../context/AuthContext.jsx";
 import { useLanguage } from "../../../context/LanguageContext.jsx";
-import { getProfile, getUserProfile } from "../../../api/auth.js";
+import { getProfile, getUserProfile, authFetch } from "../../../api/auth.js";
 import { feedService } from "../../../api/feed.service.js";
 import modifyIcon from '../../../../public/icons/modify.png';
 import reportIcon from '../../../../public/icons/report.png';
 import FollowUsersListModal from './FollowUsersListModal/FollowUsersListModal.jsx';
 import './HeaderCard.css';
+
+const API_URL = import.meta.env.VITE_API_URL || ""
 
 export default function HeaderCard() {
     const { id } = useParams();
@@ -74,7 +76,6 @@ export default function HeaderCard() {
 
     const handleFollowToggle = async () => {
         if (isFollowLoading) return;
-
         setIsFollowLoading(true);
         try {
             if (isFollowing) {
@@ -92,6 +93,27 @@ export default function HeaderCard() {
             setIsFollowLoading(false);
         }
     };
+
+    // Signalement d'un utilisateur
+    const handleReportUser = async () => {
+        const reason = window.prompt("Pourquoi signalez-vous cet utilisateur ? (Faux compte, arnaque, comportement abusif...)")
+        if (!reason) return
+        try {
+            const res = await authFetch(`${API_URL}/api/v1/users/${id}/report`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ reason })
+            })
+            if (res.status === 409) {
+                alert("Vous avez déjà signalé cet utilisateur.")
+                return
+            }
+            if (!res.ok) throw new Error()
+            alert("Merci, l'utilisateur a été signalé à l'équipe de modération.")
+        } catch {
+            alert("Erreur lors du signalement.")
+        }
+    }
 
     return (
         <>
@@ -123,15 +145,15 @@ export default function HeaderCard() {
                                     className="header-stat clickable"
                                     onClick={() => setModalConfig({ isOpen: true, type: 'followers' })}
                                 >
-                                        {currentUser.followers_count || 0} {t('userProfile.followers')}
-                                    </span>
+                                    {currentUser.followers_count || 0} {t('userProfile.followers')}
+                                </span>
                                 <span className="header-stat-separator">•</span>
                                 <span
                                     className="header-stat clickable"
                                     onClick={() => setModalConfig({ isOpen: true, type: 'following' })}
                                 >
-                                        {currentUser.following_count || 0} {t('userProfile.following')}
-                                    </span>
+                                    {currentUser.following_count || 0} {t('userProfile.following')}
+                                </span>
                             </div>
 
                             <span className="header-joined-date">{t('userProfile.joinedSince')} {joinedDate}</span>
@@ -157,9 +179,10 @@ export default function HeaderCard() {
                             >
                                 {isFollowLoading ? "..." : isFollowing ? t('userProfile.followed') : t('userProfile.follow')}
                             </button>
-                            {/*<button className="header-icon-btn">*/}
-                            {/*    <img src={reportIcon} alt={t('userProfile.altReport')} className="action-icon-img" />*/}
-                            {/*</button>*/}
+                            {/* Bouton signaler un utilisateur */}
+                            <button className="header-icon-btn" onClick={handleReportUser} title="Signaler cet utilisateur">
+                                <img src={reportIcon} alt={t('userProfile.altReport')} className="action-icon-img" />
+                            </button>
                         </div>
                     )}
                 </div>

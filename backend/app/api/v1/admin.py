@@ -47,11 +47,18 @@ async def get_all_reports(
                 album_artist = album.artist_name
                 album_name = album.name
 
+        # Si c'est un signalement d'utilisateur, récupère son username
+        reported_user = None
+        if report.reported_user_id:
+            reported_user = await db.get(User, report.reported_user_id)
+
         enriched.append({
             "id": report.id,
             "reporter_id": report.reporter_id,
             "reporter_username": reporter.username if reporter else None,
             "review_id": report.review_id,
+            "reported_user_id": report.reported_user_id,
+            "reported_username": reported_user.username if reported_user else None,
             "album_artist": album_artist,
             "album_name": album_name,
             "reason": report.reason,
