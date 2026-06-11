@@ -1,6 +1,6 @@
 import "./PlaylistCard.css";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { updatePlaylist } from "../../../api/api";
 import { useLanguage } from "../../../context/LanguageContext.jsx";
 
@@ -18,16 +18,20 @@ export default function PlaylistCard({ playlist, onPlaylistUpdated }) {
     const [isLiking, setIsLiking] = useState(false);
     const { t } = useLanguage();
     
+    if (!playlist) return null;
+
     const isDefault = playlist.type === 'DEFAULT' || playlist.name === 'Musiques favorites';
 
-    if (!playlist) return null;
+    useEffect(() => {
+        setIsFavorite(playlist?.is_favorite || false);
+    }, [playlist?.is_favorite]);
 
     const bgColor = generateColorFrame(playlist.name || "default");
     const coverUrl = playlist.cover_url || playlist.coverUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(playlist.name)}&background=${bgColor}&color=fff&size=400&format=svg`;
     const metaText = playlist.trackCount ? `${playlist.trackCount} ${t('library.tracksCount')}` : t('library.customPlaylistMeta');
 
     const handleFavoriteCLick = async (e) => {
-        e.stopPropagation(); // empeche d'afficher page détail playlist
+        e.stopPropagation(); 
         if(isLiking) return;
 
         const nextStatus = !isFavorite;
@@ -39,10 +43,10 @@ export default function PlaylistCard({ playlist, onPlaylistUpdated }) {
             if (onPlaylistUpdated) {
                 onPlaylistUpdated(updated);
             }
-            window.dispatchEvent(new Event("favoriteChanged")); // prévient toutes l'application que favori a changé
+            window.dispatchEvent(new Event("favoriteChanged")); 
         } catch (error) {
             console.error(error);
-            setIsFavorite(!nextStatus); // annulation en cas échec
+            setIsFavorite(!nextStatus);
         } finally {
             setIsLiking(false);
         }
