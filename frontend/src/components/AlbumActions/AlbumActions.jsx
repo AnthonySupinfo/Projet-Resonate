@@ -48,18 +48,6 @@ export default function AlbumActions({ albumId }) {
         }
     };
 
-    const handleAddedToPlaylist = async (playlistId, playlistName) => {
-        try {
-            await addTrackToPlaylist(playlistId, albumId);
-            alert(`Album ajouté avec succès à la playlist "${playlistName}" !`);
-        } catch (error) {
-            console.error("Erreur lors de l'ajout à la playlist", error);
-            alert("Cet album est déjà dans la playlist ou une erreur est survenue.");
-        } finally {
-            setIsDropdownOpen(false);
-        }
-    };
-
     return (
         <div className="album-actions-container">
             <div className="status-group">
@@ -87,41 +75,6 @@ export default function AlbumActions({ albumId }) {
                 disabled={isLoading}
                 >Abandonné</button>
             </div>
-        
-
-            {/* 
-            <div className="playlist-dropdown-wrapper">
-                <button 
-                    className="add-to-playlist-btn"
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                >
-                    <span className="plus-icon">+</span>Ajouter à une playlist
-                </button>
-
-                {isDropdownOpen && (
-                    <div className="dropdown-menu">
-                        <ul className="dropdown-list">
-                            <li className="dropdown-item create-option" onClick={() => { setIsCreateModalOpen(true); setIsDropdownOpen(false);}}> Créer une nouvelle playlist</li>
-                            {playlists.length === 0 ? (
-                                <li className="dropdown-item empty">Aucune playlist</li>
-                            ): (
-                                playlists.map(playlist => (
-                                    <li
-                                        key={playlist.id}
-                                        className="dropdown-item"
-                                        onClick={() => handleAddedToPlaylist(playlist.id, playlist.name)}
-                                    > 
-                                        {playlist.name}
-
-                                    </li>
-                                ))
-                            )}
-                        </ul>
-                    </div>
-                )}
-
-            </div>
-            */}
 
             <CreatePlaylistModal 
                 isOpen={isCreateModalOpen} 

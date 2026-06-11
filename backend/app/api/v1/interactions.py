@@ -82,7 +82,8 @@ async def like_review(
         liker = await db.get(User, current_user["user_id"])
         album = await db.get(Album, review.album_id)
         if review_author and liker and album and review_author.email_notifications:
-            if str(review_author.id) != str(current_user["user_id"]):  # pas de notif si on like sa propre review
+            # pas de notif si on like sa propre review
+            if str(review_author.id) != str(current_user["user_id"]):
                 await send_like_email(review_author.email, liker.username, album.name)
     except Exception:
         pass  # Silencieux (l'email ne doit jamais bloquer l'action)
@@ -152,12 +153,26 @@ async def create_comment(
         commenter = await db.get(User, current_user["user_id"])
         album = await db.get(Album, review.album_id)
         if review_author and commenter and album and review_author.email_notifications:
-            if str(review_author.id) != str(current_user["user_id"]):  # pas de notif si on commente sa propre review
+            # pas de notif si on commente sa propre review
+            if str(review_author.id) != str(current_user["user_id"]):
                 await send_comment_email(review_author.email, commenter.username, album.name, body.content)
     except Exception:
         pass  # Silencieux (l'email ne doit jamais bloquer l'action)
 
-    return new_comment
+    stmt_user = select(User).where(User.id == current_user["user_id"])
+    result_user = await db.execute(stmt_user)
+    user = result_user.scalars().first()
+
+    return {
+        "id": new_comment.id,
+        "review_id": new_comment.review_id,
+        "user_id": new_comment.user_id,
+        "content": new_comment.content,
+        "has_been_modified": new_comment.has_been_modified,
+        "created_at": new_comment.created_at,
+        "updated_at": new_comment.updated_at,
+        "username": user.username
+    }
 
 
 @router.delete("/comments/{comment_id}", status_code=status.HTTP_204_NO_CONTENT)

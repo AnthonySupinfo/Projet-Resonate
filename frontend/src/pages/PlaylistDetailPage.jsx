@@ -19,6 +19,7 @@ export default function PlaylistDetailPage() {
     const [playlist, setPlaylist] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [message, setMessage] = useState(null);
 
     useEffect(() => {
         const fetchPlaylistDetails = async () => {
@@ -28,8 +29,7 @@ export default function PlaylistDetailPage() {
                 console.log ("Tracks:", data.tracks.map(t => ({name: t.name, duration: t.duration, type: typeof t.duration })));
                 setPlaylist(data);
             } catch (error) {
-                console.error("Erreur chargement playlist", error);
-                setError("Impossible de charger la playlist");
+                setMessage("Impossible de charger la playlist");
             } finally {
                 setIsLoading(false);
             }
@@ -58,7 +58,7 @@ export default function PlaylistDetailPage() {
 
                 window.dispatchEvent(new Event("playlistUpdated"));
             } catch (error) {
-                alert("Erreur lros du renommage de la playlist.");
+                setMessage("Erreur lors du renommage de la playlist.");
             }
         }
     };
@@ -72,7 +72,7 @@ export default function PlaylistDetailPage() {
                 navigate('/library/playlists', { replace: true });
             } catch (error) {
                 console.error("Détail de l'erreur de suppression :", error);
-                alert('Impossible de supprimer: ${error.message}');
+                setMessage(`Impossible de supprimer: ${error.message}`);
             }
         }
     };
@@ -98,83 +98,92 @@ export default function PlaylistDetailPage() {
 
     
     return (
-        <div className="playlist-detail-page">
-            <button className="back-btn" onClick={() => navigate(-1)}>← Retour</button>
-            
-            <div className="playlist-header-box">
-                <div className="playlist-header">
-                    <img
-                        src={playlist.cover_url || playlist.coverUrl ||  fallbackCover}
-                        alt={playlist.name}
-                        className="playlist-main-cover"
-                    />
-                    <div className="playlist-info">
-                            <span className="playlist-type">
-                                {playlist.is_public ? 'Playlist publique' : 'Playlist privée'}
-                            </span>
-                            <h1 className="playlist-page-title">{playlist.name}</h1>
+        <>
+            {message && (
+                <div className="playlist-message">
+                    {message}
+                    <button onClick={() => setMessage(null)}>x</button>
+                </div>
+            )}
 
-                            {playlist.description && <p className="playlist-desc">{playlist.description}</p>}
+            <div className="playlist-detail-page">
+                <button className="back-btn" onClick={() => navigate(-1)}>← Retour</button>
+                
+                <div className="playlist-header-box">
+                    <div className="playlist-header">
+                        <img
+                            src={playlist.cover_url || playlist.coverUrl ||  fallbackCover}
+                            alt={playlist.name}
+                            className="playlist-main-cover"
+                        />
+                        <div className="playlist-info">
+                                <span className="playlist-type">
+                                    {playlist.is_public ? 'Playlist publique' : 'Playlist privée'}
+                                </span>
+                                <h1 className="playlist-page-title">{playlist.name}</h1>
 
-                            {isOwner && (
-                                <div className="playlist-actions">
-                                    <button className="toggle-privacy-btn" onClick={handleTogglePrivate}>
-                                        Rendre {playlist.is_public ? 'Privée' : 'Publique'}
-                                    </button>
-                                    <button className="toggle-privacy-btn" onClick={handleRename}>Renommer</button>
-                                    <button className="toggle-privacy-btn" onClick={handleDeletePlaylist}>Supprimer la playlist</button>
-                                </div>
-                            )}
+                                {playlist.description && <p className="playlist-desc">{playlist.description}</p>}
+
+                                {isOwner && (
+                                    <div className="playlist-actions">
+                                        <button className="toggle-privacy-btn" onClick={handleTogglePrivate}>
+                                            Rendre {playlist.is_public ? 'Privée' : 'Publique'}
+                                        </button>
+                                        <button className="toggle-privacy-btn" onClick={handleRename}>Renommer</button>
+                                        <button className="toggle-privacy-btn" onClick={handleDeletePlaylist}>Supprimer la playlist</button>
+                                    </div>
+                                )}
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div className="tracklist-section">
-                <h3>Titres ({playlist.tracks.length})</h3>
+                <div className="tracklist-section">
+                    <h3>Titres ({playlist.tracks.length})</h3>
 
-                {playlist.tracks.length === 0 ? (
-                    <p className="empty-tracklist">Cette playlist est vide pour le moment.</p>
-                ) : (
-                    <div className="track-table">
-                        <div className="track-header">
-                            <span>#</span>
-                            <span>Titres</span>
-                            <span>Artiste</span>
-                            <span>Album</span>
-                            <span>Durée</span>
-                            <span></span>
-                        </div>
-                        {playlist.tracks.map((track, index) => {
-                            const minutes = Math.floor((track.duration || 0) / 60);
-                            const seconds = String((track.duration || 0) % 60).padStart(2, '0');
-                            const durationFormatted = track.duration ? `${minutes}:${seconds}` : "--:--";
-                            
-                            return (
-                                <div key={track.id} className="track-row" onClick={() => navigate(`/albums/${encodeURIComponent(track.artist)}/${encodeURIComponent(track.album_name)}`)}>
-                                    <span className="track-number">{index + 1}</span>
-                                    <span className="track-name">{track.name}</span>
-                                    <span className="track-artist">{track.artist}</span>
-                                    <span className="track-album">{track.album_name || "N/A"}</span>
-                                    <span className="track-duration">{durationFormatted}</span>
+                    {playlist.tracks.length === 0 ? (
+                        <p className="empty-tracklist">Cette playlist est vide pour le moment.</p>
+                    ) : (
+                        <div className="track-table">
+                            <div className="track-header">
+                                <span>#</span>
+                                <span>Titres</span>
+                                <span>Artiste</span>
+                                <span>Album</span>
+                                <span>Durée</span>
+                                <span></span>
+                            </div>
+                            {playlist.tracks.map((track, index) => {
+                                const minutes = Math.floor((track.duration || 0) / 60);
+                                const seconds = String((track.duration || 0) % 60).padStart(2, '0');
+                                const durationFormatted = track.duration ? `${minutes}:${seconds}` : "--:--";
+                                
+                                return (
+                                    <div key={track.id} className="track-row" onClick={() => navigate(`/albums/${encodeURIComponent(track.artist)}/${encodeURIComponent(track.album_name)}`)}>
+                                        <span className="track-number">{index + 1}</span>
+                                        <span className="track-name">{track.name}</span>
+                                        <span className="track-artist">{track.artist}</span>
+                                        <span className="track-album">{track.album_name || "N/A"}</span>
+                                        <span className="track-duration">{durationFormatted}</span>
 
-                                    <div className="track-actions">
-                                        {isOwner && ( 
-                                        <button 
-                                            className="remove-track-btn"   
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleRemoveTrack(track.id)
-                                             }}
-                                            title="Retirer de la playlist">X</button>
-                                        )}
+                                        <div className="track-actions">
+                                            {isOwner && ( 
+                                            <button 
+                                                className="remove-track-btn"   
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleRemoveTrack(track.id)
+                                                }}
+                                                title="Retirer de la playlist">X</button>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                )}
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
             </div>
-        </div>
+        </>
     );
 }
 

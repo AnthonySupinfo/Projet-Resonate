@@ -211,7 +211,6 @@ export const deleteCommentReview = async (commentId) => {
         headers: authHeaders()
     })
     if(!res.ok) throw new Error ("Erreur lors de la suppression du commentaire")
-    return res.json()
 }
 
 export const reportReview = async (reviewId, reason) => {
