@@ -9,6 +9,7 @@ from typing import Literal
 from uuid import UUID
 
 from app.core.dependencies import get_current_user, require_admin, get_optional_user
+from app.models import Track
 from app.models.user_activity_feed import ActivityTypes
 from app.services.feed import feed_service
 from app.services.lastfm import lastfm_service
@@ -18,6 +19,34 @@ from app.models.reviews import Review
 from app.models.user_album_status import UserAlbumStatus
 
 router = APIRouter(tags=["albums"])
+
+
+@router.get("/albums/random/track", tags=["albums"])
+async def get_random_track(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(Track)
+        .options(selectinload(Track.album))
+        .order_by(func.random())
+        .limit(1)
+    )
+    track = result.scalar_one_or_none()
+
+    if not track or not track.album:
+        return {
+            "track_name": "Birds",
+            "artist": "Imagine Dragons",
+            "album_name": "Origins",
+            "year": 2018,
+            "image": "/imagineDragons.jpg"
+        }
+
+    return {
+        "track_name": track.name,
+        "artist": track.artist or track.album.artist_name,
+        "album_name": track.album.name,
+        "year": track.album.year,
+        "image": track.album.image
+    }
 
 @router.get("/albums/{album_id}")
 async def get_album_detail(
