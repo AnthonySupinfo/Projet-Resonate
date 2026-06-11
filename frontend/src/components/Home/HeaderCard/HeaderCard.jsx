@@ -10,7 +10,6 @@ export default function HeaderCard() {
                 className="header-bg-image"
             />
 
-            {/* barre de recherche */}
             <SearchBar />
 
             <div className="header-info">
