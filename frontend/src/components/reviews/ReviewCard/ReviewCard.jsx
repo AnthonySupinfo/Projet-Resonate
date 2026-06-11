@@ -29,6 +29,7 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
     const [editRating, setEditRating] = useState(currentReview.rating);
     const [editContent, setEditContent] = useState(currentReview.content || '');
     const [isUpdating, setIsUpdating] = useState(false);
+    const [message, setMessage] = useState(null);
 
     // Coup de cœur admin
     const [isFeatured, setIsFeatured] = useState(review.is_featured || false)
@@ -36,6 +37,9 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
 
     const [confirmDeleteCommentId, setConfirmDeleteCommentId] = useState(null);
     const [confirmDeleteReview, setConfirmDeleteReview] = useState(false);
+
+    const [confirmReportReviewId, setConfirmReportReviewId] = useState(null);
+    const [reportReason, setReportReason] = useState('');
 
     useEffect(() => {
 
@@ -115,21 +119,26 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
                 if (onReviewDeleted) onReviewDeleted(currentReview.id);
             } catch (error) {
                 console.error("Erreur de suppression", error);
-                alert("Impossible de supprimer la critique");
+                setMessage("Impossible de supprimer la critique");
                 setIsDeleting(false);
             }
     };
 
     const handleReportClick = async () => {
-        const reason = window.prompt("Pourquoi signalez vous cette critique ? (Spam, Insultes, etc)");
-        if(reason) {
-            try {
-                await reportReview(currentReview.id, reason);
-                alert ("Merci, la critique a été signalée à l'équipe de modération.");
-            } catch (error) {
-                alert("Erreur lors du signalement");
-            }
-        }
+        setConfirmReportReviewId(currentReview.id);
+    };
+
+    const confirmReportAction = async () => {
+        if(!reportReason.trim()) return;
+        try {
+            await reportReview(currentReview.id, reportReason.trim());
+            setMessage("Merci, la critique a été signalée à l'équipe de modération.");
+        } catch (error) {
+            setMessage("Erreur lors du signalement, vous avez déjà signalé cette critique.");
+        } finally {
+            setConfirmReportReviewId(null);
+            setReportReason('');
+        } 
     };
 
     const handleEditSubmit = async (e) => {
@@ -168,8 +177,7 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
             console.log(" UPDATE SUCCESS:", updatedRev);
 
         } catch (error) {
-            console.error(" ERROR UPDATE:", error);
-            alert("Erreur lors de la modification.");
+            setMessage("Erreur lors de la modification.");
         } finally {
             setIsUpdating(false);
         }
@@ -195,20 +203,12 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
                 newComment.trim()
             );
 
-            console.log(" API COMMENT RESPONSE:", addedComment);
-
-            setComments([...comments, {
-                ...addedComment,
-                username: user?.username,
-                user_id: currentUserId
-            }]);
+            setComments([...comments, addedComment]);
 
             setNewComment('');
 
         } catch (error) {
-            console.error(" COMMENT ERROR:", error);
-
-            alert("Impossible de poster le commentaire");
+            setMessage("Impossible de poster le commentaire");
         } finally {
             setIsCommenting(false);
         }
@@ -223,7 +223,7 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
                await deleteCommentReview(confirmDeleteCommentId);
                 setComments(comments.filter(c => c.id !== confirmDeleteCommentId));
             } catch (error) {
-                alert ("Erreur lors de la suppression du commentaire.");
+                setMessage("Erreur lors de la suppression du commentaire.");
             } finally {
                 setConfirmDeleteCommentId(null);
             }
@@ -241,168 +241,194 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
             if (!res.ok) throw new Error()
             setIsFeatured(!isFeatured)
         } catch {
-            alert("Erreur lors de la mise en avant.")
+            setMessage("Erreur lors de la mise en avant.")
         } finally {
             setIsFeatureLoading(false)
         }
     }
 
     return (
-        <div className={`review-card ${isDeleting ? 'deleting' : ''} ${isFeatured ? 'review-card--featured' : ''}`}>
-
-            {/* Badge coup de cœur — visible pour tous si la critique est mise en avant */}
-            {isFeatured && (
-                <div className="review-featured-badge">❤️ Coup de cœur</div>
+        <>
+            {message && (
+                <div className="review-message">
+                    {message}
+                    <button onClick={() => setMessage(null)}>x</button>
+                </div>
             )}
 
-            <div className="review-card-header">
-                <div className="review-author-info">
+            <div className={`review-card ${isDeleting ? 'deleting' : ''} ${isFeatured ? 'review-card--featured' : ''}`}>
 
-                    {(() => {
-                        const av = currentReview.avatar_url;
-                        const isUrl = av && (av.startsWith('http') || av.startsWith('/') || av.startsWith('data:image'));
-                        const placeholder = `https://placehold.co/40x40/35313A/ffffff?text=${encodeURIComponent(currentReview.username?.[0]?.toUpperCase() || 'U')}`;
+                {/* Badge coup de cœur — visible pour tous si la critique est mise en avant */}
+                {isFeatured && (
+                    <div className="review-featured-badge">❤️ Coup de cœur</div>
+                )}
 
-                        return isUrl ? (
-                            <img src={av} alt="Avatar" className="review-avatar" onError={(e) => { e.target.src = placeholder; }}/>
-                        ) : av ? (
-                            <span className="review-avatar">{av}</span>
-                        ) : (
-                            <img src={placeholder} alt="Avatar" className="review-avatar"/>
-                        );
-                    }) () }
-                    
-                    <div className="review-meta">
-                        <span className="review-username">{currentReview.username || "Utilisateur"}</span>
-                        <span className="review-date">{formattedDate} {currentReview.has_been_modified && "(Modifié)"}</span>
+                <div className="review-card-header">
+                    <div className="review-author-info">
+
+                        {(() => {
+                            const av = currentReview.avatar_url;
+                            const isUrl = av && (av.startsWith('http') || av.startsWith('/') || av.startsWith('data:image'));
+                            const placeholder = `https://placehold.co/40x40/35313A/ffffff?text=${encodeURIComponent(currentReview.username?.[0]?.toUpperCase() || 'U')}`;
+
+                            return isUrl ? (
+                                <img src={av} alt="Avatar" className="review-avatar" onError={(e) => { e.target.src = placeholder; }}/>
+                            ) : av ? (
+                                <span className="review-avatar">{av}</span>
+                            ) : (
+                                <img src={placeholder} alt="Avatar" className="review-avatar"/>
+                            );
+                        }) () }
+                        
+                        <div className="review-meta">
+                            <span className="review-username">{currentReview.username || "Utilisateur"}</span>
+                            <span className="review-date">{formattedDate} {currentReview.has_been_modified && "(Modifié)"}</span>
+                        </div>
                     </div>
+
+                    {!isEditing && <StarRating rating={currentReview.rating} readOnly={true} />}
                 </div>
 
-                {!isEditing && <StarRating rating={currentReview.rating} readOnly={true} />}
-            </div>
+                {isEditing ? (
+                    <form onSubmit={handleEditSubmit} className="inline-edit-form">
+                        <div className="inline-edit-rating">
+                            <StarRating rating={editRating} onRatingChange={setEditRating} readOnly={isUpdating} />
+                        </div>
+                        <textarea className="review-textarea" value={editContent} onChange={(e) => setEditContent(e.target.value)} disabled={isUpdating} rows="3"/>
+                        <div className="edit-actions">
+                            <button type="button" className="btn-cancel" onClick={() => setIsEditing(false)} disabled={isUpdating}>Annuler</button>
+                            <button type="submit" className="btn-submit-review" disabled={isUpdating}>Enregistrer</button>
+                        </div>
+                    </form>
 
-            {isEditing ? (
-                <form onSubmit={handleEditSubmit} className="inline-edit-form">
-                    <div className="inline-edit-rating">
-                        <StarRating rating={editRating} onRatingChange={setEditRating} readOnly={isUpdating} />
-                    </div>
-                    <textarea className="review-textarea" value={editContent} onChange={(e) => setEditContent(e.target.value)} disabled={isUpdating} rows="3"/>
-                    <div className="edit-actions">
-                        <button type="button" className="btn-cancel" onClick={() => setIsEditing(false)} disabled={isUpdating}>Annuler</button>
-                        <button type="submit" className="btn-submit-review" disabled={isUpdating}>Enregistrer</button>
-                    </div>
-                </form>
+                ) : (
+                    <>
+                        {currentReview.content && <p className="review-content">{currentReview.content}</p>}
+                    </>
+                )}
 
-            ) : (
-                <>
-                    {currentReview.content && <p className="review-content">{currentReview.content}</p>}
-                </>
-            )}
-
-            {!isEditing && (
-                <div className="review-card-footer">
-                    <div className="review-interactions">
-                        <button 
-                            className={`interaction-btn like-btn ${isLiked ? 'active' : ''}`} 
-                            onClick={handleLikeClick} 
-                            disabled={isLiking}>
-                                {isLiked ? '❤️' : '🤍'} <span className="count">{likesCount}</span>
-                        </button>
-
-                        <button className={`interaction-btn comment-btn ${showComments ? 'active' : ''}`} onClick={() => setShowComments(!showComments)}>
-                            {showComments ? 'Masquer' : 'Commenter'} {comments.length > 0 && `(${comments.length})`}
-                        </button>
-                    </div>
-             
-                    <div className="review-actions">
-                        {/* Bouton coup de cœur — visible uniquement pour l'admin */}
-                        {isAdmin && (
-                            <button
-                                className={`action-btn feature-btn ${isFeatured ? 'feature-btn--active' : ''}`}
-                                onClick={handleFeatureClick}
-                                disabled={isFeatureLoading}
-                                title={isFeatured ? "Retirer le coup de cœur" : "Mettre en avant"}
-                            >
-                                {isFeatureLoading ? "..." : isFeatured ? "💔" : "❤️"}
+                {!isEditing && (
+                    <div className="review-card-footer">
+                        <div className="review-interactions">
+                            <button 
+                                className={`interaction-btn like-btn ${isLiked ? 'active' : ''}`} 
+                                onClick={handleLikeClick} 
+                                disabled={isLiking}>
+                                    {isLiked ? '❤️' : '🤍'} <span className="count">{likesCount}</span>
                             </button>
-                        )}
 
-                        {String(currentUserId) === String(currentReview.user_id) ? (
-                            <>
-                                <button className="action-btn edit-btn" onClick={() => setIsEditing(true)}>
-                                    Modifier
-                                </button>
+                            <button className={`interaction-btn comment-btn ${showComments ? 'active' : ''}`} onClick={() => setShowComments(!showComments)}>
+                                {showComments ? 'Masquer' : 'Commenter'} {comments.length > 0 && `(${comments.length})`}
+                            </button>
+                        </div>
+                
+                        <div className="review-actions">
+                            {/* Bouton coup de cœur — visible uniquement pour l'admin */}
+                            {isAdmin && (
                                 <button
-                                    className="action-btn delete-btn" onClick={handleDeleteClick}>
+                                    className={`action-btn feature-btn ${isFeatured ? 'feature-btn--active' : ''}`}
+                                    onClick={handleFeatureClick}
+                                    disabled={isFeatureLoading}
+                                    title={isFeatured ? "Retirer le coup de cœur" : "Mettre en avant"}
+                                >
+                                    {isFeatureLoading ? "..." : isFeatured ? "💔" : "❤️"}
+                                </button>
+                            )}
+
+                            {String(currentUserId) === String(currentReview.user_id) ? (
+                                <>
+                                    <button className="action-btn edit-btn" onClick={() => setIsEditing(true)}>
+                                        Modifier
+                                    </button>
+                                    <button
+                                        className="action-btn delete-btn" onClick={handleDeleteClick}>
+                                        Supprimer
+                                    </button>
+                                </>
+                            ) : (
+                                <button className="action-btn report-btn" onClick={handleReportClick} title="Signaler">
+                                    Signaler
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {showComments && (
+                    <div className="comments-section">
+                        <div className="comments-list">
+                            {comments.length === 0 ? (
+                                <p className="no-comments">Soyez le premier à commenter!</p>
+                            ) : (
+                                comments.map(c => (
+                                    <div key={c.id} className="comment-item">
+                                        <div className="comment-content">
+                                            <span className="comment-author">{c.username || "Utilisateur"}</span>
+                                            <span className="comment-text">{c.content}</span>
+                                        </div>
+                                        {String(currentUserId) === String(c.user_id) && (
+                                            <button className="delete-comment-btn" onClick={() => handleDeleteComment(c.id)} title="Supprimer">x</button>
+                                        )}
+                                        </div>
+                                ))
+                            )}
+                        </div>
+
+                        <form className="comment-form" onSubmit={handleCommentSubmit}>
+                            <input type="text" className="comment-input" placeholder="Ajouter un commentaire..." value={newComment} onChange={(e) => setNewComment(e.target.value)} disabled={isCommenting}/>
+                            <button type="submit" className="comment-submit-btn" disabled={!newComment.trim() || isCommenting}>Envoyer</button>
+                        </form>
+                    </div>
+                )}
+                {confirmDeleteCommentId && (
+                    <div className="confirm-modal-overlay" onClick={() => setConfirmDeleteCommentId(null)}>
+                        <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
+                            <p className="confirm-modal-text">Supprimer ce commentaire</p>
+                            <div className="confirm-modal-actions">
+                                <button className="confirm-modal-cancel" onClick={() => setConfirmDeleteCommentId(null)}>
+                                    Annuler
+                                </button>
+                                <button className="confirm-modal-confirm" onClick={confirmDeleteCommentAction}>
                                     Supprimer
                                 </button>
-                            </>
-                        ) : (
-                            <button className="action-btn report-btn" onClick={handleReportClick} title="Signaler">
-                                Signaler
-                            </button>
-                        )}
-                    </div>
-                </div>
-            )}
-
-            {showComments && (
-                <div className="comments-section">
-                    <div className="comments-list">
-                        {comments.length === 0 ? (
-                            <p className="no-comments">Soyez le premier à commenter!</p>
-                        ) : (
-                            comments.map(c => (
-                                <div key={c.id} className="comment-item">
-                                    <div className="comment-content">
-                                        <span className="comment-author">{c.username || "Utilisateur"}</span>
-                                        <span className="comment-text">{c.content}</span>
-                                    </div>
-                                    {String(currentUserId) === String(c.user_id) && (
-                                        <button className="delete-comment-btn" onClick={() => handleDeleteComment(c.id)} title="Supprimer">x</button>
-                                    )}
-                                    </div>
-                            ))
-                        )}
-                    </div>
-
-                    <form className="comment-form" onSubmit={handleCommentSubmit}>
-                        <input type="text" className="comment-input" placeholder="Ajouter un commentaire..." value={newComment} onChange={(e) => setNewComment(e.target.value)} disabled={isCommenting}/>
-                        <button type="submit" className="comment-submit-btn" disabled={!newComment.trim() || isCommenting}>Envoyer</button>
-                    </form>
-                </div>
-            )}
-            {confirmDeleteCommentId && (
-                <div className="confirm-modal-overlay" onClick={() => setConfirmDeleteCommentId(null)}>
-                    <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
-                        <p className="confirm-modal-text">Supprimer ce commentaire</p>
-                        <div className="confirm-modal-actions">
-                            <button className="confirm-modal-cancel" onClick={() => setConfirmDeleteCommentId(null)}>
-                                Annuler
-                            </button>
-                            <button className="confirm-modal-confirm" onClick={confirmDeleteCommentAction}>
-                                Supprimer
-                            </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )}
 
-            {confirmDeleteReview && (
-                <div className="confirm-modal-overlay" onClick={() => setConfirmDeleteReview(false)}>
-                    <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
-                        <p className="confirm-modal-text">Supprimer cette critique ?</p>
-                        <div className="confirm-modal-actions">
-                            <button className="confirm-modal-cancel" onClick={() => setConfirmDeleteReview(false)}>
-                                Annuler
-                            </button>
-                            <button className="confirm-modal-confirm" onClick={confirmDeleteReviewAction}>
-                                Supprimer
-                            </button>
+                {confirmDeleteReview && (
+                    <div className="confirm-modal-overlay" onClick={() => setConfirmDeleteReview(false)}>
+                        <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
+                            <p className="confirm-modal-text">Supprimer cette critique ?</p>
+                            <div className="confirm-modal-actions">
+                                <button className="confirm-modal-cancel" onClick={() => setConfirmDeleteReview(false)}>
+                                    Annuler
+                                </button>
+                                <button className="confirm-modal-confirm" onClick={confirmDeleteReviewAction}>
+                                    Supprimer
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )}
+
+                {confirmReportReviewId && (
+                    <div className="confirm-modal-overlay" onClick={() => { setConfirmReportReviewId(null); setReportReason(''); }}>
+                        <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
+                            <p className="confirm-modal-text">Signaler cette critique</p>
+                            <input className="comment-input" placeholder="Raison du signalement (spam, insultes...)" value={reportReason} onChange={(e) => setReportReason(e.target.value)}/>
+                            <div className="confirm-modal-actions">
+                                <button className="confirm-modal-cancel" onClick={() => {setConfirmReportReviewId(null); setReportReason(''); }}>
+                                    Annuler
+                                </button>
+                                <button className="confirm-modal-confirm" onClick={confirmReportAction} disabled={!reportReason.trim()}>
+                                    Signaler
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </>
     );
 }

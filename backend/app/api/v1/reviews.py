@@ -54,7 +54,6 @@ async def create_review(
     if not album:
         raise HTTPException(status_code=404, detail="Album introuvable")
 
-    
     stmt_user_review = select(Review).filter(
         Review.user_id == current_user["user_id"],
         Review.album_id == album_id,
@@ -124,7 +123,6 @@ async def create_review(
     }
 
 
-
 @router.patch("/reviews/{review_id}", response_model=ReviewResponse)
 async def update_review(
     review_id: int,
@@ -191,6 +189,7 @@ async def update_review(
     except Exception as e:
         raise
 
+
 @router.delete("/reviews/{review_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_review(
     review_id: int,
@@ -222,7 +221,7 @@ async def get_album_reviews(
     )
     result_album = await db.execute(stmt_album)
     album = reviews_data = []
-    
+
     reviews_data = []
 
     rows = result_album.all()
@@ -231,7 +230,6 @@ async def get_album_reviews(
         review_obj = row[0]
         username = row[1]
         avatar_url = row[2]
-
 
         # COUNT LIKES
         likes_count = await db.scalar(
@@ -272,7 +270,10 @@ async def get_album_reviews(
         stmt_comments = (
             select(ReviewComment, User.username)
             .join(User, ReviewComment.user_id == User.id)
-            .where(ReviewComment.review_id == review_obj.id)
+            .where(
+                ReviewComment.review_id == review_obj.id,
+                ReviewComment.deleted_at == None
+            )
         )
         result_comments = await db.execute(stmt_comments)
 
@@ -308,6 +309,5 @@ async def get_album_reviews(
         }
 
         reviews_data.append(review_data)
-
 
     return reviews_data

@@ -17,5 +17,6 @@ class ReviewCommentResponse(ReviewCommentCreate):
     has_been_modified: bool
     created_at: datetime
     updated_at: datetime
+    username: str
 
     model_config = {"from_attributes": True}

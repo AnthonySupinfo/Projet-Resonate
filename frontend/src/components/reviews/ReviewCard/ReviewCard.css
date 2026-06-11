@@ -375,3 +375,18 @@
 .confirm-modal-confirm:hover {
     background: rgba (255, 75, 75, 0.3);
 }
+
+.review-message {
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    border-radius: 16px;
+    background-color: var(--bg-card);
+    background-image: radial-gradient(circle at bottom right, rgba(var(--grad-rose-rgb), 0.55) 0%, rgba(var(--grad-gris-rgb), 0) 70%);
+    border: 1px solid var(--divider-color);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color:#ff4b4b;
+}
