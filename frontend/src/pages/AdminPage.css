@@ -193,7 +193,7 @@
   }
 }
 
-/*  Onglets  */
+/* Onglets  */
 .admin-tabs {
   display: flex;
   gap: 8px;
@@ -203,6 +203,9 @@
 }
 
 .admin-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 8px 20px;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -213,15 +216,31 @@
   transition: all 0.2s;
 }
 
+.admin-tab img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
 .admin-tab:hover {
   background: rgba(255, 255, 255, 0.08);
   color: var(--text-primary);
+}
+
+.admin-tab:hover img {
+  opacity: 1;
 }
 
 .admin-tab--active {
   background: rgba(244, 147, 144, 0.15);
   border-color: #F49390;
   color: #F49390;
+}
+
+.admin-tab--active img {
+  opacity: 1;
 }
 
 /*  Section coups de cœur  */

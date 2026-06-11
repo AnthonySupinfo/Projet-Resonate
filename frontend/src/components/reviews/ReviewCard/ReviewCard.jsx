@@ -1,17 +1,17 @@
 import { useState, useEffect } from 'react';
 import StarRating from '../StarRating/StarRating';
-import { likeReview, unlikeReview, deleteReview, reportReview, createCommentReview, deleteCommentReview, updateReview } from '../../../api/api';
+import { reviewsService } from '../../../api/reviews.service';
 import './ReviewCard.css';
 import { useAuth } from '../../../context/AuthContext';
-import { getUserStats, authFetch } from '../../../api/auth';
-
-const API_URL = import.meta.env.VITE_API_URL || ""
+import iconLiked from '../../../../public/icons/likeLiked.png';
+import iconNotLiked from '../../../../public/icons/likeNotLiked.png';
+import iconSignal from "../../../../public/icons/signal.png";
 
 export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated }) {
 
     const { user } = useAuth();
     const currentUserId = user?.user_id || user?.id;
-    const isAdmin = user?.role === "admin"
+    const isAdmin = user?.role === "admin";
 
     const [currentReview, setCurrentReview] = useState(review);
 
@@ -32,8 +32,8 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
     const [message, setMessage] = useState(null);
 
     // Coup de cœur admin
-    const [isFeatured, setIsFeatured] = useState(review.is_featured || false)
-    const [isFeatureLoading, setIsFeatureLoading] = useState(false)
+    const [isFeatured, setIsFeatured] = useState(review.is_featured || false);
+    const [isFeatureLoading, setIsFeatureLoading] = useState(false);
 
     const [confirmDeleteCommentId, setConfirmDeleteCommentId] = useState(null);
     const [confirmDeleteReview, setConfirmDeleteReview] = useState(false);
@@ -42,16 +42,6 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
     const [reportReason, setReportReason] = useState('');
 
     useEffect(() => {
-
-        console.log(" SYNC REVIEW CARD");
-
-        console.log("review.id:", review.id);
-        console.log("review.content:", review.content);
-        console.log("review.rating:", review.rating);
-
-        console.log("review.user_liked:", review.user_liked);
-        console.log("review.likes_count:", review.likes_count);
-
         // CRITIQUE
         setCurrentReview(review);
 
@@ -59,53 +49,37 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
         setIsLiked(review.user_liked || false);
         setLikesCount(review.likes_count || 0);
         setComments(review.comments || []);
-        setIsFeatured(review.is_featured || false)
+        setIsFeatured(review.is_featured || false);
 
-    }, [review]); // IMPORTANT : dépendance sur review entier
-
+    }, [review]);
 
     const formattedDate = new Date(review.posted_at).toLocaleDateString('fr-FR', {
         year: 'numeric', month: 'long', day: 'numeric'
     });
 
-    
     const handleLikeClick = async () => {
         if (isLiking) return;
-
-        console.log("CLICK LIKE");
-        console.log("review.id:", currentReview.id);
-        console.log("isLiked BEFORE:", isLiked);
-
         setIsLiking(true);
 
         const nextStatus = !isLiked;
 
-        // optimistic update
         setIsLiked(nextStatus);
         setLikesCount(prev => nextStatus ? prev + 1 : prev - 1);
 
         try {
             if (nextStatus) {
-                console.log(" CALL likeReview()");
-                await likeReview(currentReview.id);
+                await reviewsService.likeReview(currentReview.id);
             } else {
-                console.log(" CALL unlikeReview()");
-                await unlikeReview(currentReview.id);
+                await reviewsService.unlikeReview(currentReview.id);
             }
-
-            console.log(" API SUCCESS");
-
         } catch (error) {
             console.error(" ERROR LIKE:", error);
-
-            // rollback
             setIsLiked(!nextStatus);
             setLikesCount(prev => !nextStatus ? prev + 1 : prev - 1);
         } finally {
             setIsLiking(false);
         }
     };
-
 
     const handleDeleteClick = async () => {
         setConfirmDeleteReview(true);
@@ -114,14 +88,14 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
     const confirmDeleteReviewAction = async () => {
         setConfirmDeleteReview(false);
         setIsDeleting(true);
-            try {
-                await deleteReview(currentReview.id);
-                if (onReviewDeleted) onReviewDeleted(currentReview.id);
-            } catch (error) {
-                console.error("Erreur de suppression", error);
-                setMessage("Impossible de supprimer la critique");
-                setIsDeleting(false);
-            }
+        try {
+            await reviewsService.deleteReview(currentReview.id);
+            if (onReviewDeleted) onReviewDeleted(currentReview.id);
+        } catch (error) {
+            console.error("Erreur de suppression", error);
+            setMessage("Impossible de supprimer la critique");
+            setIsDeleting(false);
+        }
     };
 
     const handleReportClick = async () => {
@@ -131,31 +105,26 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
     const confirmReportAction = async () => {
         if(!reportReason.trim()) return;
         try {
-            await reportReview(currentReview.id, reportReason.trim());
+            await reviewsService.reportReview(currentReview.id, reportReason.trim());
             setMessage("Merci, la critique a été signalée à l'équipe de modération.");
         } catch (error) {
-            setMessage("Erreur lors du signalement, vous avez déjà signalé cette critique.");
+            setMessage("Erreur lors du signalement, vous avez peut-être déjà signalé cette critique.");
         } finally {
             setConfirmReportReviewId(null);
             setReportReason('');
-        } 
+        }
     };
 
     const handleEditSubmit = async (e) => {
         e.preventDefault();
 
-        console.log(" EDIT SUBMIT");
-        console.log("review.id:", currentReview.id);
-
         setIsUpdating(true);
 
         try {
-            const updatedRev = await updateReview(currentReview.id, {
+            const updatedRev = await reviewsService.updateReview(currentReview.id, {
                 rating: editRating,
                 content: editContent.trim()
             });
-
-            console.log(" API UPDATE RESULT:", updatedRev);
 
             const updatedReviewFull = {
                 ...currentReview,
@@ -164,47 +133,34 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
                 has_been_modified: true
             };
 
-            //  update local
             setCurrentReview(updatedReviewFull);
 
-            //  update parent (IMPORTANT)
             if (onReviewUpdated) {
-                console.log(" SENDING UPDATE TO PARENT");
                 onReviewUpdated(updatedReviewFull);
             }
 
             setIsEditing(false);
-            console.log(" UPDATE SUCCESS:", updatedRev);
 
         } catch (error) {
             setMessage("Erreur lors de la modification.");
         } finally {
             setIsUpdating(false);
         }
-
     };
 
     const handleCommentSubmit = async (e) => {
         e.preventDefault();
 
         if (!newComment.trim()) return;
-
-        console.log(" SUBMIT COMMENT");
-        console.log("review.id:", currentReview.id);
-        console.log("content:", newComment);
-
         setIsCommenting(true);
 
         try {
-            console.log(" CALL createCommentReview");
-
-            const addedComment = await createCommentReview(
+            const addedComment = await reviewsService.createCommentReview(
                 currentReview.id,
                 newComment.trim()
             );
 
             setComments([...comments, addedComment]);
-
             setNewComment('');
 
         } catch (error) {
@@ -215,37 +171,34 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
     };
 
     const handleDeleteComment = async (commentId) => {
-        setConfirmDeleteCommentId(commentId); 
+        setConfirmDeleteCommentId(commentId);
     };
 
-        const confirmDeleteCommentAction = async () => {
-            try {
-               await deleteCommentReview(confirmDeleteCommentId);
-                setComments(comments.filter(c => c.id !== confirmDeleteCommentId));
-            } catch (error) {
-                setMessage("Erreur lors de la suppression du commentaire.");
-            } finally {
-                setConfirmDeleteCommentId(null);
-            }
+    const confirmDeleteCommentAction = async () => {
+        try {
+            await reviewsService.deleteCommentReview(confirmDeleteCommentId);
+            setComments(comments.filter(c => c.id !== confirmDeleteCommentId));
+        } catch (error) {
+            setMessage("Erreur lors de la suppression du commentaire.");
+        } finally {
+            setConfirmDeleteCommentId(null);
+        }
     };
 
     // Coup de cœur admin — met en avant ou retire la mise en avant
     const handleFeatureClick = async () => {
-        if (isFeatureLoading) return
-        setIsFeatureLoading(true)
-        const action = isFeatured ? "unfeature" : "feature"
+        if (isFeatureLoading) return;
+        setIsFeatureLoading(true);
+        const action = isFeatured ? "unfeature" : "feature";
         try {
-            const res = await authFetch(`${API_URL}/api/v1/admin/reviews/${currentReview.id}/${action}`, {
-                method: "PATCH"
-            })
-            if (!res.ok) throw new Error()
-            setIsFeatured(!isFeatured)
+            await reviewsService.toggleFeature(currentReview.id, action);
+            setIsFeatured(!isFeatured);
         } catch {
-            setMessage("Erreur lors de la mise en avant.")
+            setMessage("Erreur lors de la mise en avant.");
         } finally {
-            setIsFeatureLoading(false)
+            setIsFeatureLoading(false);
         }
-    }
+    };
 
     return (
         <>
@@ -279,7 +232,7 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
                                 <img src={placeholder} alt="Avatar" className="review-avatar"/>
                             );
                         }) () }
-                        
+
                         <div className="review-meta">
                             <span className="review-username">{currentReview.username || "Utilisateur"}</span>
                             <span className="review-date">{formattedDate} {currentReview.has_been_modified && "(Modifié)"}</span>
@@ -310,18 +263,23 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
                 {!isEditing && (
                     <div className="review-card-footer">
                         <div className="review-interactions">
-                            <button 
-                                className={`interaction-btn like-btn ${isLiked ? 'active' : ''}`} 
-                                onClick={handleLikeClick} 
+                            <button
+                                className={`interaction-btn like-btn ${isLiked ? 'active' : ''}`}
+                                onClick={handleLikeClick}
                                 disabled={isLiking}>
-                                    {isLiked ? '❤️' : '🤍'} <span className="count">{likesCount}</span>
+                                {isLiked ? (
+                                    <img src={iconLiked} alt="J'aime" className="interaction-icon" />
+                                ) : (
+                                    <img src={iconNotLiked} alt="J'aime" className="interaction-icon" />
+                                )}
+                                <span className="count">{likesCount}</span>
                             </button>
 
                             <button className={`interaction-btn comment-btn ${showComments ? 'active' : ''}`} onClick={() => setShowComments(!showComments)}>
                                 {showComments ? 'Masquer' : 'Commenter'} {comments.length > 0 && `(${comments.length})`}
                             </button>
                         </div>
-                
+
                         <div className="review-actions">
                             {/* Bouton coup de cœur — visible uniquement pour l'admin */}
                             {isAdmin && (
@@ -347,6 +305,7 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
                                 </>
                             ) : (
                                 <button className="action-btn report-btn" onClick={handleReportClick} title="Signaler">
+                                    <img src={iconSignal} alt="Signaler" className="interaction-icon" />
                                     Signaler
                                 </button>
                             )}
@@ -369,7 +328,7 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
                                         {String(currentUserId) === String(c.user_id) && (
                                             <button className="delete-comment-btn" onClick={() => handleDeleteComment(c.id)} title="Supprimer">x</button>
                                         )}
-                                        </div>
+                                    </div>
                                 ))
                             )}
                         </div>
