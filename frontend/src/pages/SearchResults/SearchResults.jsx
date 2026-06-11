@@ -158,7 +158,7 @@ export default function SearchResults() {
                         className="search-card"
                         onClick={() => navigate(`/albums/${encodeURIComponent(album.artist)}/${encodeURIComponent(album.name)}`)}
                     >
-                      <img src={imageUrl ? `/api/v1/image-proxy?url=${encodeURIComponent(imageUrl)}` : "/fallback.jpg"} alt={album.name} />
+                      <img src={imageUrl ? `/api/v1/image-proxy?url=${encodeURIComponent(imageUrl)}` : "/fallback.svg"} alt={album.name} />
                       <p className="album-name">{album.name}</p>
                       <p className="album-artist">{album.artist}</p>
                       {album.year && <p className="album-year">{album.year}</p>}
