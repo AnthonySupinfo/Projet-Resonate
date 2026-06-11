@@ -132,7 +132,7 @@ export default function LibraryCard() {
                             <li
                                 key={item.id}
                                 className="library-item"
-                                onClick={() => navigate(`/albums/${encodeURIComponent(a.artist)}/${encodeURIComponent(a.title)}`)}
+                                onClick={() => navigate(`/albums/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`)}
                             >
                                 <div className="library-icon cover-placeholder">
                                     <img src={getCoverUrl(coverSrc, title)} alt={title} />
