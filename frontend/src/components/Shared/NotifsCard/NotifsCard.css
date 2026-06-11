@@ -9,6 +9,13 @@
     justify-content: center;
     gap: 14px;
     height: 60px;
+    padding: 0 16px;
+    box-sizing: border-box;
+}
+
+.notifs-card-container.has-admin {
+    gap: 8px;
+    padding: 0 12px;
 }
 
 .notif-card-btn {
@@ -59,8 +66,13 @@
     display: grid;
     place-items: center;
     background-color: #0d0a15;
-    margin-left: 8px;
+    margin-left: 4px;
     transition: box-shadow 0.3s ease;
+    flex-shrink: 0;
+}
+
+.notifs-card-container.has-admin .notif-card-logo {
+    margin-left: 0;
 }
 
 .notif-card-logo:hover {

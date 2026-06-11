@@ -1,7 +1,7 @@
-import {Link, useLocation, useNavigate} from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import "./SearchResults.css";
-import SearchBar from "../../components/Shared/SearchBar/SearchBar";
+import { searchService } from "../../api/search.service";
 
 export default function SearchResults() {
   const location = useLocation();
@@ -24,36 +24,26 @@ export default function SearchResults() {
 
   const [userResults, setUserResults] = useState([]);
 
-  // FETCH FUNCTION
   const fetchResults = async (pageNumber) => {
-    if (!query || loading || !hasMore) return;
+    if (!query) return;
+    if (pageNumber > 1 && (loading || !hasMore)) return;
 
     setLoading(true);
 
     try {
-      const res = await fetch(
-        `/api/v1/search/albums?q=${query}&limit=20&page=${pageNumber}`
-      );
-      const data = await res.json();
-
+      const data = await searchService.searchAlbums(query, 20, pageNumber);
       const newResults = data.results || [];
 
       if (newResults.length === 0) {
         setHasMore(false);
       } else {
         setResults((prev) => {
-          const existing = new Set(
-            prev.map((a) => a.name + a.artist)
-          );
-
-          const filtered = newResults.filter(
-            (a) => !existing.has(a.name + a.artist)
-          );
-
-          return [...prev, ...filtered];
+          const currentPrev = pageNumber === 1 ? [] : prev;
+          const existing = new Set(currentPrev.map((a) => a.name + a.artist));
+          const filtered = newResults.filter((a) => !existing.has(a.name + a.artist));
+          return [...currentPrev, ...filtered];
         });
       }
-
     } catch (err) {
       console.error(err);
     }
@@ -61,253 +51,140 @@ export default function SearchResults() {
     setLoading(false);
   };
 
-  // INITIAL LOAD (reset quand query change)
   useEffect(() => {
     setResults([]);
     setPage(1);
     setHasMore(true);
-
     fetchResults(1);
   }, [query]);
 
-  // LOAD NEXT PAGE
   useEffect(() => {
     if (page > 1) {
       fetchResults(page);
     }
   }, [page]);
 
-  // SCROLL DETECTION
   useEffect(() => {
     const handleScroll = () => {
-      if (
-        window.innerHeight + window.scrollY >=
-        document.body.offsetHeight - 200
-      ) {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
         if (!loading && hasMore) {
           setPage((prev) => prev + 1);
         }
       }
     };
-
     window.addEventListener("scroll", handleScroll);
-
     return () => window.removeEventListener("scroll", handleScroll);
   }, [loading, hasMore]);
 
-  // FETCH USERS (onglet utilisateurs)
-  useEffect(() => {
-    fetchUsers();
-  }, [query]);
-
-  // FILTER PAR ORDRE ALPHABETIQUE
-  const sortedResults = [...results].sort((a, b) => {
-    if (sortBy === "az") {
-      return a.name.localeCompare(b.name);
-    }
-    if (sortBy === "za") {
-      return b.name.localeCompare(a.name);
-    }
-    return 0;
-  });
-
-  // FILTER PAR ANNEE ET GENRE (filtrage basique côté frontend, à améliorer côté backend pour de meilleures performances)
-  const filteredByGenre = genre
-    ? sortedResults.filter((album) => {
-        const g = genre.toLowerCase();
-        const name = album.name?.toLowerCase() || "";
-        const artist = album.artist?.toLowerCase() || "";
-
-        return name.includes(g) || artist.includes(g);
-      })
-    : sortedResults;
-
-  // fallback si aucun résultat
-  const finalResults =
-    filteredByGenre.length > 0 ? filteredByGenre : sortedResults;
-
   const fetchUsers = async () => {
     if (!query) return;
-
     try {
-      const res = await fetch(`/api/v1/search/users?q=${query}`);
-      const data = await res.json();
-
+      const data = await searchService.searchUsers(query);
       setUserResults(data.results || []);
     } catch (err) {
       console.error(err);
     }
   };
-  
+
+  useEffect(() => {
+    fetchUsers();
+  }, [query]);
+
+  const sortedResults = [...results].sort((a, b) => {
+    if (sortBy === "az") return a.name.localeCompare(b.name);
+    if (sortBy === "za") return b.name.localeCompare(a.name);
+    return 0;
+  });
+
+  const filteredByGenre = genre
+      ? sortedResults.filter((album) => {
+        const g = genre.toLowerCase();
+        const name = album.name?.toLowerCase() || "";
+        const artist = album.artist?.toLowerCase() || "";
+        return name.includes(g) || artist.includes(g);
+      })
+      : sortedResults;
+
+  const finalResults = filteredByGenre.length > 0 ? filteredByGenre : sortedResults;
+
   return (
-    <div className="search-page">
+      <div className="search-page">
+        <h1 className="search-title">Résultats pour "{query}"</h1>
 
-      <h1 className="search-title">
-        Résultats pour "{query}"
-      </h1>
-
-      {/* TABS = ONGLETS */}
-      <div className="search-tabs">
-
-        <button
-          className={activeTab === "albums" ? "active" : ""}
-          onClick={() => setActiveTab("albums")}
-        >
-          Albums
-        </button>
-
-        <button
-          className={activeTab === "users" ? "active" : ""}
-          onClick={() => setActiveTab("users")}
-        >
-          Utilisateurs
-        </button>
-
-        <button
-          className={activeTab === "lists" ? "active" : ""}
-          onClick={() => setActiveTab("lists")}
-        >
-          Listes
-        </button>
-
-      </div>
-
-      
-      {activeTab === "albums" && (
-        <>
-          {/* SORTING */}
-          <div className="search-sort">
-            <span>Trier par :</span>
-
-            <button
-              className={sortBy === "az" ? "active" : ""}
-              onClick={() => setSortBy("az")}
-            >
-              A-Z
-            </button>
-
-            <button
-              className={sortBy === "za" ? "active" : ""}
-              onClick={() => setSortBy("za")}
-            >
-              Z-A
-            </button>
-          </div>
-
-          {/* FILTERS */}
-          <div className="search-filters">
-            <label>Année :</label>
-
-            <input
-              type="number"
-              placeholder="Min"
-              value={yearMin || ""}
-              onChange={(e) => setYearMin(Number(e.target.value))}
-            />
-
-            <input
-              type="number"
-              placeholder="Max"
-              value={yearMax || ""}
-              onChange={(e) => setYearMax(Number(e.target.value))}
-            />
-
-            <label>Genre :</label>
-
-            <select
-              className="genre-select"
-              value={genre}
-              onChange={(e) => setGenre(e.target.value)}
-            >
-              <option value="">Tous les genres</option>
-              <option value="pop">Pop</option>
-              <option value="rock">Rock</option>
-              <option value="hip hop">Hip-Hop</option>
-              <option value="rap">Rap</option>
-              <option value="electronic">Electronic</option>
-            </select>
-          </div>
-        </>
-      )}
-
-
-      { /* RESULTS = RÉSULTATS */ }
-      {activeTab === "albums" && (
-        <div className="search-grid">
-          {finalResults.map((album) => {
-            const imageUrl =
-              album.image?.[2]?.["#text"] ||
-              album.image?.[1]?.["#text"] ||
-              album.image?.[0]?.["#text"];
-
-            return (
-              <div
-                key={album.url || album.name + album.artist}
-                className="search-card"
-                onClick={() =>
-                  navigate(
-                    `/albums/${encodeURIComponent(album.artist)}/${encodeURIComponent(album.name)}`
-                  )
-                }
-              >
-                <img
-                  src={
-                    imageUrl
-                      ? `/api/v1/image-proxy?url=${encodeURIComponent(imageUrl)}`
-                      : "/fallback.jpg"
-                  }
-                  alt={album.name}
-                />
-
-                <p className="album-name">{album.name}</p>
-                <p className="album-artist">{album.artist}</p>
-
-                {album.year && (
-                  <p className="album-year">{album.year}</p>
-                )}
-              </div>
-            );
-          })}
+        <div className="search-tabs">
+          <button className={activeTab === "albums" ? "active" : ""} onClick={() => setActiveTab("albums")}>
+            Albums
+          </button>
+          <button className={activeTab === "users" ? "active" : ""} onClick={() => setActiveTab("users")}>
+            Utilisateurs
+          </button>
+          <button className={activeTab === "lists" ? "active" : ""} onClick={() => setActiveTab("lists")}>
+            Listes
+          </button>
         </div>
-      )}
 
-      {activeTab === "users" && (
-          <div className="search-grid">
-            {userResults.length === 0 ? (
-                <p style={{ opacity: 0.6 }}>Aucun utilisateur</p>
-            ) : (
-                userResults.map((user) => (
-                    <Link
-                        key={user.id}
-                        to={`/user/${user.id}`}
+        {activeTab === "albums" && (
+            <>
+              <div className="search-sort">
+                <span>Trier par :</span>
+                <button className={sortBy === "az" ? "active" : ""} onClick={() => setSortBy("az")}>A-Z</button>
+                <button className={sortBy === "za" ? "active" : ""} onClick={() => setSortBy("za")}>Z-A</button>
+              </div>
+
+              <div className="search-filters">
+                <label>Année :</label>
+                <input type="number" placeholder="Min" value={yearMin || ""} onChange={(e) => setYearMin(Number(e.target.value))} />
+                <input type="number" placeholder="Max" value={yearMax || ""} onChange={(e) => setYearMax(Number(e.target.value))} />
+                <label>Genre :</label>
+                <select className="genre-select" value={genre} onChange={(e) => setGenre(e.target.value)}>
+                  <option value="">Tous les genres</option>
+                  <option value="pop">Pop</option>
+                  <option value="rock">Rock</option>
+                  <option value="hip hop">Hip-Hop</option>
+                  <option value="rap">Rap</option>
+                  <option value="electronic">Electronic</option>
+                </select>
+              </div>
+            </>
+        )}
+
+        {activeTab === "albums" && (
+            <div className="search-grid">
+              {finalResults.map((album) => {
+                const imageUrl = album.image?.[2]?.["#text"] || album.image?.[1]?.["#text"] || album.image?.[0]?.["#text"];
+                return (
+                    <div
+                        key={album.url || album.name + album.artist}
                         className="search-card"
-                        style={{ textDecoration: 'none' }}
+                        onClick={() => navigate(`/albums/${encodeURIComponent(album.artist)}/${encodeURIComponent(album.name)}`)}
                     >
-                      <p className="album-name">{user.username}</p>
-                    </Link>
-                ))
-            )}
-          </div>
-      )}
+                      <img src={imageUrl ? `/api/v1/image-proxy?url=${encodeURIComponent(imageUrl)}` : "/fallback.jpg"} alt={album.name} />
+                      <p className="album-name">{album.name}</p>
+                      <p className="album-artist">{album.artist}</p>
+                      {album.year && <p className="album-year">{album.year}</p>}
+                    </div>
+                );
+              })}
+            </div>
+        )}
 
-      {activeTab === "lists" && (
-        <p style={{ opacity: 0.6 }}>Aucune liste pour le moment</p>
-      )}
+        {activeTab === "users" && (
+            <div className="search-grid">
+              {userResults.length === 0 ? (
+                  <p className="search-empty-state">Aucun utilisateur</p>
+              ) : (
+                  userResults.map((user) => (
+                      <Link key={user.id} to={`/user/${user.id}`} className="search-card">
+                        <p className="album-name">{user.username}</p>
+                      </Link>
+                  ))
+              )}
+            </div>
+        )}
 
-      {/* LOADER */}
-      {loading && (
-        <p style={{ textAlign: "center", marginTop: 20 }}>
-          Chargement...
-        </p>
-      )}
-
-      {/* FIN */}
-      {!hasMore && (
-        <p style={{ textAlign: "center", opacity: 0.6 }}>
-          Plus de résultats
-        </p>
-      )}
-
-    </div>
+        {activeTab === "lists" && <p className="search-empty-state">Aucune liste pour le moment</p>}
+        {loading && <p className="search-loader">Chargement...</p>}
+        {!hasMore && <p className="search-end-msg">Plus de résultats</p>}
+      </div>
   );
 }

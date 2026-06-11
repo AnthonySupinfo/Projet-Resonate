@@ -56,8 +56,6 @@ export default function ReviewList({ albumId, onReviewUpdated }) {
     };
 
     const handleReviewUpdated = (updatedReview) => {
-        console.log("UPDATE RECEIVED:", updatedReview);
-
         setReviews(prev =>
             prev.map(r =>
                 r.id === updatedReview.id ? updatedReview : r

@@ -98,7 +98,6 @@ export const removeTrackFromPlaylist = async (playlistId, trackId) => {
 }
 
 export const addTrackToPlaylist = async (playlistId, trackData) => {
-    console.log("DATA SENT:", trackData);
     const res = await fetch(`${BASE_URL}/playlists/${playlistId}/tracks`, {
         method: "POST",
         headers: authHeaders(),
@@ -184,8 +183,6 @@ export const createCommentReview = async (reviewId, content) => {
 
     const token = localStorage.getItem("token");
 
-    console.log(" TOKEN:", token);
-
     const res = await fetch(`/api/v1/reviews/${reviewId}/comment`, {
         method: "POST",
         headers: {
@@ -195,17 +192,12 @@ export const createCommentReview = async (reviewId, content) => {
         body: JSON.stringify({ content })
     });
 
-    console.log(" COMMENT STATUS:", res.status);
-
     if (!res.ok) {
         const text = await res.text();
-        console.error(" COMMENT API ERROR:", text);
         throw new Error("Erreur commentaire");
     }
 
     const data = await res.json();
-    console.log(" COMMENT DATA:", data);
-
     return data;
 
 }
@@ -228,20 +220,14 @@ export const reportReview = async (reviewId, reason) => {
     return res.json()
 }
 
-// Favoris
 export const toggleFavorite = async (trackData) => {
-    console.log("SEND TO BACKEND:", trackData);
     const res = await fetch(`${BASE_URL}/playlists/favorites/toggle`, {
         method: "POST",
         headers: authHeaders(),
         body: JSON.stringify(trackData)
     });
-    console.log(" RESPONSE STATUS:", res.status);
-
 
     const data = await res.json();
-    console.log("RESPONSE BODY:", data);
-
 
     if (!res.ok) throw new Error(`Erreur favoris: ${JSON.stringify(data)}`);
     return data;

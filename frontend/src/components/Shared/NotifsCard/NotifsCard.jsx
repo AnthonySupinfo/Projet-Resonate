@@ -3,6 +3,7 @@ import './NotifsCard.css';
 import iconNotif from '../../../../public/icons/notifsbar/notif.png';
 import iconConversation from '../../../../public/icons/notifsbar/conversation.png';
 import iconLogout from '../../../../public/icons/notifsbar/logout.png';
+import iconAdmin from '../../../../public/icons/notifsbar/admin.png';
 import logoResonate from '../../../../public/logoResonate.png';
 import {useAuth} from "../../../context/AuthContext.jsx";
 import {useEffect, useState, useCallback } from "react";
@@ -161,7 +162,7 @@ export default function NotifsCard() {
     const newChatsCount = unreadChatCount - lastSeenUnreadChat;
 
     return (
-        <div className="notifs-card-container">
+        <div className={`notifs-card-container ${user?.role === "admin" ? "has-admin" : ""}`}>
             <button className="notif-card-btn" onClick={handleNotifButtonClick} onMouseDown={(e) => e.stopPropagation()}>
                 <img src={iconNotif} alt="Notifications" className="notif-card-icon" />
                 {showNotifBadge && <span className="notif-card-badge">{newNotifsCount}</span>}
@@ -176,10 +177,9 @@ export default function NotifsCard() {
                 <img src={iconLogout} alt="Se déconnecter" className="notif-card-icon" />
             </button>
 
-            {/* Bouton admin — visible uniquement pour les administrateurs */}
             {user?.role === "admin" && (
-                <button className="notif-card-btn notif-card-btn--admin" onClick={() => navigate("/admin")} title="Panneau d'administration">
-                    🛡️
+                <button className="notif-card-btn" onClick={() => navigate("/admin")} title="Panneau d'administration">
+                    <img src={iconAdmin} alt="Admin" className="notif-card-icon" />
                 </button>
             )}
 

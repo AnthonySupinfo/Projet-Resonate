@@ -19,7 +19,7 @@ export default function AllPlaylistsPage() {
                 const data = await getMyPlaylist();
                 setPlaylists(data.length > 0 ? data : []);
             } catch (error) {
-                console.error("Erreur API, utilisation des fausses données");
+                console.error("Erreur API");
                 setPlaylists([]);
             }
         };

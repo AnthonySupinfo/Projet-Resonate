@@ -20,7 +20,6 @@ export default function AuthLayout() {
     const [incomingNotificationEvent, setIncomingNotificationEvent] = useState(null);
 
     const handleIncomingWebsocketMessage = useCallback((data) => {
-        console.log("WebSocket a reçu un message :", data);
 
         switch (data.type) {
             case 'new_message':

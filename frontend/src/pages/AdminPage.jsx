@@ -2,6 +2,9 @@ import { useState, useEffect } from "react"
 import { useAuth } from "../context/AuthContext"
 import { useNavigate } from "react-router-dom"
 import { authFetch } from "../api/auth"
+import iconSignal from '../../public/icons/signal.png';
+import iconUser from '../../public/icons/user.png';
+import iconLike from '../../public/icons/likeLiked.png';
 import "./AdminPage.css"
 
 const API_URL = import.meta.env.VITE_API_URL || ""
@@ -206,19 +209,22 @@ export default function AdminPage() {
           className={`admin-tab ${tab === "reports" ? "admin-tab--active" : ""}`}
           onClick={() => setTab("reports")}
         >
-          🚨 Signalements
+          <img src={iconSignal} alt="Signalement" />
+          Signalements
         </button>
         <button
           className={`admin-tab ${tab === "featured" ? "admin-tab--active" : ""}`}
           onClick={() => setTab("featured")}
         >
-          ❤️ Coups de cœur
+          <img src={iconLike} alt="Coup de coeur" />
+          Coups de cœur
         </button>
         <button
           className={`admin-tab ${tab === "users" ? "admin-tab--active" : ""}`}
           onClick={() => { setTab("users"); setUserResults([]); setError("") }}
         >
-          👤 Utilisateurs
+          <img src={iconUser} alt="Utilisateurs" />
+          Utilisateurs
         </button>
       </div>
 
@@ -297,7 +303,7 @@ export default function AdminPage() {
         </>
       )}
 
-      {/* ═══ ONGLET COUPS DE CŒUR ═══ */}
+      {/*ONGLET COUPS DE CŒUR*/}
       {tab === "featured" && (
         <div className="admin-feature-section">
           <p className="admin-feature-desc">
@@ -347,7 +353,7 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* ═══ ONGLET UTILISATEURS ═══ */}
+      {/* ONGLET UTILISATEURS*/}
       {tab === "users" && (
         <div className="admin-users-section">
           <p className="admin-feature-desc">
