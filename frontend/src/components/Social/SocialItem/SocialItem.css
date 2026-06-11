@@ -148,3 +148,95 @@
     opacity: 0.8;
     text-decoration: underline;
 }
+
+.social-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    animation: fadeInModal 0.2s ease-out forwards;
+}
+
+.social-modal-card {
+    background-color: var(--bg-card, #2A2A2A);
+    padding: 24px 32px;
+    border-radius: 16px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.social-modal-title {
+    margin: 0 0 12px 0;
+    font-size: 18px;
+    color: var(--text-primary, #FFF);
+    font-weight: 500;
+}
+
+.social-modal-text {
+    margin: 0 0 24px 0;
+    font-size: 14px;
+    color: var(--text-muted, #AAA);
+}
+
+.social-modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+}
+
+.social-modal-btn {
+    padding: 10px 24px;
+    border-radius: 20px;
+    border: none;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.social-modal-btn.cancel {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary, #FFF);
+}
+
+.social-modal-btn.cancel:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.social-modal-btn.danger {
+    background-color: rgba(231, 76, 60, 0.15);
+    color: #e74c3c;
+    border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+.social-modal-btn.danger:hover {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.comment-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    z-index: 2;
+}
+
+.comment-avatar.text-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.15);
+}

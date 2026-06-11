@@ -1,6 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
+
+from app.models import UserActivityFeed
+from app.models.feed_review import FeedComment
 from app.services.auth import verify_password, revoke_all_refresh_tokens
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
@@ -18,7 +21,7 @@ import json
 import csv
 import io
 from typing import List
-from app.schemas.feed import FeedItemResponse
+from app.schemas.feed import FeedItemResponse, FeedCommentResponse
 from app.services.feed import feed_service
 from app.schemas.stats import UserStatsResponse
 from app.services.stats_service import stats_service
@@ -332,6 +335,65 @@ async def get_my_feed(
     """Récupère le fil d'actualités."""
 
     return await feed_service.get_user_feed(db, current_user["user_id"])
+
+
+class CommentCreate(BaseModel):
+    content: str
+
+@router.post("/feed/{feed_id}/comments", response_model=FeedCommentResponse)
+async def add_feed_comment(
+        feed_id: int,
+        body: CommentCreate,
+        db: AsyncSession = Depends(get_db),
+        current_user: dict = Depends(get_current_user)
+):
+    """Ajoute un commentaire sur un post du fil d'actualité."""
+
+    # Vérifier que le feed_item existe
+    feed_item = await db.get(UserActivityFeed, feed_id)
+    if not feed_item:
+        raise HTTPException(status_code=404, detail="Activité introuvable.")
+
+    new_comment = FeedComment(
+        feed_id=feed_id,
+        user_id=current_user["user_id"],
+        content=body.content
+    )
+
+    db.add(new_comment)
+    await db.commit()
+    await db.refresh(new_comment)
+
+    user = await db.get(User, current_user["user_id"])
+
+    return {
+        "id": new_comment.id,
+        "feed_id": new_comment.feed_id,
+        "user_id": new_comment.user_id,
+        "content": new_comment.content,
+        "created_at": new_comment.created_at,
+        "username": user.username,
+        "avatar_url": user.avatar_url
+    }
+
+
+@router.delete("/feed/comments/{comment_id}", status_code=204)
+async def delete_feed_comment(
+        comment_id: int,
+        db: AsyncSession = Depends(get_db),
+        current_user: dict = Depends(get_current_user)
+):
+    """Supprime un commentaire du fil d'actualité."""
+    comment = await db.get(FeedComment, comment_id)
+
+    if not comment:
+        raise HTTPException(status_code=404, detail="Commentaire introuvable.")
+
+    if str(comment.user_id) != str(current_user["user_id"]):
+        raise HTTPException(status_code=403, detail="Vous n'êtes pas l'auteur de ce commentaire.")
+
+    await db.delete(comment)
+    await db.commit()
 
 
 @router.get("/{user_id}", response_model=UserProfileResponse)

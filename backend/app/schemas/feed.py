@@ -1,8 +1,23 @@
 ﻿from pydantic import BaseModel
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 from uuid import UUID
 from app.models.user_activity_feed import ActivityTypes
+
+
+class FeedCommentResponse(BaseModel):
+    id: int
+    feed_id: int
+    user_id: str
+    content: str
+    created_at: datetime
+
+    username: str
+    avatar_url: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
 
 class FeedItemResponse(BaseModel):
     id: int
@@ -38,6 +53,8 @@ class FeedItemResponse(BaseModel):
     review_id: Optional[int] = None
     review_comment_content: Optional[str] = None
     review_like_rating: Optional[int] = None
+
+    comments: List[FeedCommentResponse] = []
 
     class Config:
         from_attributes = True

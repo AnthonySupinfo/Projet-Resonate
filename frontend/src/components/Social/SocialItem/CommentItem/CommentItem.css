@@ -46,6 +46,13 @@
     z-index: 2;
 }
 
+.comment-avatar.text-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
 .comment-content {
     display: flex;
     flex-direction: column;

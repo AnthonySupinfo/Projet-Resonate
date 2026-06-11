@@ -8,7 +8,9 @@ import PlaylistBox from "./SocialItemVariations/PlaylistBox/PlaylistBox.jsx";
 import AlbumStatusBox from "./SocialItemVariations/AlbumStatusBox/AlbumStatusBox.jsx";
 import AlbumReviewBox from "./SocialItemVariations/AlbumReviewBox/AlbumReviewBox.jsx";
 import { useLanguage } from "../../../context/LanguageContext.jsx";
+import { useAuth } from "../../../context/AuthContext.jsx";
 import { Link } from 'react-router-dom';
+import { feedService } from "../../../api/feed.service.js";
 
 const CONTENT_COMPONENTS = {
     ADD_TRACK_PLAYLIST: PlaylistBox,
@@ -20,43 +22,61 @@ const CONTENT_COMPONENTS = {
 };
 
 export default function SocialItem({ activity, hideComments = false }) {
+    const { t } = useLanguage();
+    const { user } = useAuth();
+
     const [showComments, setShowComments] = useState(false);
     const [isReplying, setIsReplying] = useState(false);
-    const { t } = useLanguage();
+    const [comments, setComments] = useState(activity?.comments || []);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [commentToDelete, setCommentToDelete] = useState(null);
 
     if (!activity) return null;
 
     const SpecificContent = CONTENT_COMPONENTS[activity.type];
-    const actorAvatar = activity.user.avatar;
+    const actorAvatar = activity.actor_avatar || activity.user?.avatar;
     const isActorImageUrl = actorAvatar && (actorAvatar.startsWith('http') || actorAvatar.startsWith('/') || actorAvatar.startsWith('data:image'));
-
-    const handleReplyClick = () => {
-        setIsReplying(true);
-        setShowComments(true);
-    };
 
     const toggleComments = () => {
         setShowComments(!showComments);
-        if (showComments) {
+        if (showComments) setIsReplying(false);
+    };
+
+    const handleCommentSubmit = async (content) => {
+        if (!content.trim() || isSubmitting) return;
+        setIsSubmitting(true);
+        try {
+            const newComment = await feedService.createFeedComment(activity.id, content);
+            setComments([...comments, newComment]);
             setIsReplying(false);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const confirmDeleteComment = async () => {
+        if (!commentToDelete) return;
+        try {
+            await feedService.deleteFeedComment(commentToDelete);
+            setComments(comments.filter(c => c.id !== commentToDelete));
+        } catch (error) {
+            console.error("Impossible de supprimer le commentaire", error);
+        } finally {
+            setCommentToDelete(null);
         }
     };
 
     const renderActionText = () => {
         const userLink = (
-            <Link to={`/user/${activity.user.id}`} className="social-item-user-link">
-                <strong>{activity.user.name}</strong>
+            <Link to={`/user/${activity.actor_id || activity.user?.id}`} className="social-item-user-link">
+                <strong>{activity.actor_username || activity.user?.name}</strong>
             </Link>
         );
 
         const playlistLink = (name, id) => (
             <Link to={`/library/playlists/${id}`} className="social-item-user-link">
-                <strong>{name}</strong>
-            </Link>
-        );
-
-        const trackLink = (name, artist, albumTitle) => (
-            <Link to={`/albums/${encodeURIComponent(artist)}/${encodeURIComponent(albumTitle)}`} className="social-item-user-link">
                 <strong>{name}</strong>
             </Link>
         );
@@ -67,111 +87,124 @@ export default function SocialItem({ activity, hideComments = false }) {
             </Link>
         );
 
-        switch (activity.type) {
+        switch (activity.activity_type || activity.type) {
             case 'FOLLOW_USER':
-                return <>{userLink} {t('social.startedFollowing')} <Link to={`/user/${activity.target.id}`} className="social-item-user-link"><strong>{activity.target.name}</strong></Link></>;
-            case 'ADD_TRACK_PLAYLIST':
-                return <>{userLink} {t('social.added')} {trackLink(activity.target.name, activity.target.artist, activity.target.albumTitle)} {t('social.toPlaylist')} {playlistLink(activity.target.playlistName, activity.target.playlistId)}</>;
+                return <>{userLink} {t('social.startedFollowing')} <Link to={`/user/${activity.target_user_id}`} className="social-item-user-link"><strong>{activity.target_user_username}</strong></Link></>;
             case 'CREATE_PLAYLIST':
-                return <>{userLink} {t('social.createdPlaylist')} {playlistLink(activity.target.name, activity.target.id)}</>;
-            case 'FOLLOW_PLAYLIST':
-                return <>{userLink} {t('social.followsPlaylist')} {playlistLink(activity.target.name, activity.target.id)}</>;
+                return <>{userLink} {t('social.createdPlaylist')} {playlistLink(activity.playlist_name, activity.playlist_id)}</>;
             case 'UPDATE_ALBUM_STATUS':
-                switch (activity.target.albumStatus) {
-                    case 'PLANNED':
-                        return <>{userLink} {t('social.statusPlanned')} {albumLink(activity.target.albumTitle, activity.target.artist)} {t('social.by')} <strong>{activity.target.artist}</strong></>;
-                    case 'LISTENING':
-                        return <>{userLink} {t('social.statusListening')} {albumLink(activity.target.albumTitle, activity.target.artist)} {t('social.by')} <strong>{activity.target.artist}</strong></>;
-                    case 'COMPLETED':
-                        return <>{userLink} {t('social.statusCompleted')} {albumLink(activity.target.albumTitle, activity.target.artist)} {t('social.by')} <strong>{activity.target.artist}</strong></>;
-                    case 'DROPPED':
-                        return <>{userLink} {t('social.statusDropped')} {albumLink(activity.target.albumTitle, activity.target.artist)} {t('social.by')} <strong>{activity.target.artist}</strong></>;
-                    default:
-                        return <>{userLink} a interagi avec {albumLink(activity.target.albumTitle, activity.target.artist)}</>;
-                }
+                return <>{userLink} {t(`social.status${activity.album_status || activity.target?.albumStatus}`)} {albumLink(activity.album_title || activity.target?.albumTitle, activity.album_artist || activity.target?.artist)}</>;
             case 'REVIEW_ALBUM':
-                return <>{userLink} {t('social.reviewedAlbum')} {albumLink(activity.target.albumTitle, activity.target.artist)} {t('social.by')} <strong>{activity.target.artist}</strong></>;
+                return <>{userLink} {t('social.reviewedAlbum')} {albumLink(activity.album_title || activity.target?.albumTitle, activity.album_artist || activity.target?.artist)}</>;
             default:
-                return <>{userLink} {t('social.interactedWith')} <strong>{activity.target.name}</strong></>;
+                return <>{userLink} a interagi</>;
         }
     };
 
     return (
-        <div className="social-item-wrapper">
-            {isActorImageUrl ? (
-                <img
-                    src={actorAvatar}
-                    alt="Avatar"
-                    className="social-item-avatar"
-                    onError={(e) => e.target.style.display = "none"}
-                />
-            ) : actorAvatar ? (
-                <div className="social-item-avatar text-avatar">{actorAvatar}</div>
-            ) : (
-                <div className="social-item-avatar text-avatar">👤</div>
-            )}
-
-            <div className="social-item-card">
-                <div className="social-item-header">
-                    <p className="social-item-title">
-                        {renderActionText()}
-                        <span className="social-item-time">{activity.timeAgo}</span>
-                    </p>
-                    <button className="social-item-like-btn">
-                        <img src={likeNotLiked} alt="J'aime" className="action-icon" />
-                    </button>
-                </div>
-
-                {SpecificContent && <SpecificContent activity={activity} />}
-
-                {!hideComments && (
-                    <>
-                        <div className="social-item-footer">
-                            <button
-                                className="social-item-action-link"
-                                onClick={toggleComments}
-                            >
-                                {showComments ? t('social.hideComments') : t('social.viewComments')}
-                            </button>
-                            {!showComments && (
-                                <>
-                                    <span className="social-item-dot">•</span>
-                                    <button
-                                        className="social-item-action-link"
-                                        onClick={handleReplyClick}
-                                    >
-                                        {t('social.reply')}
-                                    </button>
-                                </>
-                            )}
-                        </div>
-
-                        {showComments && (
-                            <div className="comments-section">
-                                {isReplying ? (
-                                    <NewCommItem
-                                        isLast={false}
-                                        onCancel={() => setIsReplying(false)}
-                                    />
-                                ) : (
-                                    <div className="comment-trigger-container" onClick={() => setIsReplying(true)}>
-                                        <div className="comment-tree-line"></div>
-                                        <img
-                                            src="https://placehold.co/32x32/555/FFF?text=Me"
-                                            alt="Mon avatar"
-                                            className="comment-avatar"
-                                        />
-                                        <div className="comment-trigger-input">
-                                            {t('social.addComment')}
-                                        </div>
-                                    </div>
-                                )}
-                                <CommentItem isLast={true} />
-                            </div>
-                        )}
-                    </>
+        <>
+            <div className="social-item-wrapper">
+                {isActorImageUrl ? (
+                    <img src={actorAvatar} alt="Avatar" className="social-item-avatar" onError={(e) => e.target.style.display = "none"} />
+                ) : actorAvatar ? (
+                    <div className="social-item-avatar text-avatar">{actorAvatar}</div>
+                ) : (
+                    <div className="social-item-avatar text-avatar">👤</div>
                 )}
+
+                <div className="social-item-card">
+                    <div className="social-item-header">
+                        <p className="social-item-title">
+                            {renderActionText()}
+                            <span className="social-item-time">{activity.timeAgo || new Date(activity.created_at).toLocaleDateString()}</span>
+                        </p>
+                        <button className="social-item-like-btn">
+                            <img src={likeNotLiked} alt="J'aime" className="action-icon" />
+                        </button>
+                    </div>
+
+                    {SpecificContent && <SpecificContent activity={activity} />}
+
+                    {!hideComments && (
+                        <>
+                            <div className="social-item-footer">
+                                <button className="social-item-action-link" onClick={toggleComments}>
+                                    {showComments ? t('social.hideComments') : t('social.viewComments')} {comments.length > 0 && `(${comments.length})`}
+                                </button>
+                                {!showComments && (
+                                    <>
+                                        <span className="social-item-dot">•</span>
+                                        <button className="social-item-action-link" onClick={() => { setIsReplying(true); setShowComments(true); }}>
+                                            {t('social.reply')}
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+
+                            {showComments && (() => {
+                                const currentUserAvatar = user?.avatar_url || user?.avatar;
+                                const isCurrentUserAvatarImage = currentUserAvatar && (currentUserAvatar.startsWith('http') || currentUserAvatar.startsWith('/') || currentUserAvatar.startsWith('data:image'));
+
+                                return (
+                                    <div className="comments-section">
+                                        {comments.map((comment, index) => (
+                                            <CommentItem
+                                                key={comment.id}
+                                                comment={comment}
+                                                isLast={index === comments.length - 1 && !isReplying}
+                                                currentUserId={user?.id || user?.user_id}
+                                                onDelete={() => setCommentToDelete(comment.id)}
+                                            />
+                                        ))}
+
+                                        {isReplying ? (
+                                            <NewCommItem
+                                                isLast={true}
+                                                onCancel={() => setIsReplying(false)}
+                                                onSubmit={handleCommentSubmit}
+                                                isSubmitting={isSubmitting}
+                                                userAvatar={currentUserAvatar}
+                                            />
+                                        ) : (
+                                            <div className="comment-trigger-container" onClick={() => setIsReplying(true)}>
+                                                <div className="comment-tree-line last"></div>
+
+                                                {isCurrentUserAvatarImage ? (
+                                                    <img src={currentUserAvatar} alt="Mon avatar" className="comment-avatar" />
+                                                ) : currentUserAvatar ? (
+                                                    <span className="comment-avatar text-avatar">{currentUserAvatar}</span>
+                                                ) : (
+                                                    <span className="comment-avatar text-avatar">👤</span>
+                                                )}
+
+                                                <div className="comment-trigger-input">
+                                                    {t('social.addComment')}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })()}
+                        </>
+                    )}
+                </div>
             </div>
-        </div>
+
+            {commentToDelete && (
+                <div className="social-modal-overlay" onClick={() => setCommentToDelete(null)}>
+                    <div className="social-modal-card" onClick={(e) => e.stopPropagation()}>
+                        <h3 className="social-modal-title">Supprimer le commentaire ?</h3>
+                        <div className="social-modal-actions">
+                            <button className="social-modal-btn cancel" onClick={() => setCommentToDelete(null)}>
+                                Annuler
+                            </button>
+                            <button className="social-modal-btn danger" onClick={confirmDeleteComment}>
+                                Supprimer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
     );
 }
