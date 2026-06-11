@@ -12,7 +12,7 @@ from app.models import ReviewComment
 
 # from app.models.user_activity_feed import UserActivityFeed, ActivityType
 from app.schemas.review import ReviewCreate, ReviewUpdate, ReviewResponse
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, get_optional_user
 
 from app.services.feed import feed_service
 from app.models.user_activity_feed import ActivityTypes
@@ -207,9 +207,9 @@ async def delete_review(
 async def get_album_reviews(
     album_id: UUID,
     page: int = 1,
-    limit: int = 10,  # Nombre de reviews/pages
+    limit: int = 10,
     db: AsyncSession = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_optional_user)
 ):
     stmt_album = (
         select(Review, User.username, User.avatar_url)
@@ -231,18 +231,20 @@ async def get_album_reviews(
         username = row[1]
         avatar_url = row[2]
 
-        # COUNT LIKES
         likes_count = await db.scalar(
             select(func.count()).where(ReviewLike.review_id == review_obj.id)
         )
 
-        # USER LIKE
-        stmt_user_like = select(ReviewLike).where(
-            ReviewLike.review_id == review_obj.id,
-            ReviewLike.user_id == current_user["user_id"]
-        )
-        result_user_like = await db.execute(stmt_user_like)
-        user_liked = result_user_like.scalars().first() is not None
+        if current_user:
+
+            stmt_user_like = select(ReviewLike).where(
+                ReviewLike.review_id == review_obj.id,
+                ReviewLike.user_id == current_user["user_id"]
+            )
+            result_user_like = await db.execute(stmt_user_like)
+            user_liked = result_user_like.scalars().first() is not None
+        else:
+            user_liked = False
 
         # REPLIES
         stmt_replies = (

@@ -26,7 +26,6 @@ export default function PlaylistDetailPage() {
             try {
                 const data = await getPlaylist(id);
                 if(!data.tracks) data.tracks = [] ; 
-                console.log ("Tracks:", data.tracks.map(t => ({name: t.name, duration: t.duration, type: typeof t.duration })));
                 setPlaylist(data);
             } catch (error) {
                 setMessage("Impossible de charger la playlist");

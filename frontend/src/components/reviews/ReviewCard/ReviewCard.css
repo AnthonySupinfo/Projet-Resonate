@@ -391,6 +391,13 @@
     color:#ff4b4b;
 }
 
+.comment-login-hint {
+    text-align: center;
+    font-style: italic;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    padding: 8px 0;
+}
 .interaction-icon {
     width: 18px;
     height: 18px;

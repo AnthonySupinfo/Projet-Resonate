@@ -5,12 +5,14 @@ import "./AlbumPage.css";
 import AlbumActions from "../../components/AlbumActions/AlbumActions.jsx";
 import { addTrackToPlaylist, getMyPlaylist, getPlaylistById } from "../../api/api";
 import ReviewList from "../../components/reviews/ReviewList/ReviewList.jsx";
+import { useAuth } from "../../context/AuthContext.jsx";
 
 
 export default function AlbumPage() {
   
   const { artist, album } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [data, setData] = useState(null);
 
@@ -21,7 +23,6 @@ export default function AlbumPage() {
     const refreshAlbum = async (idToFetch) => {
       try {
         const timestamp = new Date().getTime();
-
         const res = await fetch(`/api/v1/albums/${idToFetch}?t=${timestamp}`, {
           headers: {
             'Cache-Control': 'no-cache',
@@ -58,6 +59,8 @@ export default function AlbumPage() {
 
 
   useEffect(() => {
+    if (!user) return;
+
     const fetchPlaylists = async () => {
       try {
         const data = await getMyPlaylist();
@@ -68,9 +71,11 @@ export default function AlbumPage() {
     };
 
     fetchPlaylists();
-  }, []);
+  }, [user]);
 
   const handleAddToPlaylist = async (track, playlistId) => {
+    if (!user) return; 
+
     const targetPlaylist = playlists.find(p => p.id === playlistId);
 
     const isAlreadyAdded = targetPlaylist?.tracks?.some(t => t.name === track.name);
@@ -104,9 +109,7 @@ export default function AlbumPage() {
     const handleClickOutside = () => {
       setOpenDropdownTrack(null);
     };
-
     document.addEventListener("click", handleClickOutside);
-
     return () => {
       document.removeEventListener("click", handleClickOutside);
     };
@@ -120,7 +123,6 @@ export default function AlbumPage() {
       <div className="album-overlay" />
       <div className="album-card">
 
-        {/* BOUTON RETOUR */}
         <button
           className="back-button"
           onClick={() => navigate(-1)}
@@ -128,7 +130,6 @@ export default function AlbumPage() {
           ← Retour
         </button>
 
-        {/* HEADER */}
         <div className="album-header">    
             <img
               src={
@@ -158,9 +159,8 @@ export default function AlbumPage() {
           </div>
         </div>
 
-        <AlbumActions albumId={data.id} />
+        {user && <AlbumActions albumId={data.id} />}
 
-        {/* TRACKS */}
         <div className="tracks-section">
           <h2>Tracks</h2>
 
@@ -185,14 +185,14 @@ export default function AlbumPage() {
                   </span>
 
                   <div className="track-actions">
+                  {user ? (
                     <div className="track-dropdown-wrapper">
                       <button
                         className="track-add"
                         onClick={(e) => {
                           e.stopPropagation();
                           setOpenDropdownTrack(
-                            openDropdownTrack === track.name ? null : track.name
-                          );
+                            openDropdownTrack === track.name ? null : track.name);
                         }}
                       >
                         +
@@ -229,6 +229,9 @@ export default function AlbumPage() {
                           </div>
                       )}
                     </div>
+                  ) : (
+                    <div className="track-dropdown-wrapper" />
+                  )}
                   </div>
                 </div>
               ))}
@@ -238,8 +241,15 @@ export default function AlbumPage() {
           )}
         </div>
         
-        {/* SECTION REVIEWS */}
-        <ReviewList albumId={data.id} onReviewUpdated={() => refreshAlbum(data.id)}/>
+        {data.id && (
+          <>
+            <ReviewList albumId={data.id} onReviewUpdated={() => refreshAlbum(data.id)}/>
+
+            {!user && ( 
+              <p className="review-login-hint">Connecte-toi pour créer ta playlist ou interagir avec l'album.</p>
+            )}
+          </>
+        )}
 
       </div>
     </div>
