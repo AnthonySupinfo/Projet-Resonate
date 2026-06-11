@@ -3,6 +3,8 @@ import {home} from "./home.js";
 import {social} from "./social.js";
 import {userProfile} from "./userProfile.js";
 import {library} from "./library.js";
+import {album} from "./album.js";
+import {playlist} from "./playlist.js";
 
 export const translations = {
 
@@ -13,6 +15,8 @@ export const translations = {
     social: social.fr,
     userProfile: userProfile.fr,
     library: library.fr,
+    album: album.fr,
+    playlist: playlist.fr,
     login: {
       title: "Bienvenue sur Resonate",
       subtitle: "Connectez-vous",
@@ -158,6 +162,8 @@ export const translations = {
     social: social.en,
     userProfile: userProfile.en,
     library: library.en,
+    album: album.en,
+    playlist: playlist.en,
     login: {
       title: "Welcome to Resonate",
       subtitle: "Sign in",

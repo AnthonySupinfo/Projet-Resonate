@@ -3,13 +3,14 @@ import StarRating from '../StarRating/StarRating';
 import { reviewsService } from '../../../api/reviews.service';
 import './ReviewCard.css';
 import { useAuth } from '../../../context/AuthContext';
+import { useLanguage } from '../../../context/LanguageContext';
 import iconLiked from '../../../../public/icons/likeLiked.png';
 import iconNotLiked from '../../../../public/icons/likeNotLiked.png';
 import iconSignal from "../../../../public/icons/signal.png";
 
 export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated }) {
-
     const { user } = useAuth();
+    const { t } = useLanguage();
     const currentUserId = user?.user_id || user?.id;
     const isAdmin = user?.role === "admin";
 
@@ -93,7 +94,7 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
             if (onReviewDeleted) onReviewDeleted(currentReview.id);
         } catch (error) {
             console.error("Erreur de suppression", error);
-            setMessage("Impossible de supprimer la critique");
+            setMessage(t('album.errorDeleteReview'));
             setIsDeleting(false);
         }
     };
@@ -106,9 +107,9 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
         if(!reportReason.trim()) return;
         try {
             await reviewsService.reportReview(currentReview.id, reportReason.trim());
-            setMessage("Merci, la critique a été signalée à l'équipe de modération.");
+            setMessage(t('album.successReport'));
         } catch (error) {
-            setMessage("Erreur lors du signalement, vous avez déjà signalé cette critique ou vous n'êtes pas connecté.");
+            setMessage(t('album.errorReport'));
         } finally {
             setConfirmReportReviewId(null);
             setReportReason('');
@@ -142,7 +143,7 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
             setIsEditing(false);
 
         } catch (error) {
-            setMessage("Erreur lors de la modification.");
+            setMessage(t('album.errorEdit'));
         } finally {
             setIsUpdating(false);
         }
@@ -164,7 +165,7 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
             setNewComment('');
 
         } catch (error) {
-            setMessage("Impossible de poster le commentaire");
+            setMessage(t('album.errorPostComment'));
         } finally {
             setIsCommenting(false);
         }
@@ -179,13 +180,12 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
             await reviewsService.deleteCommentReview(confirmDeleteCommentId);
             setComments(comments.filter(c => c.id !== confirmDeleteCommentId));
         } catch (error) {
-            setMessage("Erreur lors de la suppression du commentaire.");
+            setMessage(t('album.errorDeleteComment'));
         } finally {
             setConfirmDeleteCommentId(null);
         }
     };
 
-    // Coup de cœur admin — met en avant ou retire la mise en avant
     const handleFeatureClick = async () => {
         if (isFeatureLoading) return;
         setIsFeatureLoading(true);
@@ -194,7 +194,7 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
             await reviewsService.toggleFeature(currentReview.id, action);
             setIsFeatured(!isFeatured);
         } catch {
-            setMessage("Erreur lors de la mise en avant.");
+            setMessage(t('album.errorFeature'));
         } finally {
             setIsFeatureLoading(false);
         }
@@ -211,9 +211,8 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
 
             <div className={`review-card ${isDeleting ? 'deleting' : ''} ${isFeatured ? 'review-card--featured' : ''}`}>
 
-                {/* Badge coup de cœur — visible pour tous si la critique est mise en avant */}
                 {isFeatured && (
-                    <div className="review-featured-badge">❤️ Coup de cœur</div>
+                    <div className="review-featured-badge">{t('album.reviewFeaturedBadge')}</div>
                 )}
 
                 <div className="review-card-header">
@@ -234,8 +233,8 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
                         }) () }
 
                         <div className="review-meta">
-                            <span className="review-username">{currentReview.username || "Utilisateur"}</span>
-                            <span className="review-date">{formattedDate} {currentReview.has_been_modified && "(Modifié)"}</span>
+                            <span className="review-username">{currentReview.username || t('album.reviewUserFallback')}</span>
+                            <span className="review-date">{formattedDate} {currentReview.has_been_modified && t('album.reviewModified')}</span>
                         </div>
                     </div>
 
@@ -249,8 +248,8 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
                         </div>
                         <textarea className="review-textarea" value={editContent} onChange={(e) => setEditContent(e.target.value)} disabled={isUpdating} rows="3"/>
                         <div className="edit-actions">
-                            <button type="button" className="btn-cancel" onClick={() => setIsEditing(false)} disabled={isUpdating}>Annuler</button>
-                            <button type="submit" className="btn-submit-review" disabled={isUpdating}>Enregistrer</button>
+                            <button type="button" className="btn-cancel" onClick={() => setIsEditing(false)} disabled={isUpdating}>{t('album.reviewCancel')}</button>
+                            <button type="submit" className="btn-submit-review" disabled={isUpdating}>{t('album.reviewSave')}</button>
                         </div>
                     </form>
 
@@ -276,18 +275,17 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
                             </button>
 
                             <button className={`interaction-btn comment-btn ${showComments ? 'active' : ''}`} onClick={() => setShowComments(!showComments)}>
-                                {showComments ? 'Masquer' : (user ? 'Commenter' : 'Commentaires')} {comments.length > 0 && `(${comments.length})`}
+                                {showComments ? t('album.reviewHide') : (user ? t('album.reviewCommentAction') : t('album.reviewCommentsLabel'))} {comments.length > 0 && `(${comments.length})`}
                             </button>
                         </div>
 
                         <div className="review-actions">
-                            {/* Bouton coup de cœur — visible uniquement pour l'admin */}
                             {isAdmin && (
                                 <button
                                     className={`action-btn feature-btn ${isFeatured ? 'feature-btn--active' : ''}`}
                                     onClick={handleFeatureClick}
                                     disabled={isFeatureLoading}
-                                    title={isFeatured ? "Retirer le coup de cœur" : "Mettre en avant"}
+                                    title={isFeatured ? t('album.reviewUnfeatureTitle') : t('album.reviewFeatureTitle')}
                                 >
                                     {isFeatureLoading ? "..." : isFeatured ? "💔" : "❤️"}
                                 </button>
@@ -296,17 +294,17 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
                             {String(currentUserId) === String(currentReview.user_id) ? (
                                 <>
                                     <button className="action-btn edit-btn" onClick={() => setIsEditing(true)}>
-                                        Modifier
+                                        {t('album.reviewEdit')}
                                     </button>
                                     <button
                                         className="action-btn delete-btn" onClick={handleDeleteClick}>
-                                        Supprimer
+                                        {t('album.reviewDelete')}
                                     </button>
                                 </>
                             ) : (
-                                <button className="action-btn report-btn" onClick={handleReportClick} title="Signaler">
-                                    <img src={iconSignal} alt="Signaler" className="interaction-icon" />
-                                    Signaler
+                                <button className="action-btn report-btn" onClick={handleReportClick} title={t('album.reviewReport')}>
+                                    <img src={iconSignal} alt={t('album.reviewReport')} className="interaction-icon" />
+                                    {t('album.reviewReport')}
                                 </button>
                             )}
                         </div>
@@ -317,16 +315,16 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
                     <div className="comments-section">
                         <div className="comments-list">
                             {comments.length === 0 ? (
-                                <p className="no-comments">Soyez le premier à commenter!</p>
+                                <p className="no-comments">{t('album.reviewNoComments')}</p>
                             ) : (
                                 comments.map(c => (
                                     <div key={c.id} className="comment-item">
                                         <div className="comment-content">
-                                            <span className="comment-author">{c.username || "Utilisateur"}</span>
+                                            <span className="comment-author">{c.username || t('album.reviewUserFallback')}</span>
                                             <span className="comment-text">{c.content}</span>
                                         </div>
                                         {String(currentUserId) === String(c.user_id) && (
-                                            <button className="delete-comment-btn" onClick={() => handleDeleteComment(c.id)} title="Supprimer">x</button>
+                                            <button className="delete-comment-btn" onClick={() => handleDeleteComment(c.id)} title={t('album.reviewDelete')}>x</button>
                                         )}
                                     </div>
                                 ))
@@ -335,25 +333,25 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
 
                         {user ? (
                             <form className="comment-form" onSubmit={handleCommentSubmit}>
-                                <input type="text" className="comment-input" placeholder="Ajouter un commentaire..." value={newComment} onChange={(e) => setNewComment(e.target.value)} disabled={isCommenting}/>
-                                <button type="submit" className="comment-submit-btn" disabled={!newComment.trim() || isCommenting}>Envoyer</button>
-                        </form>
+                                <input type="text" className="comment-input" placeholder={t('album.reviewAddCommentPlaceholder')} value={newComment} onChange={(e) => setNewComment(e.target.value)} disabled={isCommenting}/>
+                                <button type="submit" className="comment-submit-btn" disabled={!newComment.trim() || isCommenting}>{t('album.reviewSubmitComment')}</button>
+                            </form>
                         ) : (
-                            <p className="comment-login-hint">Connecte-toi pour commenter.</p>
+                            <p className="comment-login-hint">{t('album.reviewLoginHint')}</p>
                         )}
-                        
+
                     </div>
                 )}
                 {confirmDeleteCommentId && (
                     <div className="confirm-modal-overlay" onClick={() => setConfirmDeleteCommentId(null)}>
                         <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
-                            <p className="confirm-modal-text">Supprimer ce commentaire</p>
+                            <p className="confirm-modal-text">{t('album.reviewDeleteCommentTitle')}</p>
                             <div className="confirm-modal-actions">
                                 <button className="confirm-modal-cancel" onClick={() => setConfirmDeleteCommentId(null)}>
-                                    Annuler
+                                    {t('album.reviewCancel')}
                                 </button>
                                 <button className="confirm-modal-confirm" onClick={confirmDeleteCommentAction}>
-                                    Supprimer
+                                    {t('album.reviewDelete')}
                                 </button>
                             </div>
                         </div>
@@ -363,13 +361,13 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
                 {confirmDeleteReview && (
                     <div className="confirm-modal-overlay" onClick={() => setConfirmDeleteReview(false)}>
                         <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
-                            <p className="confirm-modal-text">Supprimer cette critique ?</p>
+                            <p className="confirm-modal-text">{t('album.reviewDeleteReviewTitle')}</p>
                             <div className="confirm-modal-actions">
                                 <button className="confirm-modal-cancel" onClick={() => setConfirmDeleteReview(false)}>
-                                    Annuler
+                                    {t('album.reviewCancel')}
                                 </button>
                                 <button className="confirm-modal-confirm" onClick={confirmDeleteReviewAction}>
-                                    Supprimer
+                                    {t('album.reviewDelete')}
                                 </button>
                             </div>
                         </div>
@@ -379,14 +377,14 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
                 {confirmReportReviewId && (
                     <div className="confirm-modal-overlay" onClick={() => { setConfirmReportReviewId(null); setReportReason(''); }}>
                         <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
-                            <p className="confirm-modal-text">Signaler cette critique</p>
-                            <input className="comment-input" placeholder="Raison du signalement (spam, insultes...)" value={reportReason} onChange={(e) => setReportReason(e.target.value)}/>
+                            <p className="confirm-modal-text">{t('album.reviewReportTitle')}</p>
+                            <input className="comment-input" placeholder={t('album.reviewReportPlaceholder')} value={reportReason} onChange={(e) => setReportReason(e.target.value)}/>
                             <div className="confirm-modal-actions">
                                 <button className="confirm-modal-cancel" onClick={() => {setConfirmReportReviewId(null); setReportReason(''); }}>
-                                    Annuler
+                                    {t('album.reviewCancel')}
                                 </button>
                                 <button className="confirm-modal-confirm" onClick={confirmReportAction} disabled={!reportReason.trim()}>
-                                    Signaler
+                                    {t('album.reviewReport')}
                                 </button>
                             </div>
                         </div>

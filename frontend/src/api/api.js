@@ -233,7 +233,6 @@ export const toggleFavorite = async (trackData) => {
     return data;
 };
 
-// pour que le coeur des tracks favoris reste rose même après rafraîchissement de la page, on a besoin de récupérer la playlist favorite et son contenu
 export const getPlaylistById = async (id) => {
   const res = await fetch(`${BASE_URL}/playlists/${id}`, {
     headers: authHeaders()

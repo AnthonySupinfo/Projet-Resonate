@@ -1,20 +1,20 @@
 import { useState, useEffect } from 'react';
 import { getAlbumReviews } from '../../../api/api';
 import { useAuth } from '../../../context/AuthContext';
+import { useLanguage } from '../../../context/LanguageContext';
 import ReviewForm from '../ReviewForm/ReviewForm';
 import ReviewCard from '../ReviewCard/ReviewCard';
 import './ReviewList.css';
 
 export default function ReviewList({ albumId, onReviewUpdated }) {
     const { user } = useAuth();
+    const { t } = useLanguage();
     const [reviews, setReviews] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
 
     const uid = user?.user_id || user?.id;
 
-    
-    
     useEffect(() => {
         if (!albumId) return;
 
@@ -28,14 +28,14 @@ export default function ReviewList({ albumId, onReviewUpdated }) {
 
             } catch (error) {
                 console.error("Erreur du chargement des critiques", error);
-                setError("Impossible de charger les critiques");
+                setError(t('album.errorLoadReviews'));
             } finally {
                 setIsLoading(false);
             }
         };
 
         fetchReviews();
-    }, [albumId]); 
+    }, [albumId]);
 
     const myReview = uid
         ? reviews.find(r => String(r.user_id) === String(uid))
@@ -66,7 +66,7 @@ export default function ReviewList({ albumId, onReviewUpdated }) {
 
     return (
         <div className="reviews-list-wrapper">
-            <h2 className="section-title">Critiques de la communauté</h2>
+            <h2 className="section-title">{t('album.communityReviewsTitle')}</h2>
 
             {uid && (
                 <ReviewForm
@@ -79,13 +79,13 @@ export default function ReviewList({ albumId, onReviewUpdated }) {
             <div className="reviews-feed">
                 {isLoading ? (
                     <p className="review-loading">
-                        Chargement des critiques...
+                        {t('album.loadingReviews')}
                     </p>
                 ) : error ? (
                     <p className="review-loading-error">{error}</p>
                 ) : reviews.length === 0 ? (
                     <p className="no-review">
-                        Aucune critique pour cet album. Soyez le premier !
+                        {t('album.noReviewsYet')}
                     </p>
                 ) : (
                     reviews.map((review) => (

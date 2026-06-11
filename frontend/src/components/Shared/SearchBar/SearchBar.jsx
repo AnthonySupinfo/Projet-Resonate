@@ -2,8 +2,10 @@
 import "./SearchBar.css";
 import { useNavigate } from "react-router-dom";
 import { searchService } from "../../../api/search.service";
+import { useLanguage } from "../../../context/LanguageContext.jsx"
 
 export default function SearchBar() {
+  const { t } = useLanguage();
   const [query, setQuery] = useState("");
   const [albumResults, setAlbumResults] = useState([]);
   const [userResults, setUserResults] = useState([]);
@@ -60,7 +62,7 @@ export default function SearchBar() {
       <div className="searchbar-container">
         <input
             type="text"
-            placeholder="Que voulez-vous écouter..?"
+            placeholder={t('home.searchPlaceholder')}
             className="navbar-search-input"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -76,18 +78,9 @@ export default function SearchBar() {
             <div className="search-dropdown" ref={dropdownRef}>
               {userResults.length > 0 && (
                   <div className="search-section">
-                    <p className="search-section-title">
-                      Utilisateurs
-                    </p>
+                    <p className="search-section-title">{t('home.searchUsers')}</p>
                     {userResults.map((user) => (
-                        <div
-                            key={user.id}
-                            className="search-item"
-                            onClick={() => {
-                              navigate(`/user/${user.id}`);
-                              closeDropdown();
-                            }}
-                        >
+                        <div key={user.id} className="search-item" onClick={() => { navigate(`/user/${user.id}`); closeDropdown(); }}>
                           <p><strong>@{user.username}</strong></p>
                         </div>
                     ))}
@@ -96,18 +89,9 @@ export default function SearchBar() {
 
               {albumResults.length > 0 && (
                   <div className="search-section">
-                    <p className="search-section-title">
-                      Albums
-                    </p>
+                    <p className="search-section-title">{t('home.searchAlbums')}</p>
                     {albumResults.map((album, index) => (
-                        <div
-                            key={`album-${index}`}
-                            className="search-item"
-                            onClick={() => {
-                              navigate(`/albums/${encodeURIComponent(album.artist)}/${encodeURIComponent(album.name)}`);
-                              closeDropdown();
-                            }}
-                        >
+                        <div key={`album-${index}`} className="search-item" onClick={() => { navigate(`/albums/${encodeURIComponent(album.artist)}/${encodeURIComponent(album.name)}`); closeDropdown(); }}>
                           <p><strong>{album.name}</strong></p>
                           <p className="search-item-artist">{album.artist}</p>
                         </div>
