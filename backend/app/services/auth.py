@@ -9,6 +9,7 @@ from app.core.config import settings
 from app.models.user import User
 from app.models.refresh_token import RefreshToken
 from app.schemas.auth import RegisterRequest
+from app.models.playlist import Playlist, PlaylistType
 
 # hash_password
 
@@ -152,9 +153,6 @@ async def register_user(data: RegisterRequest, db: AsyncSession) -> User:
     await db.commit()
     await db.refresh(user)
 
-    # CREATE FAVORITES PLAYLIST
-    from app.models.playlist import Playlist, PlaylistType
-
     favorite_playlist = Playlist(
         user_id=user.id,
         name="Musiques favorites",
@@ -165,8 +163,6 @@ async def register_user(data: RegisterRequest, db: AsyncSession) -> User:
 
     db.add(favorite_playlist)
     await db.commit()
-
-    print("FAVORITES PLAYLIST CREATED:", user.id)
 
     return user
 
