@@ -54,6 +54,9 @@ class FeedItemResponse(BaseModel):
     review_comment_content: Optional[str] = None
     review_like_rating: Optional[int] = None
 
+    likes_count: int = 0
+    user_liked: bool = False
+
     comments: List[FeedCommentResponse] = []
 
     class Config:

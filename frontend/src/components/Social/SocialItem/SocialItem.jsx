@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import './SocialItem.css';
 import likeNotLiked from '../../../../public/icons/likeNotLiked.png';
+import likeLiked from '../../../../public/icons/likeLiked.png';
 import CommentItem from "./CommentItem/CommentItem.jsx";
 import NewCommItem from "./NewCommItem/NewCommItem.jsx";
 import UserFollowBox from "./SocialItemVariations/UserFollowBox/UserFollowBox.jsx";
@@ -21,7 +22,7 @@ const CONTENT_COMPONENTS = {
     REVIEW_ALBUM: AlbumReviewBox
 };
 
-export default function SocialItem({ activity, hideComments = false }) {
+export default function SocialItem({ activity, hideComments = false, currentUserProfile }) {
     const { t } = useLanguage();
     const { user } = useAuth();
 
@@ -30,6 +31,9 @@ export default function SocialItem({ activity, hideComments = false }) {
     const [comments, setComments] = useState(activity?.comments || []);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [commentToDelete, setCommentToDelete] = useState(null);
+
+    const [isLiked, setIsLiked] = useState(activity?.userLiked || false);
+    const [likesCount, setLikesCount] = useState(activity?.likesCount || 0);
 
     if (!activity) return null;
 
@@ -65,6 +69,24 @@ export default function SocialItem({ activity, hideComments = false }) {
             console.error("Impossible de supprimer le commentaire", error);
         } finally {
             setCommentToDelete(null);
+        }
+    };
+
+    const handleToggleLike = async () => {
+        try {
+            if (isLiked) {
+                setIsLiked(false);
+                setLikesCount(prev => Math.max(0, prev - 1));
+                await feedService.unlikeFeedItem(activity.id);
+            } else {
+                setIsLiked(true);
+                setLikesCount(prev => prev + 1);
+                await feedService.likeFeedItem(activity.id);
+            }
+        } catch (error) {
+            console.error("Erreur lors du changement de like", error);
+            setIsLiked(!isLiked);
+            setLikesCount(prev => isLiked ? prev + 1 : Math.max(0, prev - 1));
         }
     };
 
@@ -118,8 +140,9 @@ export default function SocialItem({ activity, hideComments = false }) {
                             {renderActionText()}
                             <span className="social-item-time">{activity.timeAgo || new Date(activity.created_at).toLocaleDateString()}</span>
                         </p>
-                        <button className="social-item-like-btn">
-                            <img src={likeNotLiked} alt="J'aime" className="action-icon" />
+                        <button className="social-item-like-btn" onClick={handleToggleLike} title={isLiked ? "Je n'aime plus" : "J'aime"}>
+                            <img src={isLiked ? likeLiked : likeNotLiked} alt={isLiked ? "Cœur rempli" : "Cœur vide"} className="action-icon" />
+                            {likesCount > 0 && <span className="social-item-like-count">{likesCount}</span>}
                         </button>
                     </div>
 
@@ -142,7 +165,8 @@ export default function SocialItem({ activity, hideComments = false }) {
                             </div>
 
                             {showComments && (() => {
-                                const currentUserAvatar = user?.avatar_url || user?.avatar;
+                                const activeUser = currentUserProfile || user;
+                                const currentUserAvatar = activeUser?.avatar_url || activeUser?.avatarUrl || activeUser?.avatar;
                                 const isCurrentUserAvatarImage = currentUserAvatar && (currentUserAvatar.startsWith('http') || currentUserAvatar.startsWith('/') || currentUserAvatar.startsWith('data:image'));
 
                                 return (
@@ -152,7 +176,7 @@ export default function SocialItem({ activity, hideComments = false }) {
                                                 key={comment.id}
                                                 comment={comment}
                                                 isLast={index === comments.length - 1 && !isReplying}
-                                                currentUserId={user?.id || user?.user_id}
+                                                currentUserId={activeUser?.id || activeUser?.user_id}
                                                 onDelete={() => setCommentToDelete(comment.id)}
                                             />
                                         ))}

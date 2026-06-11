@@ -1,6 +1,6 @@
 ﻿from sqlalchemy import select, desc, func
 from app.models import Album, Review, Track, UserAlbumStatus
-from app.models.feed_review import FeedComment
+from app.models.feed_review import FeedComment, FeedLike
 from app.models.follow import Follow
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.user_activity_feed import UserActivityFeed, ActivityTypes
@@ -168,6 +168,7 @@ class FeedService:
                                 item["album_title"] = album.title or album.name
                                 item["cover_url"] = album.image
 
+            # Comm
             stmt_comments = (
                 select(FeedComment)
                 .where(FeedComment.feed_id == activity.id)
@@ -188,6 +189,17 @@ class FeedService:
                     "username": user_c.username if user_c else "Utilisateur supprimé",
                     "avatar_url": user_c.avatar_url if user_c else None
                 })
+
+            # Likes
+            stmt_likes_count = select(func.count()).where(FeedLike.feed_id == activity.id)
+            item["likes_count"] = await db.scalar(stmt_likes_count) or 0
+
+            stmt_user_liked = select(FeedLike).where(
+                FeedLike.feed_id == activity.id,
+                FeedLike.user_id == current_user_id
+            )
+            result_user_liked = await db.execute(stmt_user_liked)
+            item["user_liked"] = result_user_liked.scalar_one_or_none() is not None
 
             item["comments"] = formatted_comments
 

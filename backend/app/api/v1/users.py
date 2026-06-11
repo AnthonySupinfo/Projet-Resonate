@@ -3,7 +3,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from app.models import UserActivityFeed
-from app.models.feed_review import FeedComment
+from app.models.feed_review import FeedComment, FeedLike
 from app.services.auth import verify_password, revoke_all_refresh_tokens
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
@@ -393,6 +393,51 @@ async def delete_feed_comment(
         raise HTTPException(status_code=403, detail="Vous n'êtes pas l'auteur de ce commentaire.")
 
     await db.delete(comment)
+    await db.commit()
+
+
+@router.post("/feed/{feed_id}/like", status_code=status.HTTP_201_CREATED)
+async def like_feed_item(
+        feed_id: int,
+        db: AsyncSession = Depends(get_db),
+        current_user: dict = Depends(get_current_user)
+):
+    feed_item = await db.get(UserActivityFeed, feed_id)
+    if not feed_item:
+        raise HTTPException(status_code=404, detail="Activité introuvable")
+
+    stmt = select(FeedLike).where(
+        FeedLike.feed_id == feed_id,
+        FeedLike.user_id == current_user["user_id"]
+    )
+    existing_like = (await db.execute(stmt)).scalar_one_or_none()
+
+    if existing_like:
+        return {"message": "Déjà liké"}
+
+    new_like = FeedLike(feed_id=feed_id, user_id=current_user["user_id"])
+    db.add(new_like)
+    await db.commit()
+
+    return {"message": "Activité likée"}
+
+
+@router.delete("/feed/{feed_id}/like", status_code=status.HTTP_204_NO_CONTENT)
+async def unlike_feed_item(
+        feed_id: int,
+        db: AsyncSession = Depends(get_db),
+        current_user: dict = Depends(get_current_user)
+):
+    stmt = select(FeedLike).where(
+        FeedLike.feed_id == feed_id,
+        FeedLike.user_id == current_user["user_id"]
+    )
+    like = (await db.execute(stmt)).scalar_one_or_none()
+
+    if not like:
+        raise HTTPException(status_code=404, detail="Like introuvable")
+
+    await db.delete(like)
     await db.commit()
 
 

@@ -32,8 +32,8 @@ export default function CommentItem({ comment, isLast, currentUserId, onDelete }
 
             <div className="comment-actions">
                 {isAuthor && (
-                    <button className="comment-action-btn" onClick={() => onDelete(comment.id)} title={t('social.delete')}>
-                        ✕
+                    <button className="comment-action-btn delete-text-btn" onClick={() => onDelete(comment.id)}>
+                        {t('social.delete')}
                     </button>
                 )}
             </div>

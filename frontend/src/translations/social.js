@@ -57,7 +57,8 @@ export const social = {
         statusLISTENING: "écoute",
         statusPLANNED: "veut écouter",
         statusDROPPED: "a abandonné",
-        reviewedAlbum: "a mis une critique sur"
+        reviewedAlbum: "a mis une critique sur",
+        delete: "Supprimer"
     },
     en: {
         loading: "Loading...",
@@ -117,6 +118,7 @@ export const social = {
         statusLISTENING: "is listening to",
         statusPLANNED: "wants to listen to",
         statusDROPPED: "dropped",
-        reviewedAlbum: "reviewed"
+        reviewedAlbum: "reviewed",
+        delete: "Delete"
     }
 };
