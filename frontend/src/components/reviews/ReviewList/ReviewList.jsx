@@ -8,7 +8,7 @@ import './ReviewList.css';
 export default function ReviewList({ albumId, onReviewUpdated }) {
     const { user } = useAuth();
     const [reviews, setReviews] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
 
     const uid = user?.user_id || user?.id;
@@ -24,9 +24,6 @@ export default function ReviewList({ albumId, onReviewUpdated }) {
 
             try {
                 const data = await getAlbumReviews(albumId, 1);
-
-                console.log("FETCH REVIEWS:", data);
-
                 setReviews(data);
 
             } catch (error) {
@@ -38,17 +35,12 @@ export default function ReviewList({ albumId, onReviewUpdated }) {
         };
 
         fetchReviews();
-    }, [albumId]); // important : user.id
+    }, [albumId]); 
 
-
-    // trouver la review de l'user connecté
     const myReview = uid
         ? reviews.find(r => String(r.user_id) === String(uid))
         : null;
 
-
-
-    // ajouter une review
     const handleReviewAdded = (newReview) => {
         setReviews(prev =>
             prev.some(r => r.id === newReview.id)
@@ -58,7 +50,6 @@ export default function ReviewList({ albumId, onReviewUpdated }) {
         if (onReviewUpdated) setTimeout(onReviewUpdated, 500);
     };
 
-    // supprimer une review
     const handleReviewDeleted = (deletedId) => {
         setReviews(reviews.filter(r => r.id !== deletedId));
         if (onReviewUpdated) setTimeout(onReviewUpdated, 500);
@@ -79,15 +70,7 @@ export default function ReviewList({ albumId, onReviewUpdated }) {
         <div className="reviews-list-wrapper">
             <h2 className="section-title">Critiques de la communauté</h2>
 
-            {user === null ? (
-                <div className="no-review-form">
-                    Connectez-vous pour écrire une critique.
-                </div>
-            ) : !uid ? (
-                <div className="no-review-form">
-                    Chargement utilisateur...
-                </div>
-            ) : (
+            {uid && (
                 <ReviewForm
                     albumId={albumId}
                     onReviewAdded={handleReviewAdded}

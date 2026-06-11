@@ -134,7 +134,7 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
             await reportReview(currentReview.id, reportReason.trim());
             setMessage("Merci, la critique a été signalée à l'équipe de modération.");
         } catch (error) {
-            setMessage("Erreur lors du signalement, vous avez déjà signalé cette critique.");
+            setMessage("Erreur lors du signalement, vous avez déjà signalé cette critique ou vous n'êtes pas connecté.");
         } finally {
             setConfirmReportReviewId(null);
             setReportReason('');
@@ -318,7 +318,7 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
                             </button>
 
                             <button className={`interaction-btn comment-btn ${showComments ? 'active' : ''}`} onClick={() => setShowComments(!showComments)}>
-                                {showComments ? 'Masquer' : 'Commenter'} {comments.length > 0 && `(${comments.length})`}
+                                {showComments ? 'Masquer' : (user ? 'Commenter' : 'Commentaires')} {comments.length > 0 && `(${comments.length})`}
                             </button>
                         </div>
                 
@@ -374,10 +374,15 @@ export default function ReviewCard({ review, onReviewDeleted, onReviewUpdated })
                             )}
                         </div>
 
-                        <form className="comment-form" onSubmit={handleCommentSubmit}>
-                            <input type="text" className="comment-input" placeholder="Ajouter un commentaire..." value={newComment} onChange={(e) => setNewComment(e.target.value)} disabled={isCommenting}/>
-                            <button type="submit" className="comment-submit-btn" disabled={!newComment.trim() || isCommenting}>Envoyer</button>
+                        {user ? (
+                            <form className="comment-form" onSubmit={handleCommentSubmit}>
+                                <input type="text" className="comment-input" placeholder="Ajouter un commentaire..." value={newComment} onChange={(e) => setNewComment(e.target.value)} disabled={isCommenting}/>
+                                <button type="submit" className="comment-submit-btn" disabled={!newComment.trim() || isCommenting}>Envoyer</button>
                         </form>
+                        ) : (
+                            <p className="comment-login-hint">Connecte-toi pour commenter.</p>
+                        )}
+                        
                     </div>
                 )}
                 {confirmDeleteCommentId && (

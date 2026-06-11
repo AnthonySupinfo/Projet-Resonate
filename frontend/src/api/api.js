@@ -121,8 +121,13 @@ export const getUserPlaylists = async (userId) => {
 // Review
 
 export const getAlbumReviews = async (albumId, page = 1) => {
+    const token = getToken();
+    const headers = token
+        ? { "Content-Type": "application/json", Authorization: `Bearer ${token}` }
+        : { "Content-Type": "application/json"};
+
     const res = await fetch(`${BASE_URL}/albums/${albumId}/reviews?page=${page}&limit=10`, {
-        headers: authHeaders()
+        headers
     })
     if(!res.ok) throw new Error ("Erreur lors du chargement des reviews")
     return res.json()
