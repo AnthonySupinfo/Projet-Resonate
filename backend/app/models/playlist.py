@@ -4,13 +4,10 @@ from app.db.session import Base
 import enum
 
 
-# définition pour les type de la playlist
 class PlaylistType(enum.Enum):
     DEFAULT = "DEFAULT"
     CUSTOM = "CUSTOM"
     ORIGINAL = "ORIGINAL"
-
-# Définition de la table
 
 
 class Playlist(Base):
