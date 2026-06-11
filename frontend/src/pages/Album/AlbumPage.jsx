@@ -135,13 +135,13 @@ export default function AlbumPage() {
               src={
                 data.image
                   ? `/api/v1/image-proxy?url=${encodeURIComponent(data.image)}`
-                  : "/fallback.jpg"
+                  : "/fallback.svg"
               }
               alt={data.name}
               className="album-cover"
               onError={(e) => {
                 e.currentTarget.onerror = null;
-                e.currentTarget.src = "/fallback.jpg";
+                e.currentTarget.src = "/fallback.svg";
               }}
             />
           <div className="album-info">
