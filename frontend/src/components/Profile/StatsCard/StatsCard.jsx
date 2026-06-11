@@ -14,7 +14,7 @@ export default function StatsCard({ userId }) {
         in_progress_albums_count: 0,
         reviews_count: 0,
         comments_count: 0,
-        listening_minutes: 0
+        completed_albums_count: 0
     });
 
     useEffect(() => {
@@ -55,8 +55,8 @@ export default function StatsCard({ userId }) {
                 </div>
 
                 <div className="stat-block">
-                    <span className="stat-value">{stats.listening_minutes || 0}</span>
-                    <span className="stat-name">{t('userProfile.statMinutes')}<br/>{t('userProfile.statListening')}</span>
+                    <span className="stat-value">{stats.completed_albums_count || 0}</span>
+                    <span className="stat-name">{t('userProfile.statAlbums')}<br/>{t('userProfile.statCompleted')}</span>
                 </div>
             </div>
         </div>

@@ -111,8 +111,8 @@ export default function UserCard() {
                     <div className="stat-divider"></div>
 
                     <div className="stat-item">
-                        <span className="stat-number">{stats.listening_minutes || 0}</span>
-                        <span className="stat-label">{t('layout.statMinutes')}<br/>{t('layout.statListening')}</span>
+                        <span className="stat-number">{stats.completed_albums_count || 0}</span>
+                        <span className="stat-label">{t('layout.statAlbums')}<br/>{t('layout.statCompleted')}</span>
                     </div>
                 </div>
             </div>
