@@ -8,9 +8,12 @@ import {
   changeEmail,
   changePassword,
   deleteAccount,
-  exportData
+  exportData,
+  authFetch
 } from "../api/auth"
 import "./Settings.css"
+
+const API_URL = import.meta.env.VITE_API_URL || ""
 
 // 10 avatars emojis (mêmes que Register)
 const AVATARS = [
@@ -87,11 +90,12 @@ export default function Settings() {
   const [deletePassword, setDeletePassword] = useState("")
 
   // États
-  const [loading, setLoading]     = useState(true)
-  const [saving, setSaving]       = useState(false)
-  const [exporting, setExporting] = useState(false)
-  const [success, setSuccess]     = useState("")
-  const [error, setError]         = useState("")
+  const [loading, setLoading]       = useState(true)
+  const [saving, setSaving]         = useState(false)
+  const [exporting, setExporting]   = useState(false)
+  const [exportingCsv, setExportingCsv] = useState(false)
+  const [success, setSuccess]       = useState("")
+  const [error, setError]           = useState("")
 
   // Charge le profil au montage
   useEffect(() => {
@@ -204,7 +208,7 @@ export default function Settings() {
     }
   }
 
-  // Export RGPD
+  // Export RGPD — format JSON
   async function handleExport() {
     setExporting(true)
     try {
@@ -220,6 +224,27 @@ export default function Settings() {
       showError(t("settings.errorExport"))
     } finally {
       setExporting(false)
+    }
+  }
+
+  // Export RGPD — format CSV
+  async function handleExportCsv() {
+    setExportingCsv(true)
+    try {
+      const res = await authFetch(`${API_URL}/api/v1/users/me/export?format=csv`)
+      if (!res.ok) throw new Error()
+      const csvText = await res.text()
+      const blob = new Blob([csvText], { type: "text/csv;charset=utf-8;" })
+      const url  = URL.createObjectURL(blob)
+      const a    = document.createElement("a")
+      a.href     = url
+      a.download = "resonate-mes-donnees.csv"
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch {
+      showError(t("settings.errorExport"))
+    } finally {
+      setExportingCsv(false)
     }
   }
 
@@ -492,9 +517,15 @@ export default function Settings() {
         <div className="settings-data-section">
           <label className="settings-label">{t("settings.myData")}</label>
           <div className="settings-data-actions">
+            {/* Export JSON */}
             <button type="button" className="settings-data-btn" onClick={handleExport} disabled={exporting}>
               <DownloadIcon />
-              {exporting ? t("settings.exporting") : t("settings.export")}
+              {exporting ? t("settings.exporting") : "Exporter (JSON)"}
+            </button>
+            {/* Export CSV */}
+            <button type="button" className="settings-data-btn" onClick={handleExportCsv} disabled={exportingCsv}>
+              <DownloadIcon />
+              {exportingCsv ? t("settings.exporting") : "Exporter (CSV)"}
             </button>
             <button type="button" className="settings-delete-btn" onClick={() => setDeleteModalOpen(true)}>
               <TrashIcon />
