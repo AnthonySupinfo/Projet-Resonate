@@ -66,7 +66,7 @@ export default function FavoritePlaylistCard({ playlistId }) {
                 ): (
                     tracks.map((track, index) => {
                         
-                        const rawUrl = track.cover_url || track.image || track.album?.image || track.album?.image_url;
+                        const rawUrl = track.album_image || track.cover_url || track.image;
 
                         const artistName = track.artist || "Inconnu";
                         const bgColor = generateColorFrameForArtist(artistName);

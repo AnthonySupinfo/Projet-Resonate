@@ -10,5 +10,6 @@ class TrackResponse(BaseModel):
     album_name: str | None = None
     duration: int | None = None
     position: int | None = None
+    album_image: str | None = None
 
     model_config = {"from_attributes": True}

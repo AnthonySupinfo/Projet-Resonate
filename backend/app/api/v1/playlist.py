@@ -164,7 +164,19 @@ async def get_playlist_id(
     result_tracks = await db.execute(stmt_tracks)
     tracks = result_tracks.scalars().all()
 
-    setattr(existing, "tracks", tracks)
+    tracks_with_image = [
+        {
+            "id": t.id,
+            "name": t.name,
+            "artist": t.artist,
+            "album_name": t.album.name if t.album else None,
+            "duration": t.duration,
+            "position": t.position,
+            "album_image": t.album.image if t.album else None
+        }
+        for t in tracks
+    ]
+    setattr(existing, "tracks", tracks_with_image)
 
     return existing
 
@@ -212,7 +224,6 @@ async def add_track_playlist(
         if not track_existing.artist and body.artist:
             track_existing.artist = body.artist
             await db.flush()
-
 
     stmt_track_playlist = select(UserPlaylistItem).filter(
         UserPlaylistItem.playlist_id == playlist_id, UserPlaylistItem.track_id == track_existing.id)
@@ -267,6 +278,7 @@ async def remove_track_playlist(
     await db.delete(item_playlist)
     await db.commit()
 
+
 @router.post("/favorites/toggle", status_code=200)
 async def toggle_favorite_track(
     body: ToggleFavoriteTrack,
@@ -284,7 +296,8 @@ async def toggle_favorite_track(
     if not fav_playlist:
         raise Exception("Favorites playlist should already exist")
 
-    stmt_track = select(Track).filter(Track.name == body.track_name, Track.artist == body.artist)
+    stmt_track = select(Track).filter(
+        Track.name == body.track_name, Track.artist == body.artist)
     result_track = await db.execute(stmt_track)
     track = result_track.scalars().first()
 
@@ -335,7 +348,6 @@ async def toggle_favorite_track(
     print("DB PLAYLISTS AFTER:", res_check.scalars().all())
 
     return {"status": status}
-
 
 
 @router.get("/user/{target_user_id}", response_model=list[PlaylistResponse])
