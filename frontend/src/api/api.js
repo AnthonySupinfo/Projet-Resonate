@@ -241,3 +241,19 @@ export const getPlaylistById = async (id) => {
 
   return res.json();
 };
+
+export const getRandomTrack = async () => {
+    const res = await fetch(`${BASE_URL}/albums/random/track`, {
+        headers: authHeaders()
+    });
+    if (!res.ok) throw new Error("Erreur réseau lors de la récupération de la piste aléatoire");
+    return res.json();
+};
+
+export const getProxyImageUrl = (url) => {
+    if (!url) return "/fallback.jpg";
+    if (url.startsWith('http')) {
+        return `${BASE_URL}/image-proxy?url=${encodeURIComponent(url)}`;
+    }
+    return url;
+};
