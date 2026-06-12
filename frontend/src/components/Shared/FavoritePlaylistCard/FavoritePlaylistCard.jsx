@@ -8,10 +8,10 @@ const generateColorFrameForArtist = (name) => {
     let hash = 0;
     for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
     const c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
-    return "00000" .substring(0, 6 - c.length) + c;
+    return "00000".substring(0, 6 - c.length) + c;
 };
 
-export default function FavoritePlaylistCard({ playlistId }) {
+export default function FavoritePlaylistCard() {
     const [playlist, setPlaylist] = useState(null);
     const [loading, setLoading] = useState(true);
     const { t } = useLanguage();
@@ -78,7 +78,7 @@ export default function FavoritePlaylistCard({ playlistId }) {
                         
                         return (
                             <div key={track.id || index} className="fav-track-item" onClick={() => navigate (`/albums/${encodeURIComponent(track.artist)}/${encodeURIComponent(track.album_name)}`)}>
-                                <img src={coverUrl} alt={track.title} className="fav-track-cover" onError={(e) => e.target.src = "https://placehold.co/40x40/2a2a2c/ffffff?text=!"}/>
+                                <img src={coverUrl} alt={track.name} className="fav-track-cover" onError={(e) => e.target.src = "https://placehold.co/40x40/2a2a2c/ffffff?text=!"}/>
 
                                 <div className="fav-track-info">
                                     <span className="fav-track-name">{track.name || t('library.unknownTitle')}</span>

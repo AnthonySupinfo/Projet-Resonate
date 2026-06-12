@@ -246,7 +246,6 @@ async def get_album_reviews(
         else:
             user_liked = False
 
-        # REPLIES
         stmt_replies = (
             select(Review, User.username, User.avatar_url)
             .join(User, Review.user_id == User.id)
@@ -268,7 +267,6 @@ async def get_album_reviews(
                 "posted_at": reply_obj.posted_at
             })
 
-        # COMMENTS
         stmt_comments = (
             select(ReviewComment, User.username)
             .join(User, ReviewComment.user_id == User.id)
@@ -291,7 +289,6 @@ async def get_album_reviews(
                 "username": username_comment
             })
 
-        # FINAL
         review_data = {
             "id": review_obj.id,
             "user_id": review_obj.user_id,

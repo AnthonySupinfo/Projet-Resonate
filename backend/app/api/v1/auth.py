@@ -16,7 +16,6 @@ from app.models.user import User
 import bcrypt
 import re
 
-# Router
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 # POST /auth/register (3 inscriptions max par minute par IP)

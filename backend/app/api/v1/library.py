@@ -23,7 +23,6 @@ async def upsert_album_status(
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user)
 ):
-    # Vérifie que l'album existe
     stmt_album = select(Album).filter(Album.id == album_id)
     result_album = await db.execute(stmt_album)
     album = result_album.scalars().first()
@@ -31,7 +30,6 @@ async def upsert_album_status(
     if not album:
         raise HTTPException(status_code=404, detail="Album introuvable")
 
-    # Chercher un statut existant pour cet user + album
     stmt_existing = select(UserAlbumStatus).filter(
         UserAlbumStatus.user_id == current_user["user_id"], UserAlbumStatus.album_id == album_id)
     result_existing = await db.execute(stmt_existing)

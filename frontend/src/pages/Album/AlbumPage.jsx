@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AlbumPage.css";
 import AlbumActions from "../../components/AlbumActions/AlbumActions.jsx";
-import { addTrackToPlaylist, getMyPlaylist, getPlaylistById } from "../../api/api";
+import { addTrackToPlaylist, getMyPlaylist } from "../../api/api";
 import ReviewList from "../../components/reviews/ReviewList/ReviewList.jsx";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { useLanguage } from "../../context/LanguageContext.jsx";

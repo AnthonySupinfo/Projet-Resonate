@@ -189,7 +189,7 @@
     padding-right: 4px;
 }
 
-.comments-list::webkit-scrollbar {
+.comments-list::-webkit-scrollbar {
     width: 4px;
 }
 
@@ -373,7 +373,7 @@
 }
 
 .confirm-modal-confirm:hover {
-    background: rgba (255, 75, 75, 0.3);
+    background: rgba(255, 75, 75, 0.3);
 }
 
 .review-message {

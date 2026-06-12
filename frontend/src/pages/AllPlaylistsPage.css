@@ -3,15 +3,13 @@
     margin-bottom: 24px;
 }
 
-/*-- FILTRES--*/
-
 .filters-container {
     background: var(--bg-card);
     background-image: radial-gradient(circle at bottom right, rgba(var(--grad-rose-rgb), 0.55) 0%, rgba(var(--grad-gris-rgb), 0) 70%);
     border-radius: 35px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.25);
     padding: 32px;
-    display: felx;
+    display: flex;
     flex-direction: column;
     gap: 20px;
     margin-bottom: 32px;

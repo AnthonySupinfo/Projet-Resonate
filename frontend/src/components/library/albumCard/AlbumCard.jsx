@@ -13,7 +13,7 @@ export default function AlbumCard({ album }) {
     const coverUrl = data.image || data.image_url || `https://placehold.co/400x400/2a2a2c/ffffff?text=${encodeURIComponent(title[0])}`;
 
     return (
-        <div className="album-card-a" onClick={() => navigate(`/albums/${encodeURIComponent(album.artist_name)}/${encodeURIComponent(album.name)}`)}>
+        <div className="album-card-a" onClick={() => navigate(`/albums/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`)}>
             <div className="album-cover-wrapper-a">
                 <img
                     src={coverUrl}

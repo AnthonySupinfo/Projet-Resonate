@@ -7,7 +7,6 @@
     max-width: 400px;
 }
 
-/*BOuton status */
 .status-group {
     display: flex;
     gap: 8px;
@@ -39,76 +38,4 @@
 .status-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-}
-
-/*--Menu déroulant playlist--*/
-.playlist-dropdown-wrapper {
-    position: relative;
-}
-
-.add-to-playlist-btn {
-    background-color: var(--input-bg-subtle);
-    border: 1px solid var(--divider-color);
-    color: var(--text-primary);
-    padding: 10px 20px;
-    border-radius: 12px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: background-color 0.2s;
-    width: 100%;
-}
-
-.add-to-playlist-btn:hover {
-    background-color: rgba(128,128,128,0.15);
-}
-
-.add-to-playlist-btn .plus-icon {
-    font-size: 1.2rem;
-    font-weight: 300;
-}
-
-.dropdown-menu {
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 0;
-    width: 100%;
-    background-color: var(--bg-card);
-    border: 1px solid var(--divider-color);
-    border-radius: 12px;
-    padding: 8px 0;
-    z-index: 100;
-    box-shadow: 0 4px 20px rgba(var(--shadow-rgb), 0.4);
-}
-
-.dropdown-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    max-height: 200px;
-    overflow-y: auto;
-}
-
-.dropdown-item {
-    padding: 10px 20px;
-    color: var(--text-primary);
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.dropdown-item:hover {
-    background-color: var(--input-bg-subtle);
-}
-
-.dropdown-item.empty {
-    color: var(--text-muted);
-    font-style: italic;
-    cursor: default;
-}
-
-.dropdown-item.empty:hover {
-    background-color: transparent;
 }
