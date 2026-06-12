@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Boolean, Text, ForeignKey, DateTime, Enum
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.db.session import Base
 import enum
@@ -27,7 +28,8 @@ class Playlist(Base):
     is_public = Column(Boolean, nullable=False, server_default="false")
     is_favorite = Column(Boolean, default=False, nullable=False)
 
-    # func.now permet de demander à la BDD l'heure actuelle
+    user = relationship("User", backref="playlist")
+
     created_at = Column(DateTime(timezone=True),
                         server_default=func.now(), nullable=False)
     deleted_at = Column(DateTime(timezone=True), nullable=True)

@@ -22,5 +22,12 @@ export const searchService = {
         });
         if (!response.ok) throw new Error("Erreur réseau lors de la recherche d'utilisateurs");
         return response.json();
+    },
+
+    async searchLists(query, limit = 10, page = 1) {
+        const response = await fetch(`${BASE_URL}/search/lists?q=${encodeURIComponent(query)}&limit=${limit}&page=${page}`
+        );
+        if (!response.ok) throw new Error("Erreur réseau lors de la recherche des listes");
+        return response.json();
     }
 };

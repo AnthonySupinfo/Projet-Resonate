@@ -59,6 +59,7 @@ function AppRoutes() {
             {!user && <Route path="/explore" element={<Explore />} />}
             {!user && <Route path="/albums/:artist/:album" element={<AlbumPage />} />}
             {!user && <Route path="/search" element={<SearchResults />} />}
+            {!user && <Route path="/playlists/:id" element={<PlaylistDetailPage />} />}
 
         </Route>
 

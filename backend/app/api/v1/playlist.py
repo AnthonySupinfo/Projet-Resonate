@@ -9,7 +9,7 @@ from app.models.playlist import Playlist, PlaylistType
 from app.models.user_playlist_item import UserPlaylistItem
 from app.models.track import Track
 from app.schemas.playlist import PlaylistCreate, PlaylistResponse, PlaylistUpdate
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, get_optional_user
 from app.schemas.user_playlist_item import PlaylistItemAdd, PlaylistItemResponse
 from app.services.feed import feed_service
 from app.models.user_activity_feed import ActivityTypes
@@ -134,9 +134,11 @@ async def get_my_playlist(
 async def get_playlist_id(
     playlist_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_optional_user)
 ):
-    stmt_existing = select(Playlist).filter(
+    stmt_existing = select(Playlist).options(
+        joinedload(Playlist.user)
+    ).filter(
         Playlist.id == playlist_id, Playlist.deleted_at == None)
     result_existing = await db.execute(stmt_existing)
     existing = result_existing.scalars().first()
@@ -177,6 +179,20 @@ async def get_playlist_id(
         for t in tracks
     ]
     setattr(existing, "tracks", tracks_with_image)
+
+    if getattr(existing, "user", None):
+        setattr(existing, "username", getattr(
+            existing.user, "username", "Utilisateur inconnu"))
+        user_avatar = (
+            getattr(existing.user, "avatar_url", None) or
+            getattr(existing.user, "avatar", None) or
+            getattr(existing.user, "image", None) or
+            getattr(existing.user, "profile_image", None)
+        )
+        setattr(existing, "avatar_url", user_avatar)
+    else:
+        setattr(existing, "username", "Utilisateur inconnu")
+        setattr(existing, "avatar_url", None)
 
     return existing
 

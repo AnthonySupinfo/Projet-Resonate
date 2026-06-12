@@ -61,6 +61,8 @@ app.state.limiter = limiter
 app.add_middleware(SlowAPIMiddleware)
 
 # Gestion du rate limiting (429 Too Many Requests)
+
+
 @app.exception_handler(RateLimitExceeded)
 async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
     return JSONResponse(
@@ -69,6 +71,8 @@ async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
     )
 
 # Gestion globale des erreurs
+
+
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     if settings.ENVIRONMENT == "development":
@@ -115,9 +119,12 @@ app.include_router(interactions.router, prefix="/api/v1")
 app.include_router(admin.router, prefix="/api/v1")
 
 # HEALTH CHECK
+
+
 @app.get("/health")
 def health_check():
     return {"status": "ok", "service": "resonate-backend"}
+
 
 app.include_router(follows.router, prefix="/api/v1")
 app.include_router(notifications.router, prefix="/api/v1")
