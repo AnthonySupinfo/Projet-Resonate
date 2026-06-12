@@ -34,7 +34,7 @@ export default function SearchResults() {
     setLoading(true);
 
     try {
-      const data = await searchService.searchAlbums(query, 20, pageNumber);
+      const data = await searchService.searchAlbums(query, 20, pageNumber, sortBy, yearMin, yearMax, genre);
       const newResults = data.results || [];
 
       if (newResults.length === 0) {
@@ -43,14 +43,12 @@ export default function SearchResults() {
         setResults((prev) => {
           const currentPrev = pageNumber === 1 ? [] : prev;
           const existing = new Set(currentPrev.map((a) => a.name + a.artist));
-          const filtered = newResults.filter((a) => !existing.has(a.name + a.artist));
-          return [...currentPrev, ...filtered];
+          return [...currentPrev, ...newResults.filter(a => !existing.has(a.name + a.artist))];
         });
       }
     } catch (err) {
       console.error(err);
     }
-
     setLoading(false);
   };
 
@@ -59,7 +57,7 @@ export default function SearchResults() {
     setPage(1);
     setHasMore(true);
     fetchResults(1);
-  }, [query]);
+  }, [query, sortBy, yearMin, yearMax, genre]);
 
   useEffect(() => {
     if (page > 1) {
@@ -107,7 +105,7 @@ export default function SearchResults() {
     fetchLists();
   }, [query]);
 
-  const sortedResults = [...results].sort((a, b) => {
+  /* const sortedResults = [...results].sort((a, b) => {
     if (sortBy === "az") return a.name.localeCompare(b.name);
     if (sortBy === "za") return b.name.localeCompare(a.name);
     return 0;
@@ -141,7 +139,7 @@ export default function SearchResults() {
         if (sortBy === "az") return a.name.localeCompare(b.name);
         if (sortBy === "za") return b.name.localeCompare(a.name);
         return 0;
-      });
+      });*/ 
 
   return (
       <div className="search-page">
@@ -159,6 +157,8 @@ export default function SearchResults() {
                 <span>{t('home.sortBy')}</span>
                 <button className={sortBy === "az" ? "active" : ""} onClick={() => setSortBy("az")}>A-Z</button>
                 <button className={sortBy === "za" ? "active" : ""} onClick={() => setSortBy("za")}>Z-A</button>
+                <button className={sortBy === "popularity" ? "active" : ""} onClick={() => setSortBy("popularity")}>Popularité</button>
+                <button className={sortBy === "date" ? "active" : ""} onClick={() => setSortBy("date")}>Date</button>
               </div>
 
               <div className="search-filters">
@@ -180,7 +180,7 @@ export default function SearchResults() {
 
         {activeTab === "albums" && (
             <div className="search-grid">
-              {finalResults.map((album) => {
+              {results.map((album) => {
                 const imageUrl = album.image?.[2]?.["#text"] || album.image?.[1]?.["#text"] || album.image?.[0]?.["#text"];
                 return (
                     <div
