@@ -72,9 +72,15 @@
 }
 
 /* INFOS */
+.album-info {
+  flex: 1;
+  min-width: 0;
+}
+
 .album-info h1 {
   margin: 0;
   font-size: 42px;
+  word-break: break-word;
 }
 
 .artist {
@@ -92,7 +98,7 @@
   color: rgba(255,255,255,0.8);
 }
 
-/* TRACKS */
+
 .tracks-section {
   margin-top: 20px;
 }
@@ -108,10 +114,9 @@
   overflow: visible;
 }
 
-/* TRACK ROW */
-.track-row {
+.album-track-row {
   display: grid;
-  grid-template-columns: 50px 1fr 80px 80px;
+  grid-template-columns: 50px minmax(200px, 1fr) 80px 50px;
 
   padding: 12px 16px;
   border-radius: 12px;
@@ -123,25 +128,24 @@
   position: relative;
 }
 
-.track-row:hover {
+.album-track-row:hover {
   transform: none;  background: rgba(255, 255, 255, 0.08);
 }
 
-.track-index {
+.album-track-index {
   color: rgba(255,255,255,0.5);
 }
 
-.track-name {
+.album-track-name {
   font-weight: 500;
 }
 
-.track-duration {
+.album-track-duration {
   text-align: right;
   color: rgba(255,255,255,0.6);
 }
 
-/* ACTION TRACK */
-.track-actions {
+.album-track-actions {
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -167,7 +171,6 @@
   color: #ff5e7e; 
 }
 
-/* AJOUT TRACK A LA PLAYLIST */
 .track-dropdown-wrapper {
   position: relative;
 }
@@ -206,21 +209,6 @@
   cursor: default;
 }
 
-/* MESSAGES AJOUT FAVORIS */
-.toast {
-  position: fixed;
-  top: 20px;
-  right: 30px;
-  background: rgba(20, 20, 20, 0.9);
-  color: white;
-  padding: 12px 18px;
-  border-radius: 10px;
-  font-size: 14px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-  z-index: 1000;
-  animation: fadeInOut 2s ease forwards;
-}
-
 @keyframes fadeInOut {
   0% { opacity: 0; transform: translateY(10px); }
   10% { opacity: 1; transform: translateY(0); }
@@ -228,7 +216,6 @@
   100% { opacity: 0; transform: translateY(10px); }
 }
 
-/* PARTIE REVIEWS */
 .reviews-list-wrapper {
   margin-top: 40px;
 }

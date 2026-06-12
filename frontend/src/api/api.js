@@ -51,7 +51,11 @@ export const getMyPlaylist = async () => {
 }
 
 export const getPlaylist = async (playlistId) => {
-    const res = await fetch (`${BASE_URL}/playlists/${playlistId}`, { headers: authHeaders() })
+    const token = getToken();
+    const headers = token
+        ? { "Content-Type": "application/json", Authorization: `Bearer ${token}` }
+        : { "Content-Type": "application/json" };
+    const res = await fetch (`${BASE_URL}/playlists/${playlistId}`, { headers })
     if(!res.ok) throw new Error ("Erreur lors du chargement de la playlist, playlist introuvable")
     return res.json()
 }

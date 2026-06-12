@@ -23,6 +23,7 @@ export default function SearchResults() {
   const [yearMax, setYearMax] = useState(null);
 
   const [genre, setGenre] = useState("");
+  const [listResults, setListResults] = useState([]);
 
   const [userResults, setUserResults] = useState([]);
 
@@ -92,6 +93,20 @@ export default function SearchResults() {
     fetchUsers();
   }, [query]);
 
+  const fetchLists = async () => {
+    if (!query) return;
+    try {
+      const data = await searchService.searchLists(query);
+      setListResults(data.results || []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchLists();
+  }, [query]);
+
   const sortedResults = [...results].sort((a, b) => {
     if (sortBy === "az") return a.name.localeCompare(b.name);
     if (sortBy === "za") return b.name.localeCompare(a.name);
@@ -107,7 +122,26 @@ export default function SearchResults() {
       })
       : sortedResults;
 
-  const finalResults = filteredByGenre.length > 0 ? filteredByGenre : sortedResults;
+  const finalResults = [...results]
+      .filter((album) => {
+        if (genre) {
+          const g = genre.toLowerCase();
+          const name = album.name?.toLowerCase() || "";
+          const artist = album.artist?.toLowerCase() || "";
+          if (!name.includes(g) && !artist.includes(g)) return false;
+        }
+
+        const albumYear = Number(album.year);
+        if(yearMin && (!albumYear || albumYear < yearMin)) return false;
+        if (yearMax && (!albumYear || albumYear > yearMax)) return false;
+
+        return true;
+      })
+      .sort((a, b) => {
+        if (sortBy === "az") return a.name.localeCompare(b.name);
+        if (sortBy === "za") return b.name.localeCompare(a.name);
+        return 0;
+      });
 
   return (
       <div className="search-page">
@@ -177,9 +211,20 @@ export default function SearchResults() {
               )}
             </div>
         )}
-        {activeTab === "lists" && <p className="search-empty-state">{t('home.noLists')}</p>}
-        {loading && <p className="search-loader">{t('home.loading')}</p>}
-        {!hasMore && <p className="search-end-msg">{t('home.noMoreResults')}</p>}
+        {activeTab === "lists" && (
+          <div className="search-grid">
+            {listResults.length === 0 ? (
+              <p className="search-empty-state">{t('home.noLists')}</p>
+            ) : (
+              listResults.map((list) => (
+                <div key={list.id} className="search-card" onClick={() => navigate(`/playlists/${list.id}` )}>
+                  <p className="album-name">{list.name}</p>
+                  <p className="album-artist">{list.description || ""}</p>
+                </div>
+              ))
+            )}
+          </div>
+        )}
       </div>
   );
 }

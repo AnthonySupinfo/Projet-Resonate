@@ -8,7 +8,7 @@ from app.schemas.track import TrackResponse
 
 class PlaylistCreate(BaseModel):
     name: str
-    description: str | None = None  # accepte rien et par défaut : rien au début
+    description: str | None = None
     is_public: bool = False
     is_favorite: bool = False
 
@@ -16,6 +16,8 @@ class PlaylistCreate(BaseModel):
 class PlaylistResponse(BaseModel):
     id: int
     user_id: str
+    username: str | None = None
+    avatar_url: str | None = None
     type: PlaylistType
     name: str
     description: str | None
@@ -45,4 +47,3 @@ class PlaylistTrackAdd(BaseModel):
 class ToggleFavoriteTrack(BaseModel):
     track_name: str
     artist: str
-

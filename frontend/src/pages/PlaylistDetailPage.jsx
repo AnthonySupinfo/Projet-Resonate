@@ -121,6 +121,27 @@ export default function PlaylistDetailPage() {
                                 </span>
                             <h1 className="playlist-page-title">{playlist.name}</h1>
 
+                            <div className="playlist-creator">
+                               {(() => {
+                                    const avatar = playlist.avatar_url;
+                                    const isUrl = avatar && avatar.startsWith('http');
+                                    const isEmoji = avatar && !isUrl;
+                                    const fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(playlist.username || 'U')}&background=random&color=fff`;
+
+                                    return isEmoji ? (
+                                        <span className="playlist-creator-avatar">{avatar}</span>
+                                    ) : (
+                                        <img 
+                                        src={isUrl ? `/api/v1/image-proxy?url=${encodeURIComponent(avatar)}` : fallback}
+                                        alt="Avatar" 
+                                        className="playlist-creator-avatar"
+                                        onError={(e) => { e.target.src = fallback; }}
+                                        />
+                                    ); 
+                                })()}
+                                <span className="playlist-creator-text">Créé par {playlist.username || "Utilisateur inconnu"}</span>
+                            </div>
+
                             {playlist.description && <p className="playlist-desc">{playlist.description}</p>}
 
                             {isOwner && (
@@ -144,14 +165,25 @@ export default function PlaylistDetailPage() {
                     ) : (
                         <div className="track-table">
                             <div className="track-header">
-                                <span>#</span>
+                                <span></span>
+                                <span></span>
                                 <span>{t('playlist.trackTitle')}</span>
                                 <span>{t('playlist.artist')}</span>
                                 <span>{t('playlist.album')}</span>
                                 <span>{t('playlist.duration')}</span>
                                 <span></span>
                             </div>
+
                             {playlist.tracks.map((track, index) => {
+                                const rawUrl = track.album_image || track.album?.image_url || track.album_image || track.cover_url || track.image;
+                                const artistName = track.artist || "Inconnu";
+                                const trackBgColor = generateColorFrame(artistName);
+
+                                const trackCoverUrl = rawUrl
+                                    ? `/api/v1/image-proxy?url=${encodeURIComponent(rawUrl)}`
+                                    : `https://placehold.co/40x40/${trackBgColor}/ffffff?text=${encodeURIComponent(artistName[0])}`;
+                        
+                                
                                 const minutes = Math.floor((track.duration || 0) / 60);
                                 const seconds = String((track.duration || 0) % 60).padStart(2, '0');
                                 const durationFormatted = track.duration ? `${minutes}:${seconds}` : "--:--";
@@ -159,6 +191,9 @@ export default function PlaylistDetailPage() {
                                 return (
                                     <div key={track.id} className="track-row" onClick={() => navigate(`/albums/${encodeURIComponent(track.artist)}/${encodeURIComponent(track.album_name)}`)}>
                                         <span className="track-number">{index + 1}</span>
+                                        <div className="track-cover-cell">
+                                            <img src={trackCoverUrl} alt="" className="track-row-cover" onError={(e) => { e.target.src = "https://placehold.co/40x40/2a2a2c/ffffff?text=!"; }} />
+                                        </div>
                                         <span className="track-name">{track.name}</span>
                                         <span className="track-artist">{track.artist}</span>
                                         <span className="track-album">{track.album_name || "N/A"}</span>

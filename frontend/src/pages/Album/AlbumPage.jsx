@@ -162,16 +162,16 @@ export default function AlbumPage() {
             {data.tracks?.length > 0 ? (
                 <div className="tracks-list">
                   {data.tracks ?.filter(track => track && track.name) .map((track) => (
-                      <div key={`${track.name}-${track.position ?? "no-pos"}`} className="track-row">
-                  <span className="track-index">
+                      <div key={`${track.name}-${track.position ?? "no-pos"}`} className="album-track-row">
+                  <span className="album-track-index">
                     {track?.position ? track.position.toString().padStart(2, "0") : "--"}
                   </span>
 
-                        <span className="track-name">
+                        <span className="album-track-name">
                     {track.name}
                   </span>
 
-                        <span className="track-duration">
+                        <span className="album-track-duration">
                     {track.duration
                         ? Math.floor(track.duration / 60) +
                         ":" +
@@ -179,7 +179,7 @@ export default function AlbumPage() {
                         : "--:--"}
                   </span>
 
-                        <div className="track-actions">
+                        <div className="album-track-actions">
                           {user ? (
                               <div className="track-dropdown-wrapper">
                                 <button
