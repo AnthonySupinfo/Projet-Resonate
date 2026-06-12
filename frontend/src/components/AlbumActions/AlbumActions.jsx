@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { upsertAlbumStatus, getMyLibrary, getMyPlaylist, addTrackToPlaylist, removeTrackFromPlaylist } from '../../api/api';
+import { upsertAlbumStatus, getMyLibrary, getMyPlaylist } from '../../api/api';
 import CreatePlaylistModal from '../library/modals/CreatePlaylistModal';
 import { useNavigate } from "react-router-dom";
 import './AlbumActions.css';
@@ -7,7 +7,6 @@ import { useLanguage } from "../../context/LanguageContext.jsx";
 
 export default function AlbumActions({ albumId }) {
     const [currentStatus, setCurrentStatus] = useState(null);
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [playlists, setPlaylists] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);

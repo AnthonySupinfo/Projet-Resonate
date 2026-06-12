@@ -7,7 +7,6 @@
     margin-bottom: 32px;
 }
 
-/* Style pour le formulaire désactivé */
 .disabled-form .review-textarea,
 .disabled-form .rating-selection {
     opacity: 0.5;

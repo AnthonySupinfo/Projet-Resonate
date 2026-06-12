@@ -21,7 +21,7 @@ from datetime import datetime, timezone
 router = APIRouter(prefix="/playlists", tags=["playlists"])
 
 
-async def check_playlist_exist_and_owner(  # Fonction utilitaire :
+async def check_playlist_exist_and_owner(
         playlist_id: int, user_id: str, db: AsyncSession) -> Playlist:
     """Récupère une playlist et vérifie que l'user en est le propriétaire"""
     stmt_existing = select(Playlist).filter(
@@ -107,8 +107,6 @@ async def delete_playlist(
     existing.deleted_at = datetime.now(timezone.utc)
 
     await db.commit()
-
-# Récupère toutes les playlists d'un user connecté
 
 
 @router.get("/me", response_model=list[PlaylistResponse])

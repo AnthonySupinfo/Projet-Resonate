@@ -10,7 +10,6 @@
     font-weight: 600;
 }
 
-/*Onglets*/
 .status-tabs {
     display: flex;
     gap: 12px;
@@ -39,12 +38,11 @@
 
 .tab-item.active {
     background-image: linear-gradient(90deg, rgba(80,80,80,0.05) 1%, rgba(206, 187, 197, 0.25) 100%);
-    border: 1px solid rgba (239, 130, 130, 0.6);
+    border: 1px solid rgba(239, 130, 130, 0.6);
     box-shadow: 0 0 8px rgba (239, 130, 130, 0.3);
     color: var(--text-primary);
 }
 
-/*Grille*/
 .albums-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));

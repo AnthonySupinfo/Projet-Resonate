@@ -63,16 +63,17 @@
     display: flex;
     gap: 24px;
     overflow-x: auto;
-    scroll-behavior: smooth; /* pour s'arrêter pile sur une carte*/
+    scroll-behavior: smooth; 
     padding-bottom: 12px;
     width: 100%;
+    scroll-snap-type: x mandatory;
 }
 
-.carousel-track::-webkit-scrollbar { /* cache la barre de défilement*/
+.carousel-track::-webkit-scrollbar { 
     display: none; 
 }
 
-.carousel-track > * { /* S'assure que les cartes ne s'écrasent pas */
+.carousel-track > * { 
     flex: 0 0 160px;
     width: 160px;
     min-width: 160px;

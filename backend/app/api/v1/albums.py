@@ -48,6 +48,7 @@ async def get_random_track(db: AsyncSession = Depends(get_db)):
         "image": track.album.image
     }
 
+
 @router.get("/albums/{album_id}")
 async def get_album_detail(
     album_id: UUID,
@@ -66,7 +67,6 @@ async def get_album_detail(
     if not album:
         raise HTTPException(status_code=404, detail="Album not found")
 
-    # 2 Enrichissement Last.fm si nécessaire
     lastfm_data = None
 
     if not album.tracks or len(album.tracks) == 0 or album.year is None:
@@ -80,7 +80,6 @@ async def get_album_detail(
                 album.year = lastfm_data["year"]
                 await db.commit()
 
-    # 3 Moyenne des reviews
     avg_result = await db.execute(
         select(func.avg(Review.rating)).where(
             Review.album_id == album.id,
@@ -91,7 +90,6 @@ async def get_album_detail(
     average_rating = avg_result.scalar()
     average_rating = round(average_rating, 2) if average_rating else None
 
-    # 4 Statut utilisateur (si connecté)
     user_status = None
 
     if current_user:
@@ -105,7 +103,6 @@ async def get_album_detail(
         status = status_result.scalar_one_or_none()
         user_status = status.status if status else None
 
-    # 5 Tracks (DB prioritaire)
     tracks_data = [
         {
             "name": t.name,
@@ -115,11 +112,9 @@ async def get_album_detail(
         for t in album.tracks
     ]
 
-    # fallback si pas en DB
     if not tracks_data and lastfm_data:
         tracks_data = lastfm_data.get("tracks", [])
 
-    # 6 Genres (uniquement via Last.fm)
     genres = lastfm_data.get("tags", []) if lastfm_data else []
     '''
     Lastfm ne renvoie pas de genres, sur le API le genre est vide 
@@ -130,7 +125,6 @@ async def get_album_detail(
     if not final_image and lastfm_data:
         final_image = lastfm_data.get("image")
 
-    # 7 Réponse finale
     return {
         "id": str(album.id),
         "name": album.name,

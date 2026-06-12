@@ -6,7 +6,7 @@ from uuid import UUID
 
 
 class ReviewCreate(BaseModel):
-    rating: int | None = None #Note facultative pour les réponses, obligatoire pour les reviews principales
+    rating: int | None = None
     content: str | None = None
     parent_id: int | None = None
 
