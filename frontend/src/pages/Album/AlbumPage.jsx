@@ -145,11 +145,6 @@ export default function AlbumPage() {
 
               <div className="album-meta">
                 <span>⭐ {data.average_rating || t('album.noRating')}</span>
-                <div className="genres">
-                  {data.genres?.map((g, i) => (
-                      <span key={i}>#{g}</span>
-                  ))}
-                </div>
               </div>
             </div>
           </div>

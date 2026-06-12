@@ -8,8 +8,17 @@ const authHeaders = () => ({
 });
 
 export const searchService = {
-    async searchAlbums(query, limit = 20, page = 1) {
-        const response = await fetch(`${BASE_URL}/search/albums?q=${encodeURIComponent(query)}&limit=${limit}&page=${page}`, {
+    async searchAlbums(query, limit = 20, page = 1, sort = "default", yearMin = null, yearMax = null, genre = "") {
+        const params = new URLSearchParams({
+            q: query, 
+            limit,
+            page,
+            sort,
+            ...(yearMin ? { year_min: yearMin } : {}),
+            ...(yearMax ? { year_max: yearMax } : {}),
+            ...(genre ? { genre } : {}),
+        });
+        const response = await fetch(`${BASE_URL}/search/albums?${params}`, {
             headers: authHeaders()
         });
         if (!response.ok) throw new Error("Erreur réseau lors de la recherche d'albums");

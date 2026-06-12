@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, JSON
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 import uuid
@@ -21,6 +21,7 @@ class Album(Base):
     lastfm_url = Column(String, unique=True, index=True)
 
     image = Column(String, nullable=True)
+    tags = Column(JSON, nullable=True, default=list)
 
     fetched_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
