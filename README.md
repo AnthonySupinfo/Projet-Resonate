@@ -1,13 +1,13 @@
 # Guide d'installation & de lancement — Resonate
 
 > Réseau social musical — Projet SUPCONTENT · SUPINFO 2026  
-> Équipe : Anthony · Krishna · Mélissa · Élisa
+> Équipe : Anthony · Krishna · Mélissa · Elisa
 
 ---
 
 ## Récupérer le projet
 
-### Option 1 — Fichier ZIP (rendu officiel)
+### Option 1 — Fichier ZIP
 
 Le projet est livré sous forme de fichier ZIP. Il suffit de le décompresser :
 
@@ -24,7 +24,7 @@ Resonate.zip
 
 Décompresser puis ouvrir un terminal dans le dossier `Projet-Resonate/`.
 
-### Option 2 — GitHub (backup)
+### Option 2 — GitHub
 
 ```bash
 git clone https://github.com/AnthonySupinfo/Projet-Resonate.git
@@ -37,101 +37,69 @@ cd Projet-Resonate
 
 Avant de commencer, assurez-vous d'avoir installé :
 
-| Outil | Version minimum | Lien |
-|---|---|---|
-| **Docker Desktop** | 4.x | https://www.docker.com/products/docker-desktop |
-| **mkcert** | 1.4+ | https://github.com/FiloSottile/mkcert#installation |
-| **Git** | 2.x (option GitHub uniquement) | https://git-scm.com |
+| Outil              | Version minimum | Lien |
+|--------------------|-----------------|--|
+| **Docker Desktop** | 4.x             | https://www.docker.com/products/docker-desktop |
+| **mkcert**         | 1.4+            | https://github.com/FiloSottile/mkcert#installation |
+| **Git**            | 2.x             | https://git-scm.com |
+| **Python**         | 3.1x            | https://www.python.org/downloads/ |
 
-**Installation de mkcert :**
-```bash
-# Windows (Chocolatey)
-choco install mkcert
-
-# macOS (Homebrew)
-brew install mkcert
-
-# Linux
-apt install mkcert
-```
 
 ---
 
 ## Étape 1 — Créer les fichiers `.env`
 
-Le projet nécessite **deux fichiers `.env`**. Ces fichiers contiennent des informations sensibles (mots de passe, clés API, secrets) et ne sont donc **pas committés dans le dépôt Git pour des raisons de sécurité**.
+Le projet nécessite **trois fichiers `.env`**. Ces fichiers contiennent des informations sensibles (mots de passe, clés API, secrets) et ne sont donc **pas committés dans le dépôt Git pour des raisons de sécurité**.
 
-> 📄 **Toutes les valeurs à renseigner se trouvent dans le document Word fourni séparément avec le projet.** Ce document contient l'intégralité des identifiants, mots de passe, clés API et secrets nécessaires — y compris la clé Last.fm prête à l'emploi.
+> 📄 **Dans le cadre du rendu de projet SUPINFO** les 3 documents .env sont fournis dans un dossier à part afin de faciliter l'installation à l'examinateur. Ces fichiers ne seraient en aucun cas transmis dans un cas concret.
+> 
+> Ils peuvent donc être directement copiés dans leur dossier correspondant (backend, frontend, ou le dossier général à la racine du dossier).
+> 
+> La suite des instructions concernant les fichiers .env est à suivre seulement dans le cas où vous ne copiez pas directement ces fichiers.
+
+> Un fichier Word est également transmis avec toutes les clés, identifiants et mdp nécessaires.
 
 ### `backend/.env`
 
 Créer le fichier `backend/.env` :
 
-```env
-# Base de données
-POSTGRES_USER=resonate_user
-POSTGRES_PASSWORD=<voir doc Word>
-POSTGRES_DB=resonate
-DATABASE_URL=postgresql+asyncpg://resonate_user:<PASSWORD>@db:5432/resonate
-
-# JWT
-JWT_SECRET_KEY=<voir doc Word>
-JWT_ALGORITHM=HS256
-JWT_ACCESS_TOKEN_EXPIRE_MINUTES=15
-JWT_REFRESH_TOKEN_EXPIRE_MINUTES=60
-
-# Environnement
-ENVIRONMENT=development
-FRONTEND_URL=https://localhost
-
-# OAuth Google
-GOOGLE_CLIENT_ID=<voir doc Word>
-GOOGLE_CLIENT_SECRET=<voir doc Word>
-
-# OAuth GitHub
-GITHUB_CLIENT_ID=<voir doc Word>
-GITHUB_CLIENT_SECRET=<voir doc Word>
-
-# Last.fm
-LASTFM_API_KEY=<voir doc Word>
-LASTFM_API_SECRET=<voir doc Word>
-
-# Email (Gmail SMTP)
-MAIL_HOST=smtp.gmail.com
-MAIL_PORT=587
-MAIL_USERNAME=<voir doc Word>
-MAIL_PASSWORD=<voir doc Word>
-MAIL_FROM=<voir doc Word>
-
-# pgAdmin
-PGADMIN_DEFAULT_EMAIL=<voir doc Word>
-PGADMIN_DEFAULT_PASSWORD=<voir doc Word>
+```bash
+cp backend/.env.example backend/.env
 ```
+Puis remplacer les clés nécessaires.
 
 ### `frontend/.env`
 
 Créer le fichier `frontend/.env` :
 
-```env
-VITE_API_BASE_URL=https://localhost
-VITE_API_URL=https://localhost
+```bash
+cp frontend/.env.example frontend/.env
 ```
+Puis remplacer les clés nécessaires.
+
+### `/.env` (à la racine)
+
+Créer le fichier `/.env` (dans le dossier général, bien se placer à la racine du dossier) :
+
+```bash
+cp ./.env.example ./.env
+```
+Puis remplacer les clés nécessaires.
 
 ---
 
 ## À propos de la clé API Last.fm
 
-Last.fm est l'API qui fournit toutes les métadonnées musicales (albums, artistes, pochettes, pistes). Elle est **gratuite** et ne nécessite pas de carte bancaire.
+Last.fm est l'API qui fournit toutes les métadonnées musicales (albums, artistes, pochettes, pistes).
 
-> ✅ **Une clé Last.fm fonctionnelle est déjà fournie dans le document Word.** Vous pouvez l'utiliser directement sans créer de compte.
-
-Si toutefois vous souhaitez créer votre propre clé :
 1. Aller sur https://www.last.fm/api/account/create
 2. Se connecter ou créer un compte Last.fm
 3. Remplir le formulaire (nom : `Resonate`, callback : `https://localhost`)
 4. Récupérer la **API key** et le **Shared secret**
 
 ---
+
+> 📄 **Si vous avez directement copié les fichiers .env**, vous pouvez remprendre les instructions ici.
 
 ## Étape 2 — Générer les certificats HTTPS
 
@@ -188,7 +156,7 @@ tests/Test_melissa.py .....   [100%]
 ## Étape 4 — Lancer le projet
 
 ```bash
-docker compose up --build
+docker compose up --build -d
 ```
 
 Le premier démarrage télécharge les images Docker et installe les dépendances — quelques minutes sont nécessaires.
@@ -199,6 +167,8 @@ docker compose down
 ```
 
 **Rebuild complet (si modification de la BDD) :**
+
+**Attention** : cette commande supprime toutes les données présentes dans la BDD.
 ```bash
 docker compose down -v && docker compose up --build
 ```
@@ -226,7 +196,7 @@ Une fois le projet lancé :
 
 Pour accéder au panel de modération, il faut élever un compte au rôle `admin`.
 
-**1. Ouvrir pgAdmin** → http://localhost:5050  
+**1. Ouvrir pgAdmin** → http://localhost:5050
 **2. Se connecter** avec les identifiants du document Word  
 **3. Naviguer vers :** Servers → Resonate → Databases → resonate → Schemas → public  
 **4. Ouvrir le Query Tool** (icône SQL en haut) et exécuter :
@@ -240,7 +210,7 @@ UPDATE users SET role = 'admin' WHERE email = 'votre@email.com';
 SELECT id, email, username, role, is_active FROM users;
 ```
 
-**6. Se reconnecter** à l'application — le bouton 🛡️ Admin apparaît dans la barre de navigation en haut à droite.
+**6. Se reconnecter** à l'application — le bouton Admin apparaît dans la barre de navigation en haut à droite.
 
 ---
 
@@ -248,10 +218,9 @@ SELECT id, email, username, role, is_active FROM users;
 
 Pour découvrir toutes les fonctionnalités de l'application, nous vous invitons à consulter les documents fournis avec le projet :
 
-- 📘 **Manuel Utilisateur** — Inscription, bibliothèque musicale, critiques, social, profil, export RGPD
-- 🛡️ **Manuel Administrateur** — Panel de modération, coups de cœur, gestion des utilisateurs
-
-Ces guides sont disponibles dans les fichiers `Manuel_Utilisateur_Resonate.docx` joints au rendu.
+- **Manuel Utilisateur**
+- **Documentation backend**
+- **Documentation frontend**
 
 ---
 
