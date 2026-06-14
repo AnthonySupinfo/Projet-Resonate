@@ -203,3 +203,4 @@ L'application du thème se fait via `document.documentElement.setAttribute("data
 
 - **`createPortal`** : non utilisé finalement, les dropdowns avatar sont gérés avec `position: fixed` + `z-index`.
 - **Proxy image** : toutes les images Last.fm passent par `/api/v1/image-proxy` pour éviter attaques CORS et mixed content.
+

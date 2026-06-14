@@ -103,6 +103,11 @@ Une fois l'authentification terminée, l'utilisateur est redirigé vers le front
 - **Sélection aléatoire d'une piste** : Cette route récupère une piste aléatoire depuis la base de données via `func.random()`afin d'alimenter l'animation et la découverte musicale sur la page d'accueil.s
 - **Gestion des cas limites** : Si aucune donnée n'est encore présente dans la BDD, un album de secours est utilisé afin de garantir le bon fonctionnement de l'interface.
 
+### Filtrage des résultats de recherche (`GET /search/albums`)
+- **Paramètres de filtrage disponibles** : La route de recherche accepte des filtres optionnels par année (`year_min`, `year_max`) et par genre (`genre`), ainsi qu'un paramètre de tri (`sort`) supportant les valeurs az, za, popularity, date.
+- **Enrichissement depuis le cache local** : L'API Last.fm ne retournant pas les métadonnées complètes (genre, année) dans ses résultats de recherche, le backend croise automatiquement les résultats avec les données présentes dans la table `albums`. Ces informations n'étant disponibles que via un appel `album.getinfo`, elles sont progressivement enrichies au fur et à mesure des consultations des fiches albums par les utilisateurs.
+- **Limitation connue** : Les filtres par genre et par année sont opérationels uniquement sur les albums déjà présents dans le cache local. Un album jamais consulté sur la plateforme ne dispose pas encore de ces métadonnées et sera exclu des résultats filtrés. Ce comportement est intentionnel et constitue un compromis délibéré face aux contraintes de l'API last.fm.
+
 ---
 
 ## 4. Bibliothèque personnelle et Playlists
