@@ -217,3 +217,10 @@ Une fois l'authentification terminée, l'utilisateur est redirigé vers le front
 - **Emails transactionnels** : En complément des notifications internes, certains événements peuvent déclencher l'envoi d'un email : un nouveau follower, un like sur une review ou encore un commentaire sur une review. 
 - **Templates HTML dédiés** : Chaque type de notification dispose de son propre modèle HTML (3 templates) afin d'offrir une présentation claire et cohérente.
 - **Envoi asynchrone et tolérant aux erreurs** : Les emails sont envoyés de manière non bloquante. En cas d'erreur SMTP ou de problème réseau, l'action principale de l'utilisateur reste exécutée normalement afin de préserver l'expérience utilisateur (Toujours wrappé dans `try/except` silencieux).
+
+
+### Diagramme de la base de données Resonate
+Accessible en plus grand dans le dossier `./docs/images/`.
+
+
+![Configuration serveur pgAdmin](./images/diagram_BDD.png)
