@@ -192,6 +192,18 @@ Une fois le projet lancé :
 
 ---
 
+## Configuration pgAdmin
+
+1. **Ouvrir pgAdmin** → http://localhost:5050
+2. **Créer un nouveau serveur** Register → Servers
+3. **Nommez-le "Resonate" et mettez les informations suivantes** :
+
+![Configuration serveur pgAdmin](./docs/images/config_pgadmin.png)
+
+4. **Enregistrez**, vous avez maintenant accès aux tables.
+
+---
+
 ## Passer un utilisateur en administrateur
 
 Pour accéder au panel de modération, il faut élever un compte au rôle `admin`.
